@@ -11,9 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   three_dart:
-    path: ../../three_dart
   flutter_gl:
-    path: ../../flutter_gl/flutter_gl
 
 dev_dependencies:
   flutter_test:
