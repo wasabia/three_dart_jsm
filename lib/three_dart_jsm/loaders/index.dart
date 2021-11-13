@@ -7,7 +7,7 @@ import 'dart:typed_data';
 import 'package:flutter_gl/flutter_gl.dart';
 import 'package:three_dart/three_dart.dart';
 
-import 'package:opentype/index.dart' as opentype;
+import 'package:opentype_dart/index.dart' as opentype;
 import 'package:typr_dart/typr_dart.dart' as typr_dart;
 
 
