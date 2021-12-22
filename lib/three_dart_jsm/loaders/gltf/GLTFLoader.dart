@@ -75,6 +75,25 @@ class GLTFLoader extends Loader {
 
   }
 
+
+  loadAsync ( String url, Function? onProgress ) async {
+    var completer = Completer();
+
+    load(
+      url, 
+      (buffer) {
+        completer.complete(buffer);
+      }, 
+      onProgress, 
+      () {
+
+      }
+    );
+
+    return completer.future;
+	}
+
+
   load( String url, Function? onLoad, Function? onProgress, Function? onError ) {
 
     var scope = this;
@@ -94,6 +113,7 @@ class GLTFLoader extends Loader {
       resourcePath = LoaderUtils.extractUrlBase( url );
 
     }
+
 
     // Tells the LoadingManager to track an extra item, which resolves after
     // the model is fully loaded. This means the count of items loaded will

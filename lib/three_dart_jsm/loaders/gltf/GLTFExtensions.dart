@@ -37,6 +37,7 @@ class GLTFExtension {
   Function? extendMaterialParams;
   Function? loadBufferView;
   Function? loadTexture;
+  Function? createNodeMesh;
 }
 
 
@@ -56,9 +57,9 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
     this.getMaterialType = ( materialIndex ) {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) return null;
 
       return MeshPhysicalMaterial;
 
@@ -67,17 +68,17 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
     this.extendMaterialParams = ( materialIndex, materialParams ) async {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      // if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) {
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) {
 
-      // 	return Promise.resolve();
+      	return null;
 
-      // }
+      }
 
       List<Future> pending = [];
 
-      var extension = materialDef.extensions[ this.name ];
+      var extension = materialDef["extensions"][ this.name ];
 
       materialParams.specularIntensity = extension.specularFactor != null ? extension.specularFactor : 1.0;
 
@@ -492,9 +493,9 @@ class GLTFMaterialsIorExtension extends GLTFExtension {
     this.getMaterialType = ( materialIndex ) {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) return null;
 
       return MeshPhysicalMaterial;
 
@@ -503,15 +504,15 @@ class GLTFMaterialsIorExtension extends GLTFExtension {
     this.extendMaterialParams = ( materialIndex, materialParams ) {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      if ( materialDef.extensions == null || materialDef.extensions[ this.name ] == null ) {
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) {
 
         return null;
 
       }
 
-      var extension = materialDef.extensions[ this.name ];
+      var extension = materialDef["extensions"][ this.name ];
 
       materialParams.ior = extension.ior != null ? extension.ior : 1.5;
 
@@ -540,9 +541,9 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
     this.getMaterialType = ( materialIndex ) {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      if ( ! materialDef.extensions || ! materialDef.extensions[ this.name ] ) return null;
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) return null;
 
       return MeshPhysicalMaterial;
 
@@ -552,9 +553,9 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
     this.extendMaterialParams = ( materialIndex, materialParams ) async {
 
       var parser = this.parser;
-      var materialDef = parser.json.materials[ materialIndex ];
+      var materialDef = parser.json["materials"][ materialIndex ];
 
-      if ( materialDef.extensions == null || materialDef.extensions[ this.name ] == null ) {
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) {
 
         return null;
 
@@ -562,7 +563,7 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
 
       List<Future> pending = [];
 
-      var extension = materialDef.extensions[ this.name ];
+      var extension = materialDef["extensions"][ this.name ];
 
       materialParams.thickness = extension.thicknessFactor != null ? extension.thicknessFactor : 0;
 

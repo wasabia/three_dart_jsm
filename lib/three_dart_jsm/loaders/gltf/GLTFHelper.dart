@@ -77,17 +77,17 @@ class GLTypeData {
   }
 
   static createBufferAttribute(array, itemSize, normalized) {
-    if(array.runtimeType == Int8List) {
+    if(array is Int8List) {
       return Int8BufferAttribute(array, itemSize, normalized);
-    } else if(array.runtimeType == Uint8List) {
+    } else if(array is Uint8List) {
       return Uint8BufferAttribute(array, itemSize, normalized);
-    } else if(array.runtimeType == Int16List) {
+    } else if(array is Int16List) {
       return Int16BufferAttribute(array, itemSize, normalized);
-    } else if(array.runtimeType == Uint16List) {
+    } else if(array is Uint16List) {
       return Uint16BufferAttribute(array, itemSize, normalized);
-    } else if(array.runtimeType == Uint32List) {
+    } else if(array is Uint32List) {
       return Uint32BufferAttribute(array, itemSize, normalized);
-    } else if(array.runtimeType == Float32List) {
+    } else if(array is Float32List) {
       return Float32BufferAttribute(array, itemSize, normalized);
     } else {
       throw("GLTFHelper createBufferAttribute  array.runtimeType : ${array.runtimeType} is not support yet");
@@ -492,7 +492,8 @@ Function computeBounds = ( geometry, Map<String, dynamic> primitiveDef, GLTFPars
         new Vector3( max[ 0 ], max[ 1 ], max[ 2 ] ) 
       );
 
-      if ( accessor.normalized ) {
+      // todo normalized is bool ? int ?
+      if ( accessor["normalized"] != null && accessor["normalized"] != false && accessor["normalized"] != 0 ) {
 
 				var boxScale = getNormalizedComponentScale( WEBGL_COMPONENT_TYPES[ accessor.componentType ] );
 				box.min.multiplyScalar( boxScale );
@@ -599,6 +600,7 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
   List<String> attKeys = geometry.attributes.keys.toList();
 
   attributes.forEach((gltfAttributeName, value) {
+
     var threeAttributeName = ATTRIBUTES[ gltfAttributeName ] ?? gltfAttributeName.toLowerCase();
     // Skip attributes already provided by e.g. Draco extension.
     if ( attKeys.indexOf(threeAttributeName) >= 0 ) {
@@ -609,6 +611,7 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
   });
 
   if ( primitiveDef["indices"] != null && geometry.index == null ) {
+    print(" ----------indices-----${primitiveDef["indices"]} ");
     var accessor = await parser.getDependency( 'accessor', primitiveDef["indices"] );
     geometry.setIndex( accessor );
   }

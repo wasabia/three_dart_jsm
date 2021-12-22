@@ -13,7 +13,17 @@ dependencies:
   three_dart: ^0.0.1
   flutter_gl: ^0.0.5
   typr_dart: ^0.0.1
-  opentype_dart: ^0.0.1 
+  opentype_dart: ^0.0.1
+  universal_html: ^2.0.7
+
+
+dependency_overrides:
+  flutter_gl:
+    path: ../../flutter_gl/flutter_gl
+  three_dart:
+    path: ../../three_dart
+
+
 
 dev_dependencies:
   flutter_test:

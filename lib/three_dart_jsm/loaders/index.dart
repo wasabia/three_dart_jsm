@@ -18,3 +18,4 @@ part 'LUTCubeLoader.dart';
 part 'TTFLoader.dart';
 part 'TYPRLoader.dart';
 part './OBJLoader.dart';
+part './RGBELoader.dart';

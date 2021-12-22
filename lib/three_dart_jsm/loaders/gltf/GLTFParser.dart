@@ -8,7 +8,7 @@ class GLTFParser {
   late Map<String, dynamic> json;
   late dynamic extensions;
   late Map plugins;
-  late dynamic options;
+  late Map<String, dynamic> options;
   late GLTFRegistry cache;
   late Map associations;
   late Map primitiveCache;
@@ -378,8 +378,9 @@ class GLTFParser {
 
     var options = this.options;
 
+    var _url = resolveURL( bufferDef["uri"], options["path"] );
     
-    final res = await loader.loadAsync( resolveURL( bufferDef["uri"], options["path"] ), null);
+    final res = await loader.loadAsync( _url, null);
 
 
     return res;
@@ -454,7 +455,7 @@ class GLTFParser {
     var byteOffset = accessorDef["byteOffset"] ?? 0;
     var byteStride = accessorDef["bufferView"] != null ? json["bufferViews"][ accessorDef["bufferView"] ]["byteStride"] : null;
     var normalized = accessorDef["normalized"] == true;
-    var array;
+    TypedData array;
     var bufferAttribute;
 
     // The buffer is not interleaved if the stride is the item size in bytes.
@@ -487,11 +488,11 @@ class GLTFParser {
         array = typedArray.createList( accessorDef["count"] * itemSize );
 
       } else {
-
         array = typedArray.view( bufferView, byteOffset, accessorDef["count"] * itemSize );
 
       }
 
+ 
       // bufferAttribute = BufferAttribute( array, itemSize, normalized );
       // 
       bufferAttribute = GLTypeData.createBufferAttribute(array, itemSize, normalized);
@@ -540,7 +541,7 @@ class GLTFParser {
    * @param {number} textureIndex
    * @return {Promise<THREE.Texture>}
    */
-  loadTexture( textureIndex ) {
+  loadTexture( textureIndex ) async {
 
     var parser = this;
     Map<String, dynamic> json = this.json;
@@ -566,7 +567,7 @@ class GLTFParser {
 
     if ( source["uri"] != null ) {
 
-      loader = options.manager.getHandler( source["uri"] );
+      loader = options["manager"].getHandler( source["uri"] );
 
     }
 
@@ -585,8 +586,6 @@ class GLTFParser {
 
   loadTextureImage( textureIndex, Map<String, dynamic> source, loader ) async {
 
-    print("GLTFParser.loadTextureImage todo debug implement ");
-
     var parser = this;
     var json = this.json;
     var options = this.options;
@@ -595,15 +594,21 @@ class GLTFParser {
 
     // var URL = self.URL || self.webkitURL;
 
-    var sourceURI = source["uri"];
+    String sourceURI = source["uri"];
     var isObjectURL = false;
     var hasAlpha = true;
 
-    if ( source["mimeType"] == 'image/jpeg' ) hasAlpha = false;
+    var _jpegExp = RegExp(r"\.jpe?g($|\?)", caseSensitive: false);
+    var isJPEG = _jpegExp.hasMatch(sourceURI) || sourceURI.startsWith( "data:image/jpeg" );
+
+
+    if ( source["mimeType"] == 'image/jpeg' || isJPEG ) hasAlpha = false;
 
     if ( source["bufferView"] != null ) {
 
       // Load binary image data from bufferView, if provided.
+
+      print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
       
       var bufferView = await parser.getDependency( 'bufferView', source["bufferView"] );
 
@@ -624,10 +629,47 @@ class GLTFParser {
       // var blob = new Blob( [ bufferView ], { type: source.mimeType } );
       // sourceURI = URL.createObjectURL( blob );
 
-    }
+    } else if ( source["uri"] == null ) {
 
+			throw( 'THREE.GLTFLoader: Image ' + textureIndex + ' is missing URI and bufferView' );
+
+		}
+
+
+    print(" GLTFParser.loadTextureImage loader: ${loader}  ");
+
+
+    var texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
     
-    return null;
+    texture.needsUpdate = true;
+    texture.flipY = false;
+
+    if ( textureDef["name"] != null ) texture.name = textureDef["name"];
+
+    // When there is definitely no alpha channel in the texture, set RGBFormat to save space.
+    if ( ! hasAlpha ) texture.format = RGBFormat;
+
+    var samplers = json["samplers"] ?? {};
+    var sampler = samplers[ textureDef["sampler"] ] ?? {};
+
+    texture.magFilter = WEBGL_FILTERS[ sampler["magFilter"] ] ?? LinearFilter;
+    texture.minFilter = WEBGL_FILTERS[ sampler["minFilter"] ] ?? LinearMipmapLinearFilter;
+    texture.wrapS = WEBGL_WRAPPINGS[ sampler["wrapS"] ] ?? RepeatWrapping;
+    texture.wrapT = WEBGL_WRAPPINGS[ sampler["wrapT"] ] ?? RepeatWrapping;
+
+    // parser.associations.set( texture, {
+    //   type: 'textures',
+    //   index: textureIndex
+    // } );
+
+    parser.associations[texture] = {
+      "type": "textures",
+      "index": textureIndex
+    };
+
+    // this.textureCache[ cacheKey ] = texture;
+
+    return texture;
 
   }
 
@@ -762,9 +804,9 @@ class GLTFParser {
 
     // workarounds for mesh and geometry
 
-    if ( material.aoMap != null && geometry.attributes.uv2 == null && geometry.attributes.uv != null ) {
+    if ( material.aoMap != null && geometry.attributes["uv2"] == null && geometry.attributes["uv"] != null ) {
 
-      geometry.setAttribute( 'uv2', geometry.attributes.uv );
+      geometry.setAttribute( 'uv2', geometry.attributes["uv"] );
 
     }
 
@@ -1407,24 +1449,24 @@ class GLTFParser {
 
 		var json = this.json;
 		var parser = this;
-		var nodeDef = json["nodes"][ nodeIndex ];
+		Map<String, dynamic> nodeDef = json["nodes"][ nodeIndex ];
 
-		if ( nodeDef.mesh == null ) return null;
+		if ( nodeDef["mesh"] == null ) return null;
 
-    var mesh = await parser.getDependency( 'mesh', nodeDef.mesh );
+    var mesh = await parser.getDependency( 'mesh', nodeDef["mesh"] );
 
-		var node = parser._getNodeRef( parser.meshCache, nodeDef.mesh, mesh );
+		var node = parser._getNodeRef( parser.meshCache, nodeDef["mesh"], mesh );
 
     // if weights are provided on the node, override weights on the mesh.
-    if ( nodeDef.weights != null ) {
+    if ( nodeDef["weights"] != null ) {
 
       node.traverse( ( o ) {
 
         if ( ! o.isMesh ) return;
 
-        for ( var i = 0, il = nodeDef.weights.length; i < il; i ++ ) {
+        for ( var i = 0, il = nodeDef["weights"].length; i < il; i ++ ) {
 
-          o.morphTargetInfluences[ i ] = nodeDef.weights[ i ];
+          o.morphTargetInfluences[ i ] = nodeDef["weights"][ i ];
 
         }
 
@@ -1458,7 +1500,7 @@ class GLTFParser {
 
     var meshPromise = await parser._invokeOne( ( ext ) {
 
-      return ext.createNodeMesh && ext.createNodeMesh( nodeIndex );
+      return ext.createNodeMesh != null ? ext.createNodeMesh( nodeIndex ) : null;
 
     } );
 
@@ -1497,8 +1539,8 @@ class GLTFParser {
     // } );
     
     List _results = await parser._invokeAll( ( ext ) async {
-        return ext.createNodeAttachment != null ? await ext.createNodeAttachment( nodeIndex ) : null;
-      } );
+      return ext.createNodeAttachment != null ? await ext.createNodeAttachment( nodeIndex ) : null;
+    } );
 
     var objects = [];
 
