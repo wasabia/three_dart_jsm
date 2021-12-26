@@ -19,3 +19,4 @@ part 'TTFLoader.dart';
 part 'TYPRLoader.dart';
 part './OBJLoader.dart';
 part './RGBELoader.dart';
+part './MTLLoader.dart';

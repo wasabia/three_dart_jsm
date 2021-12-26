@@ -449,10 +449,9 @@ class ParserState {
 
 class OBJLoader extends Loader {
 
-  dynamic materials;
+  MaterialCreator? materials;
 
 	OBJLoader( manager ) : super(manager) {
-		this.materials = null;
 	}
 
   loadAsync ( String url, Function? onProgress ) async {
@@ -480,11 +479,11 @@ class OBJLoader extends Loader {
 		loader.setPath( this.path );
 		loader.setRequestHeader( this.requestHeader );
 		loader.setWithCredentials( this.withCredentials );
-		loader.load( url, ( text ) {
+		loader.load( url, ( text ) async {
 
 			// try {
 
-				onLoad!( scope.parse( text ) );
+				onLoad!( await scope.parse( text ) );
 
 			// } catch ( e ) {
 
@@ -514,7 +513,7 @@ class OBJLoader extends Loader {
 
 	}
 
-	parse( text, {String? path, Function? onLoad, Function? onError} ) {
+	parse( text, {String? path, Function? onLoad, Function? onError} ) async {
 
 		var state = new ParserState();
 
@@ -537,7 +536,6 @@ class OBJLoader extends Loader {
 		var lineLength = 0;
 		var result = [];
 
-    print(" parse lines: ${lines.length}  ");
 
 		// Faster to just trim left side of the line. Use if available.
 
@@ -701,10 +699,6 @@ class OBJLoader extends Loader {
 				// var name = result[ 0 ].substr( 1 ).trim();
 				var name = ( ' ' + result[ 0 ].group(0).substring( 1 ).trim() ).substring( 1 );
 
-        print(" add o or g name: ${name} ");
-        print(" this.object.geometry  ");
-        print(" position: ${state.object!.geometry["vertices"].length}  normals: ${state.object!.geometry["normals"].length} uvs: ${state.object!.geometry["uvs"].length}");
-				
         state.startObject( name, null );
 
 			} else if ( _material_use_pattern.hasMatch( line ) ) {
@@ -832,7 +826,7 @@ class OBJLoader extends Loader {
 
 					if ( this.materials != null ) {
 
-						material = this.materials.create( sourceMaterial.name );
+						material = await this.materials!.create( sourceMaterial.name );
 
 						// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
 						if ( isLine && material && ! ( material is LineBasicMaterial ) ) {
