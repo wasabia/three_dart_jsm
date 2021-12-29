@@ -389,7 +389,7 @@ class RGBELoader extends DataTextureLoader {
 			if ( RGBE_RETURN_FAILURE != image_rgba_data ) {
 
 				var data, format, type;
-				var numElements;
+				int numElements;
 
 				switch ( this.type ) {
 
@@ -402,7 +402,7 @@ class RGBELoader extends DataTextureLoader {
 
 					case FloatType:
 
-						numElements = image_rgba_data.length / 4;
+						numElements = image_rgba_data.length ~/ 4;
 						var floatArray = new Float32Array( numElements * 3 );
 
 						for ( var j = 0; j < numElements; j ++ ) {
@@ -418,7 +418,7 @@ class RGBELoader extends DataTextureLoader {
 
 					case HalfFloatType:
 
-						numElements = image_rgba_data.length / 4;
+						numElements = image_rgba_data.length ~/ 4;
 						var halfArray = new Uint16Array( numElements * 3 );
 
 						for ( var j = 0; j < numElements; j ++ ) {

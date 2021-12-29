@@ -380,6 +380,7 @@ class GLTFParser {
 
     var _url = resolveURL( bufferDef["uri"], options["path"] );
     
+
     final res = await loader.loadAsync( _url, null);
 
 
@@ -425,7 +426,6 @@ class GLTFParser {
       return null;
 
     }
-
 
     var bufferView;
     if ( accessorDef["bufferView"] != null ) {
@@ -600,6 +600,10 @@ class GLTFParser {
 
     var _jpegExp = RegExp(r"\.jpe?g($|\?)", caseSensitive: false);
     var isJPEG = _jpegExp.hasMatch(sourceURI) || sourceURI.startsWith( "data:image/jpeg" );
+
+
+    print("GLTFParser.loadTextureImage   ");
+    print( source );
 
 
     if ( source["mimeType"] == 'image/jpeg' || isJPEG ) hasAlpha = false;
@@ -1255,11 +1259,11 @@ class GLTFParser {
 
     if ( cameraDef["type"] == 'perspective' ) {
 
-      camera = new PerspectiveCamera( MathUtils.radToDeg( params.yfov ), params.aspectRatio ?? 1, params.znear ?? 1, params.zfar ?? 2e6 );
+      camera = new PerspectiveCamera( MathUtils.radToDeg( params["yfov"] ), params["aspectRatio"] ?? 1, params["znear"] ?? 1, params["zfar"] ?? 2e6 );
 
     } else if ( cameraDef["type"] == 'orthographic' ) {
 
-      camera = new OrthographicCamera( - params.xmag, params.xmag, params.ymag, - params.ymag, params.znear, params.zfar );
+      camera = new OrthographicCamera( - params["xmag"], params["xmag"], params["ymag"], - params["ymag"], params["znear"], params["zfar"] );
 
     }
 
@@ -1344,12 +1348,15 @@ class GLTFParser {
     var samplers = dependencies[ 3 ];
     var targets = dependencies[ 4 ];
 
+    
+
     List<KeyframeTrack> tracks = [];
 
     for ( var i = 0, il = nodes.length; i < il; i ++ ) {
 
       var node = nodes[ i ];
       var inputAccessor = inputAccessors[ i ];
+
       var outputAccessor = outputAccessors[ i ];
       Map<String, dynamic> sampler = samplers[ i ];
       Map<String, dynamic> target = targets[ i ];
@@ -1418,17 +1425,17 @@ class GLTFParser {
         // Override interpolation with custom factory method.
         if ( sampler["interpolation"] == 'CUBICSPLINE' ) {
 
-          // track.createInterpolant = ( result ) {
-          //   // A CUBICSPLINE keyframe in glTF has three output values for each input value,
-          //   // representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
-          //   // must be divided by three to get the interpolant's sampleSize argument.
-          //   return new GLTFCubicSplineInterpolant( this.times, this.values, this.getValueSize() / 3, result );
-          // };
-
-          track.setCreateInterpolant();
+          track.createInterpolant = ( result ) {
+            // A CUBICSPLINE keyframe in glTF has three output values for each input value,
+            // representing inTangent, splineVertex, and outTangent. As a result, track.getValueSize()
+            // must be divided by three to get the interpolant's sampleSize argument.
+            return GLTFCubicSplineInterpolant( track.times, track.values, track.getValueSize() / 3, result );
+          };
 
           // Mark as CUBICSPLINE. `track.getInterpolation()` doesn't support custom interpolants.
-          track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true;
+          // track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline = true;
+          // TODO
+          print("GLTFParser.loadAnimation isInterpolantFactoryMethodGLTFCubicSpline TODO ?? how to handle this case ??? ");
 
         }
 

@@ -198,7 +198,7 @@ class GLTFLightsExtension extends GLTFExtension {
 		String cacheKey = 'light:${lightIndex}';
 		var dependency = parser.cache.get( cacheKey );
 
-		if ( dependency ) return dependency;
+		if ( dependency != null ) return dependency;
 
 		var json = parser.json;
     var extensions = Map<String, dynamic>();
@@ -212,11 +212,11 @@ class GLTFLightsExtension extends GLTFExtension {
 
 		var color = Color.fromHex( 0xffffff );
 
-		if ( lightDef.color != null ) color.fromArray( lightDef.color );
+		if ( lightDef["color"] != null ) color.fromArray( lightDef["color"] );
 
-		var range = lightDef.range != null ? lightDef.range : 0;
+		var range = lightDef["range"] != null ? lightDef["range"] : 0;
 
-		switch ( lightDef.type ) {
+		switch ( lightDef["type"] ) {
 
 			case 'directional':
 				lightNode = new DirectionalLight( color, null );
@@ -233,17 +233,17 @@ class GLTFLightsExtension extends GLTFExtension {
 				lightNode = new SpotLight( color, null, null, null, null, null );
 				lightNode.distance = range;
 				// Handle spotlight properties.
-				lightDef.spot = lightDef.spot ?? {};
-				lightDef.spot.innerConeAngle = lightDef.spot.innerConeAngle != null ? lightDef.spot.innerConeAngle : 0;
-				lightDef.spot.outerConeAngle = lightDef.spot.outerConeAngle != null ? lightDef.spot.outerConeAngle : Math.PI / 4.0;
-				lightNode.angle = lightDef.spot.outerConeAngle;
-				lightNode.penumbra = 1.0 - lightDef.spot.innerConeAngle / lightDef.spot.outerConeAngle;
+				lightDef["spot"] = lightDef["spot"] ?? {};
+				lightDef["spot"]["innerConeAngle"] = lightDef["spot"]["innerConeAngle"] != null ? lightDef["spot"]["innerConeAngle"] : 0;
+				lightDef["spot"]["outerConeAngle"] = lightDef["spot"]["outerConeAngle"] != null ? lightDef["spot"]["outerConeAngle"] : Math.PI / 4.0;
+				lightNode.angle = lightDef["spot"]["outerConeAngle"];
+				lightNode.penumbra = 1.0 - lightDef["spot"]["innerConeAngle"] / lightDef["spot"]["outerConeAngle"];
 				lightNode.target.position.set( 0, 0, - 1 );
 				lightNode.add( lightNode.target );
 				break;
 
 			default:
-				throw( 'THREE.GLTFLoader: Unexpected light type: ${lightDef.type}' );
+				throw( 'THREE.GLTFLoader: Unexpected light type: ${lightDef["type"]}' );
 
 		}
 
@@ -253,9 +253,9 @@ class GLTFLightsExtension extends GLTFExtension {
 
 		lightNode.decay = 2;
 
-		if ( lightDef.intensity != null ) lightNode.intensity = lightDef.intensity;
+		if ( lightDef["intensity"] != null ) lightNode.intensity = lightDef["intensity"];
 
-		lightNode.name = parser.createUniqueName( lightDef.name ?? ( 'light_' + lightIndex ) );
+		lightNode.name = parser.createUniqueName( lightDef["name"] ?? ( 'light_' + lightIndex ) );
 
 		// dependency = Promise.resolve( lightNode );
     dependency = lightNode;
