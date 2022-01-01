@@ -590,7 +590,7 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
 
   var attributes = primitiveDef["attributes"];
 
-  List<Future> pending = [];
+  List pending = [];
 
   Function assignAttributeAccessor = ( accessorIndex, attributeName ) async {
     final accessor = await parser.getDependency( 'accessor', accessorIndex );
@@ -599,19 +599,23 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
 
   List<String> attKeys = geometry.attributes.keys.toList();
 
-  attributes.forEach((gltfAttributeName, value) {
+  for(var gltfAttributeName in attributes.keys) {
+    
+    var value = attributes[gltfAttributeName];
 
     var threeAttributeName = ATTRIBUTES[ gltfAttributeName ] ?? gltfAttributeName.toLowerCase();
+
     // Skip attributes already provided by e.g. Draco extension.
     if ( attKeys.indexOf(threeAttributeName) >= 0 ) {
       // skip
     } else {
-      pending.add( assignAttributeAccessor( attributes[ gltfAttributeName ], threeAttributeName ) );
+      await assignAttributeAccessor( attributes[ gltfAttributeName ], threeAttributeName );
+      pending.add( geometry );
     }
-  });
+  }
+
 
   if ( primitiveDef["indices"] != null && geometry.index == null ) {
-    print(" ----------indices-----${primitiveDef["indices"]} ");
     var accessor = await parser.getDependency( 'accessor', primitiveDef["indices"] );
     geometry.setIndex( accessor );
   }
@@ -620,10 +624,9 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
 
   computeBounds( geometry, primitiveDef, parser );
 
-  Future.wait( pending );
 
   return primitiveDef["targets"] != null
-      ? addMorphTargets( geometry, primitiveDef["targets"], parser )
+      ? await addMorphTargets( geometry, primitiveDef["targets"], parser )
       : geometry;
 
 };

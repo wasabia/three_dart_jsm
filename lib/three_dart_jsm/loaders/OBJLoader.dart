@@ -454,7 +454,7 @@ class OBJLoader extends Loader {
 	OBJLoader( manager ) : super(manager) {
 	}
 
-  loadAsync ( String url, Function? onProgress ) async {
+  loadAsync ( url, Function? onProgress ) async {
     var completer = Completer();
 
     load(

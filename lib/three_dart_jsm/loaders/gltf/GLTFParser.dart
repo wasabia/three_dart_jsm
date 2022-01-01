@@ -244,6 +244,8 @@ class GLTFParser {
     var cacheKey = '${type}:${index}';
     var dependency = this.cache.get( cacheKey );
 
+    // print(" GLTFParse.getDependency type: ${type} index: ${index} ");
+
     if ( dependency == null ) {
 
       switch ( type ) {
@@ -274,6 +276,7 @@ class GLTFParser {
             return ext.loadBufferView != null ? await ext.loadBufferView( index ) : null;
 
           } );
+
           break;
 
         case 'buffer':
@@ -586,6 +589,8 @@ class GLTFParser {
 
   loadTextureImage( textureIndex, Map<String, dynamic> source, loader ) async {
 
+    // print(" GLTFParser.loadTextureImage source: ${source} textureIndex: ${textureIndex} ");
+
     var parser = this;
     var json = this.json;
     var options = this.options;
@@ -594,7 +599,7 @@ class GLTFParser {
 
     // var URL = self.URL || self.webkitURL;
 
-    String sourceURI = source["uri"];
+    String sourceURI = source["uri"] ?? "";
     var isObjectURL = false;
     var hasAlpha = true;
 
@@ -602,17 +607,15 @@ class GLTFParser {
     var isJPEG = _jpegExp.hasMatch(sourceURI) || sourceURI.startsWith( "data:image/jpeg" );
 
 
-    print("GLTFParser.loadTextureImage   ");
-    print( source );
-
-
     if ( source["mimeType"] == 'image/jpeg' || isJPEG ) hasAlpha = false;
+    
+    var texture;
 
     if ( source["bufferView"] != null ) {
 
       // Load binary image data from bufferView, if provided.
 
-      print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
+      // print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
       
       var bufferView = await parser.getDependency( 'bufferView', source["bufferView"] );
 
@@ -629,21 +632,31 @@ class GLTFParser {
 
       }
 
-      isObjectURL = true;
-      // var blob = new Blob( [ bufferView ], { type: source.mimeType } );
-      // sourceURI = URL.createObjectURL( blob );
 
-    } else if ( source["uri"] == null ) {
+      // should be in a isolate
+      // var _image = Image.decodeImage( bufferView.asUint8List() );
+      // var _pixels = _image!.getBytes();
+
+      // var imageElement = ImageElement(data: _pixels, width: _image.width, height: _image.height);   
+      // texture = Texture(imageElement, null, null, null, null, null, null, null, null, null);
+
+      isObjectURL = true;
+      var blob = Blob( bufferView.asUint8List(), { "type": source["mimeType"] } );
+      // sourceURI = createObjectURL( blob );
+
+
+      texture = await loader.loadAsync( blob, null );
+
+		} else if ( source["uri"] == null ) {
 
 			throw( 'THREE.GLTFLoader: Image ' + textureIndex + ' is missing URI and bufferView' );
 
-		}
+		} else if ( source["uri"] != null ) {
+      texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
+    }
 
 
-    print(" GLTFParser.loadTextureImage loader: ${loader}  ");
 
-
-    var texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
     
     texture.needsUpdate = true;
     texture.flipY = false;
@@ -1051,7 +1064,7 @@ class GLTFParser {
    * @param {Array<GLTF.Primitive>} primitives
    * @return {Promise<Array<BufferGeometry>>}
    */
-  loadGeometries( primitives ) {
+  loadGeometries( primitives ) async {
 
     var parser = this;
     var extensions = this.extensions;
@@ -1059,10 +1072,10 @@ class GLTFParser {
 
     Function createDracoPrimitive = ( primitive ) async {
       var geometry = await extensions[ EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"] ].decodePrimitive( primitive, parser );
-      return addPrimitiveAttributes( geometry, primitive, parser );
+      return await addPrimitiveAttributes( geometry, primitive, parser );
     };
 
-    List<Future> pending = [];
+    List<BufferGeometry> pending = [];
 
     for ( var i = 0, il = primitives.length; i < il; i ++ ) {
 
@@ -1084,15 +1097,16 @@ class GLTFParser {
         if ( primitive["extensions"] != null && primitive["extensions"][ EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"] ] != null ) {
 
           // Use DRACO geometry if available
-          geometryPromise = createDracoPrimitive( primitive );
+          geometryPromise = await createDracoPrimitive( primitive );
 
         } else {
 
           // Otherwise create a new geometry
-          geometryPromise = addPrimitiveAttributes( new BufferGeometry(), primitive, parser );
+          geometryPromise = await addPrimitiveAttributes( new BufferGeometry(), primitive, parser );
 
         }
 
+  
         // Cache this geometry
         cache[ cacheKey ] = { "primitive": primitive, "promise": geometryPromise };
 
@@ -1102,7 +1116,7 @@ class GLTFParser {
 
     }
 
-    return Future.wait( pending );
+    return pending;
 
   }
 
@@ -1126,7 +1140,7 @@ class GLTFParser {
 
       var material = primitives[ i ]["material"] == null
         ? createDefaultMaterial( this.cache )
-        : this.getDependency( 'material', primitives[ i ]["material"] );
+        : await this.getDependency( 'material', primitives[ i ]["material"] );
 
       pending.add( Future.sync(() => material) );
 

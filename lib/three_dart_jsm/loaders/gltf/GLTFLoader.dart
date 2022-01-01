@@ -76,7 +76,7 @@ class GLTFLoader extends Loader {
   }
 
 
-  loadAsync ( String url, Function? onProgress ) async {
+  loadAsync ( url, Function? onProgress ) async {
     var completer = Completer();
 
     load(
@@ -94,7 +94,7 @@ class GLTFLoader extends Loader {
 	}
 
 
-  load( String url, Function? onLoad, Function? onProgress, Function? onError ) {
+  load( url, Function? onLoad, Function? onProgress, Function? onError ) {
 
     var scope = this;
 

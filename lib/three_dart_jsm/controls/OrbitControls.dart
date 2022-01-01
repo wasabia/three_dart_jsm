@@ -378,8 +378,8 @@ class OrbitControls with EventDispatcher {
 		this.domElement.removeEventListener( 'touchend', onTouchEnd, false );
 		this.domElement.removeEventListener( 'touchmove', onTouchMove, false );
 
-		this.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove, false );
-		this.domElement.ownerDocument.removeEventListener( 'pointerup', onPointerUp, false );
+		this.domElement.removeEventListener( 'pointermove', onPointerMove, false );
+		this.domElement.removeEventListener( 'pointerup', onPointerUp, false );
 
 		this.domElement.removeEventListener( 'keydown', onKeyDown, false );
 
@@ -665,7 +665,7 @@ class OrbitControls with EventDispatcher {
 		if ( needsUpdate ) {
 
 			// prevent the browser from scrolling on cursor keys
-			event.preventDefault();
+			// event.preventDefault();
 
 			this.update();
 
@@ -979,8 +979,8 @@ class OrbitControls with EventDispatcher {
 
 		if ( state != STATE["NONE"] ) {
 
-			// this.domElement.ownerDocument.addEventListener( 'pointermove', onPointerMove, false );
-			// this.domElement.ownerDocument.addEventListener( 'pointerup', onPointerUp, false );
+			this.domElement.addEventListener( 'pointermove', onPointerMove, false );
+			this.domElement.addEventListener( 'pointerup', onPointerUp, false );
 
 			this.dispatchEvent( startEvent );
 
@@ -1024,8 +1024,8 @@ class OrbitControls with EventDispatcher {
 
 	onMouseUp( event ) {
 
-		this.domElement.ownerDocument.removeEventListener( 'pointermove', onPointerMove, false );
-		this.domElement.ownerDocument.removeEventListener( 'pointerup', onPointerUp, false );
+		this.domElement.removeEventListener( 'pointermove', onPointerMove, false );
+		this.domElement.removeEventListener( 'pointerup', onPointerUp, false );
 
 		if ( this.enabled == false ) return;
 
@@ -1041,8 +1041,8 @@ class OrbitControls with EventDispatcher {
 
 		if ( this.enabled == false || this.enableZoom == false || ( state != STATE["NONE"] && state != STATE["ROTATE"] ) ) return;
 
-		event.preventDefault();
-		event.stopPropagation();
+		// event.preventDefault();
+		// event.stopPropagation();
 
 		this.dispatchEvent( startEvent );
 
@@ -1064,7 +1064,7 @@ class OrbitControls with EventDispatcher {
 
 		if ( this.enabled == false ) return;
 
-		event.preventDefault(); // prevent scrolling
+		// event.preventDefault(); // prevent scrolling
 
 		switch ( event.touches.length ) {
 
@@ -1205,7 +1205,7 @@ class OrbitControls with EventDispatcher {
 
 		if ( this.enabled == false ) return;
 
-		event.preventDefault();
+		// event.preventDefault();
 
 	}
 
