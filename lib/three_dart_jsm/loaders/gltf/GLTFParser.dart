@@ -615,7 +615,7 @@ class GLTFParser {
 
       // Load binary image data from bufferView, if provided.
 
-      // print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
+      print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
       
       var bufferView = await parser.getDependency( 'bufferView', source["bufferView"] );
 
@@ -655,16 +655,22 @@ class GLTFParser {
       texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
     }
 
+    hasAlpha = false;
 
-
-    
     texture.needsUpdate = true;
     texture.flipY = false;
 
-    if ( textureDef["name"] != null ) texture.name = textureDef["name"];
+    if ( textureDef["name"] != null ) {
+      texture.name = textureDef["name"];
+    } else {
+      texture.name = source["name"] ?? "";
+    }
 
     // When there is definitely no alpha channel in the texture, set RGBFormat to save space.
     if ( ! hasAlpha ) texture.format = RGBFormat;
+
+    // print(" hasAlpha: ${hasAlpha} ");
+    
 
     var samplers = json["samplers"] ?? {};
     var sampler = samplers[ textureDef["sampler"] ] ?? {};
@@ -867,7 +873,7 @@ class GLTFParser {
     Map<String, dynamic> materialParams = {};
     Map<String, dynamic> materialExtensions = materialDef["extensions"] ?? {};
 
-    List<Future> pending = [];
+    List pending = [];
 
     if ( materialExtensions[ EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"] ] != null ) {
 
@@ -902,7 +908,7 @@ class GLTFParser {
 
       if ( metallicRoughness["baseColorTexture"] != null ) {
 
-        pending.add( parser.assignTexture( materialParams, 'map', metallicRoughness["baseColorTexture"] ) );
+        pending.add( await parser.assignTexture( materialParams, 'map', metallicRoughness["baseColorTexture"] ) );
 
       }
 
@@ -911,8 +917,8 @@ class GLTFParser {
 
       if ( metallicRoughness["metallicRoughnessTexture"] != null ) {
 
-        pending.add( parser.assignTexture( materialParams, 'metalnessMap', metallicRoughness["metallicRoughnessTexture"] ) );
-        pending.add( parser.assignTexture( materialParams, 'roughnessMap', metallicRoughness["metallicRoughnessTexture"] ) );
+        pending.add( await parser.assignTexture( materialParams, 'metalnessMap', metallicRoughness["metallicRoughnessTexture"] ) );
+        pending.add( await parser.assignTexture( materialParams, 'roughnessMap', metallicRoughness["metallicRoughnessTexture"] ) );
 
       }
 
@@ -922,13 +928,11 @@ class GLTFParser {
 
       } );
 
-      final _v = this._invokeAll( ( ext ) {
+      final _v = await this._invokeAll( ( ext ) {
           return ext.extendMaterialParams != null && ext.extendMaterialParams( materialIndex, materialParams ) != null;
         } );
 
-      pending.add(
-        Future.sync(() => _v)
-      );
+      pending.add( _v );
 
     }
 
@@ -961,7 +965,7 @@ class GLTFParser {
 
     if ( materialDef["normalTexture"] != null && materialType != MeshBasicMaterial ) {
 
-      pending.add( parser.assignTexture( materialParams, 'normalMap', materialDef["normalTexture"] ) );
+      pending.add( await parser.assignTexture( materialParams, 'normalMap', materialDef["normalTexture"] ) );
 
       if ( materialDef["normalTexture"]["scale"] != null ) {
         materialParams["normalScale"] = new Vector2( materialDef["normalTexture"].scale, materialDef["normalTexture"].scale );
@@ -971,7 +975,7 @@ class GLTFParser {
 
     if ( materialDef["occlusionTexture"] != null && materialType != MeshBasicMaterial ) {
 
-      pending.add( parser.assignTexture( materialParams, 'aoMap', materialDef["occlusionTexture"] ) );
+      pending.add( await parser.assignTexture( materialParams, 'aoMap', materialDef["occlusionTexture"] ) );
 
       if ( materialDef["occlusionTexture"]["strength"] != null ) {
 
@@ -989,18 +993,16 @@ class GLTFParser {
 
     if ( materialDef["emissiveTexture"] != null && materialType != MeshBasicMaterial ) {
 
-      pending.add( parser.assignTexture( materialParams, 'emissiveMap', materialDef["emissiveTexture"] ) );
+      pending.add( await parser.assignTexture( materialParams, 'emissiveMap', materialDef["emissiveTexture"] ) );
 
     }
 
-    await Future.wait(pending);
+    // await Future.wait(pending);
 
     var material;
 
     if ( materialType == GLTFMeshStandardSGMaterial ) {
-
       material = extensions[ EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"] ].createMaterial( materialParams );
-
     } else {
       material = createMaterialType( materialType, materialParams );
     }
