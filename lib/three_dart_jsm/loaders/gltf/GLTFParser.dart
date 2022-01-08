@@ -665,6 +665,7 @@ class GLTFParser {
     texture.needsUpdate = true;
     texture.flipY = false;
 
+
     if ( textureDef["name"] != null ) {
       texture.name = textureDef["name"];
     } else {
@@ -1016,8 +1017,13 @@ class GLTFParser {
     if ( materialDef["name"] != null ) material.name = materialDef["name"];
 
     // baseColorTexture, emissiveTexture, and specularGlossinessTexture use sRGB encoding.
-    if ( material.map != null ) material.map.encoding = sRGBEncoding;
-    if ( material.emissiveMap != null ) material.emissiveMap.encoding = sRGBEncoding;
+    
+    if(kIsWeb) {
+      // https://github.com/wasabia/three_dart/issues/11
+      if ( material.map != null ) material.map.encoding = sRGBEncoding;
+      if ( material.emissiveMap != null ) material.emissiveMap.encoding = sRGBEncoding;
+    }
+    
 
     assignExtrasToUserData( material, materialDef );
 
