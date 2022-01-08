@@ -396,16 +396,20 @@ class GLTFParser {
    * @return {Promise<ArrayBuffer>}
    */
   loadBufferView2( bufferViewIndex ) async {
+
+
     var bufferViewDef = this.json["bufferViews"][ bufferViewIndex ];
     var buffer = await this.getDependency( 'buffer', bufferViewDef["buffer"] );
 
     var byteLength = bufferViewDef["byteLength"] ?? 0;
     var byteOffset = bufferViewDef["byteOffset"] ?? 0;
-  
+
+
+    // use sublist(0) clone new list, if not when load texture decode image will fail ? and with no error, return null image
     if(buffer is Uint8List) {
-      return buffer.sublist(byteOffset, byteOffset + byteLength).buffer;
+      return Uint8List.view(buffer.buffer, byteOffset, byteLength).sublist(0).buffer;
     } else {
-      return Uint8List.view(buffer).sublist(byteOffset, byteOffset + byteLength).buffer;
+      return Uint8List.view(buffer, byteOffset, byteLength).sublist(0).buffer;
     }
   }
 
@@ -610,6 +614,7 @@ class GLTFParser {
     if ( source["mimeType"] == 'image/jpeg' || isJPEG ) hasAlpha = false;
     
     var texture;
+    loader.flipY = false;
 
     if ( source["bufferView"] != null ) {
 
@@ -644,7 +649,6 @@ class GLTFParser {
       var blob = Blob( bufferView.asUint8List(), { "type": source["mimeType"] } );
       // sourceURI = createObjectURL( blob );
 
-
       texture = await loader.loadAsync( blob, null );
 
 		} else if ( source["uri"] == null ) {
@@ -652,10 +656,11 @@ class GLTFParser {
 			throw( 'THREE.GLTFLoader: Image ' + textureIndex + ' is missing URI and bufferView' );
 
 		} else if ( source["uri"] != null ) {
+      // https://github.com/wasabia/three_dart/issues/10
+      
       texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
     }
 
-    hasAlpha = false;
 
     texture.needsUpdate = true;
     texture.flipY = false;
@@ -665,6 +670,7 @@ class GLTFParser {
     } else {
       texture.name = source["name"] ?? "";
     }
+
 
     // When there is definitely no alpha channel in the texture, set RGBFormat to save space.
     if ( ! hasAlpha ) texture.format = RGBFormat;
