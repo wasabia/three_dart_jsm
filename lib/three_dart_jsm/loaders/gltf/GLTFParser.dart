@@ -498,7 +498,8 @@ class GLTFParser {
         array = typedArray.view( bufferView, byteOffset, accessorDef["count"] * itemSize );
 
       }
-
+ 
+   
       // bufferAttribute = BufferAttribute( array, itemSize, normalized );
       // 
       bufferAttribute = GLTypeData.createBufferAttribute(array, itemSize, normalized);

@@ -14,17 +14,17 @@ class GLTFCubicSplineInterpolant extends Interpolant {
 
   }
 
-  copySampleValue_( index ) {
+  copySampleValue( index ) {
 
     // Copies a sample value to the result buffer. See description of glTF
-    // CUBICSPLINE values layout in interpolate_() function below.
+    // CUBICSPLINE values layout in interpolate() function below.
 
     var result = this.resultBuffer,
       values = this.sampleValues,
       valueSize = this.valueSize,
       offset = index * valueSize * 3 + valueSize;
 
-    for ( var i = 0; i != valueSize; i ++ ) {
+    for ( int i = 0; i < valueSize; i ++ ) {
 
       result[ i ] = values[ offset + i ];
 
@@ -34,15 +34,15 @@ class GLTFCubicSplineInterpolant extends Interpolant {
 
   }
 
-  beforeStart_(v1, v2, v3) {
-    return copySampleValue_(v1);
+  beforeStart(v1, v2, v3) {
+    return copySampleValue(v1);
   }
   
-  afterEnd_(v1, v2, v3) {
-    return copySampleValue_(v1);
+  afterEnd(v1, v2, v3) {
+    return copySampleValue(v1);
   }
   
-  interpolate_( i1, t0, t, t1 ) {
+  interpolate( i1, t0, t, t1 ) {
 
     var result = this.resultBuffer;
     var values = this.sampleValues;
@@ -67,7 +67,7 @@ class GLTFCubicSplineInterpolant extends Interpolant {
 
     // Layout of keyframe output values for CUBICSPLINE animations:
     //   [ inTangent_1, splineVertex_1, outTangent_1, inTangent_2, splineVertex_2, ... ]
-    for ( var i = 0; i != stride; i ++ ) {
+    for ( var i = 0; i < stride; i ++ ) {
 
       var p0 = values[ offset0 + i + stride ]; // splineVertex_k
       var m0 = values[ offset0 + i + stride2 ] * td; // outTangent_k * (t_k+1 - t_k)
