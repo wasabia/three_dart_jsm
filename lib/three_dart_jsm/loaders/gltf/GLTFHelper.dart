@@ -541,7 +541,7 @@ Function computeBounds = ( geometry, Map<String, dynamic> primitiveDef, GLTFPars
           vector.setY( Math.max( Math.abs( min[ 1 ] ), Math.abs( max[ 1 ] ) ) );
           vector.setZ( Math.max( Math.abs( min[ 2 ] ), Math.abs( max[ 2 ] ) ) );
 
-          if ( accessor.normalized ) {
+          if ( accessor["normalized"] == true ) {
 
 						var boxScale = getNormalizedComponentScale( WEBGL_COMPONENT_TYPES[ accessor.componentType ] );
 						vector.multiplyScalar( boxScale );
@@ -600,7 +600,6 @@ Function addPrimitiveAttributes = ( geometry, Map<String, dynamic> primitiveDef,
   List<String> attKeys = geometry.attributes.keys.toList();
 
   for(var gltfAttributeName in attributes.keys) {
-    
     var value = attributes[gltfAttributeName];
 
     var threeAttributeName = ATTRIBUTES[ gltfAttributeName ] ?? gltfAttributeName.toLowerCase();

@@ -362,7 +362,7 @@ class GLTFParser {
    * @return {Promise<ArrayBuffer>}
    */
   loadBuffer( bufferIndex ) async {
-
+   
     Map<String, dynamic> bufferDef = this.json["buffers"][ bufferIndex ];
     var loader = this.fileLoader;
 
@@ -397,20 +397,21 @@ class GLTFParser {
    */
   loadBufferView2( bufferViewIndex ) async {
 
-
     var bufferViewDef = this.json["bufferViews"][ bufferViewIndex ];
     var buffer = await this.getDependency( 'buffer', bufferViewDef["buffer"] );
 
     var byteLength = bufferViewDef["byteLength"] ?? 0;
     var byteOffset = bufferViewDef["byteOffset"] ?? 0;
 
-
     // use sublist(0) clone new list, if not when load texture decode image will fail ? and with no error, return null image
+    var _buffer;
     if(buffer is Uint8List) {
-      return Uint8List.view(buffer.buffer, byteOffset, byteLength).sublist(0).buffer;
+      _buffer = Uint8List.view(buffer.buffer, byteOffset, byteLength).sublist(0).buffer;
     } else {
-      return Uint8List.view(buffer, byteOffset, byteLength).sublist(0).buffer;
+      _buffer = Uint8List.view(buffer, byteOffset, byteLength).sublist(0).buffer;
     }
+
+    return _buffer;
   }
 
   /**
@@ -450,8 +451,7 @@ class GLTFParser {
       sparseIndicesBufferView = await this.getDependency( 'bufferView', _sparse["indices"]["bufferView"] );
       sparseValuesBufferView = await this.getDependency( 'bufferView', _sparse["values"]["bufferView"] );
     }
-
-
+  
 
     int itemSize = WEBGL_TYPE_SIZES[ accessorDef["type"] ]!;
     var typedArray = GLTypeData(accessorDef["componentType"]);
@@ -499,7 +499,6 @@ class GLTFParser {
 
       }
 
- 
       // bufferAttribute = BufferAttribute( array, itemSize, normalized );
       // 
       bufferAttribute = GLTypeData.createBufferAttribute(array, itemSize, normalized);
@@ -580,9 +579,7 @@ class GLTFParser {
 
     if ( loader == null ) {
 
-      loader = textureExtensions[ EXTENSIONS["MSFT_TEXTURE_DDS"] ] != null 
-        ? parser.extensions[ EXTENSIONS["MSFT_TEXTURE_DDS"] ]["ddsLoader"]
-        : this.textureLoader;
+      loader = textureExtensions[ EXTENSIONS["MSFT_TEXTURE_DDS"] ] != null ? parser.extensions[ EXTENSIONS["MSFT_TEXTURE_DDS"] ]["ddsLoader"] : this.textureLoader;
 
     }
 
@@ -593,7 +590,7 @@ class GLTFParser {
 
   loadTextureImage( textureIndex, Map<String, dynamic> source, loader ) async {
 
-    // print(" GLTFParser.loadTextureImage source: ${source} textureIndex: ${textureIndex} ");
+    // print(" GLTFParser.loadTextureImage source: ${source} textureIndex: ${textureIndex} loader: ${loader} ");
 
     var parser = this;
     var json = this.json;
@@ -620,7 +617,7 @@ class GLTFParser {
 
       // Load binary image data from bufferView, if provided.
 
-      print("GLTFParser.loadTextureImage source->bufferView is not null TODO ");
+      // print("GLTFParser.loadTextureImage textureIndex: ${textureIndex} source->bufferView is not null TODO ");
       
       var bufferView = await parser.getDependency( 'bufferView', source["bufferView"] );
 
@@ -644,6 +641,7 @@ class GLTFParser {
 
       // var imageElement = ImageElement(data: _pixels, width: _image.width, height: _image.height);   
       // texture = Texture(imageElement, null, null, null, null, null, null, null, null, null);
+
 
       isObjectURL = true;
       var blob = Blob( bufferView.asUint8List(), { "type": source["mimeType"] } );
@@ -1187,9 +1185,7 @@ class GLTFParser {
         primitive["mode"] == null ) {
 
         // .isSkinnedMesh isn't in glTF spec. See ._markDefs()
-        mesh = meshDef["isSkinnedMesh"] == true
-          ? new SkinnedMesh( geometry, material )
-          : new Mesh( geometry, material );
+        mesh = meshDef["isSkinnedMesh"] == true ? new SkinnedMesh( geometry, material ) : new Mesh( geometry, material );
 
         if ( mesh.isSkinnedMesh == true && ! mesh.geometry.attributes["skinWeight"].normalized ) {
 
@@ -1475,7 +1471,7 @@ class GLTFParser {
 
     var name = animationDef["name"] != null ? animationDef["name"] : 'animation_${animationIndex}';
 
-    return new AnimationClip( name, duration: -1, tracks: tracks );
+    return new AnimationClip( name, -1, tracks );
 
   }
 
