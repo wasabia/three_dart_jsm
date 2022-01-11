@@ -11,7 +11,7 @@ var TEXTURE_HEIGHT = 4;
  *
  * @param { number } numberOfCurves the number of curves needed to be described by this texture.
  */
-initSplineTexture( {numberOfCurves = 1} ) {
+initSplineTexture( {int numberOfCurves = 1} ) {
 
 	var dataArray = new Float32Array( (TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * BITS).toInt() );
 	var dataTexture = new DataTexture(
