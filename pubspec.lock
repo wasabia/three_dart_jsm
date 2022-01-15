@@ -86,24 +86,38 @@ packages:
   flutter_gl:
     dependency: "direct main"
     description:
-      path: "../../flutter_gl/flutter_gl"
-      relative: true
-    source: path
-    version: "0.0.6"
+      name: flutter_gl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.8"
+  flutter_gl_macos:
+    dependency: transitive
+    description:
+      name: flutter_gl_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   flutter_gl_platform_interface:
     dependency: transitive
     description:
       name: flutter_gl_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.3"
   flutter_gl_web:
     dependency: transitive
     description:
       name: flutter_gl_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.3"
+  flutter_gl_windows:
+    dependency: transitive
+    description:
+      name: flutter_gl_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -127,7 +141,7 @@ packages:
       name: http
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.13.3"
+    version: "0.13.4"
   http_parser:
     dependency: transitive
     description:
@@ -141,7 +155,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.0"
+    version: "3.1.1"
   js:
     dependency: transitive
     description:
@@ -184,13 +198,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.8.0"
-  pedantic:
-    dependency: transitive
-    description:
-      name: pedantic
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.11.1"
   petitparser:
     dependency: transitive
     description:
@@ -204,7 +211,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "2.1.2"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -255,10 +262,10 @@ packages:
   three_dart:
     dependency: "direct main"
     description:
-      path: "../../three_dart"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: three_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.3"
   typed_data:
     dependency: transitive
     description:
@@ -272,7 +279,7 @@ packages:
       name: typr_dart
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   universal_html:
     dependency: "direct main"
     description:
@@ -302,5 +309,5 @@ packages:
     source: hosted
     version: "5.1.2"
 sdks:
-  dart: ">=2.14.0 <3.0.0"
-  flutter: ">=1.20.0"
+  dart: ">=2.16.0-80.1.beta <3.0.0"
+  flutter: ">=2.5.0"
