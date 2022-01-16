@@ -19,15 +19,15 @@ class CylinderGeometry extends Geometry {
 		};
 
 		this.fromBufferGeometry( 
-      CylinderBufferGeometry( 
-        radiusTop: radiusTop, 
-        radiusBottom: radiusBottom, 
-        height: height, 
-        radialSegments: radialSegments, 
-        heightSegments: heightSegments, 
-        openEnded: openEnded, 
-        thetaStart: thetaStart, 
-        thetaLength: thetaLength 
+      THREE.CylinderGeometry( 
+        radiusTop, 
+        radiusBottom, 
+        height, 
+        radialSegments, 
+        heightSegments, 
+        openEnded, 
+        thetaStart, 
+        thetaLength 
       ) 
     );
 		this.mergeVertices();

@@ -1,6 +1,6 @@
 name: three_dart_jsm
 description: three.js example/jsm rewrite by Dart.
-version: 0.0.2
+version: 0.0.3
 homepage: https://github.com/wasabia/three_dart_jsm
 
 environment:

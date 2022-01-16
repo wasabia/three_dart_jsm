@@ -180,39 +180,39 @@ class TessellateModifier {
 
 			for ( var i = 0, i2 = 0, il = positions.length; i < il; i += 9, i2 += 6 ) {
 
-				va.fromArray( positions, offset: i + 0 );
-				vb.fromArray( positions, offset: i + 3 );
-				vc.fromArray( positions, offset: i + 6 );
+				va.fromArray( positions, i + 0 );
+				vb.fromArray( positions, i + 3 );
+				vc.fromArray( positions, i + 6 );
 
 				if ( hasNormals ) {
 
-					na.fromArray( normals, offset: i + 0 );
-					nb.fromArray( normals, offset: i + 3 );
-					nc.fromArray( normals, offset: i + 6 );
+					na.fromArray( normals, i + 0 );
+					nb.fromArray( normals, i + 3 );
+					nc.fromArray( normals, i + 6 );
 
 				}
 
 				if ( hasColors ) {
 
-					ca.fromArray( colors, offset: i + 0 );
-					cb.fromArray( colors, offset: i + 3 );
-					cc.fromArray( colors, offset: i + 6 );
+					ca.fromArray( colors, i + 0 );
+					cb.fromArray( colors, i + 3 );
+					cc.fromArray( colors, i + 6 );
 
 				}
 
 				if ( hasUVs ) {
 
-					ua.fromArray( uvs, offset: i2 + 0 );
-					ub.fromArray( uvs, offset: i2 + 2 );
-					uc.fromArray( uvs, offset: i2 + 4 );
+					ua.fromArray( uvs, i2 + 0 );
+					ub.fromArray( uvs, i2 + 2 );
+					uc.fromArray( uvs, i2 + 4 );
 
 				}
 
 				if ( hasUV2s ) {
 
-					u2a.fromArray( uv2s, offset: i2 + 0 );
-					u2b.fromArray( uv2s, offset: i2 + 2 );
-					u2c.fromArray( uv2s, offset: i2 + 4 );
+					u2a.fromArray( uv2s, i2 + 0 );
+					u2b.fromArray( uv2s, i2 + 2 );
+					u2c.fromArray( uv2s, i2 + 4 );
 
 				}
 

@@ -32,7 +32,7 @@ class ExtrudeGeometry extends Geometry {
 			"options": options
 		};
 
-		this.fromBufferGeometry( new ExtrudeBufferGeometry( shapes, options ) );
+		this.fromBufferGeometry( new THREE.ExtrudeGeometry( shapes, options ) );
 		this.mergeVertices();
 
 	}

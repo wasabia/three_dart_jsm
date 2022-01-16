@@ -5,7 +5,7 @@ class ConvexGeometry extends Geometry {
   String type = "ConvexGeometry";
 
 	ConvexGeometry(points) : super() {
-    this.fromBufferGeometry( ConvexBufferGeometry( points ) );
+    this.fromBufferGeometry( THREE.ConvexGeometry( points ) );
 	  this.mergeVertices();
   }
 

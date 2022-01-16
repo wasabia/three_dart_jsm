@@ -13,7 +13,7 @@ class CircleGeometry extends Geometry {
 		};
 
 		this.fromBufferGeometry( 
-      CircleBufferGeometry( 
+      THREE.CircleGeometry( 
         radius: radius, 
         segments: segments, 
         thetaStart: thetaStart,

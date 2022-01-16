@@ -195,7 +195,7 @@ class GLTFParser {
 
     var ref = object.clone();
 
-    ref.name += '_instance_' + ( cache["uses"][ index ] ++ );
+    ref.name += '_instance_${( cache["uses"][ index ] ++ )}';
 
     return ref;
 
@@ -244,7 +244,7 @@ class GLTFParser {
     var cacheKey = '${type}:${index}';
     var dependency = this.cache.get( cacheKey );
 
-    // print(" GLTFParse.getDependency type: ${type} index: ${index} ");
+    print(" GLTFParse.getDependency type: ${type} index: ${index} ");
 
     if ( dependency == null ) {
 

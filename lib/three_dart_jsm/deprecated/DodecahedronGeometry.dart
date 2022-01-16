@@ -11,7 +11,7 @@ class DodecahedronGeometry extends Geometry {
 			"detail": detail
 		};
 
-		this.fromBufferGeometry( DodecahedronBufferGeometry.create( radius: radius, detail: detail ) );
+		this.fromBufferGeometry( THREE.DodecahedronGeometry( radius, detail ) );
 		this.mergeVertices();
 
 	}

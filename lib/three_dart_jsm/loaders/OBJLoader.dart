@@ -294,9 +294,9 @@ class ParserState {
     var src = this.vertices;
     var dst = this.object!.geometry["normals"];
 
-    _vA.fromArray( src, offset: a );
-    _vB.fromArray( src, offset: b );
-    _vC.fromArray( src, offset: c );
+    _vA.fromArray( src, a );
+    _vB.fromArray( src, b );
+    _vC.fromArray( src, c );
 
     _cb.subVectors( _vC, _vB );
     _ab.subVectors( _vA, _vB );
