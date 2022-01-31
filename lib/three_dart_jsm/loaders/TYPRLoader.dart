@@ -14,18 +14,18 @@ class TYPRLoader extends Loader {
 
   }
 
-  loadAsync( url, Function? onProgress ) async {
+  loadAsync( url ) async {
 		var loader = new FileLoader( this.manager );
 		loader.setPath( this.path );
 		loader.setResponseType( 'arraybuffer' );
 		loader.setRequestHeader( this.requestHeader );
 		loader.setWithCredentials( this.withCredentials );
-		var buffer = await loader.loadAsync( url, null );
+		var buffer = await loader.loadAsync( url );
 
     return this._parse( buffer );
 	}
 
-  load( url, onLoad, onProgress, onError ) {
+  load( url, onLoad, [onProgress, onError] ) {
 
 		var scope = this;
 

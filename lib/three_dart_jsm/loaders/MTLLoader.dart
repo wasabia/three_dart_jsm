@@ -14,16 +14,14 @@ class MTLLoader extends Loader {
 	}
 
 
-  loadAsync(url, onProgress) async {
+  loadAsync(url) async {
     var completer = Completer();
 
     load(
       url, 
       (result) {
         completer.complete(result);
-      }, 
-      onProgress, 
-      null
+      }
     );
 
     return completer.future;
@@ -42,7 +40,7 @@ class MTLLoader extends Loader {
 	 * @note In order for relative texture references to resolve correctly
 	 * you must call setResourcePath() explicitly prior to load.
 	 */
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, [onProgress, onError] ) {
 
 		var scope = this;
 
@@ -56,7 +54,7 @@ class MTLLoader extends Loader {
 
 			// try {
 
-				if(onLoad != null) onLoad( scope.parse( text, path: path ) );
+				if(onLoad != null) onLoad( scope.parse( text, path ) );
 
 			// } catch ( e ) {
 
@@ -96,7 +94,7 @@ class MTLLoader extends Loader {
 	 * @note In order for relative texture references to resolve correctly
 	 * you must call setResourcePath() explicitly prior to parse.
 	 */
-	parse( text, {String? path, Function? onLoad, Function? onError} ) {
+	parse( text, [String? path, Function? onLoad, Function? onError] ) {
 
 		var lines = text.split( '\n' );
 		var info = {};

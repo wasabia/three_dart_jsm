@@ -14,6 +14,7 @@ Map<String, String> EXTENSIONS = {
   "KHR_MATERIALS_CLEARCOAT": 'KHR_materials_clearcoat',
   "KHR_MATERIALS_IOR": 'KHR_materials_ior',
   "KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS": 'KHR_materials_pbrSpecularGlossiness',
+  "KHR_MATERIALS_SHEEN": 'KHR_materials_sheen',
   "KHR_MATERIALS_SPECULAR": 'KHR_materials_specular',
   "KHR_MATERIALS_TRANSMISSION": 'KHR_materials_transmission',
   "KHR_MATERIALS_UNLIT": 'KHR_materials_unlit',
@@ -89,11 +90,11 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
       }
 
       var colorArray = extension.specularColorFactor ?? [ 1, 1, 1 ];
-      materialParams.specularTint = new Color( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ] );
+      materialParams.specularColor = new Color( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ] );
 
       if ( extension.specularColorTexture != null ) {
 
-        var texture = await parser.assignTexture( materialParams, 'specularTintMap', extension.specularColorTexture );
+        var texture = await parser.assignTexture( materialParams, 'specularColorMap', extension.specularColorTexture );
         texture.encoding = sRGBEncoding;
 
         pending.add( texture );
@@ -414,6 +415,82 @@ class GLTFMaterialsClearcoatExtension extends GLTFExtension {
 
 }
 
+/**
+ * Sheen Materials Extension
+ *
+ * Specification: https://github.com/KhronosGroup/glTF/tree/main/extensions/2.0/Khronos/KHR_materials_sheen
+ */
+class GLTFMaterialsSheenExtension extends GLTFExtension {
+  late dynamic parser;
+
+	GLTFMaterialsSheenExtension( parser ) {
+
+		this.parser = parser;
+		this.name = EXTENSIONS["KHR_MATERIALS_SHEEN"]!;
+
+
+
+    this.getMaterialType = ( materialIndex ) {
+
+      var parser = this.parser;
+      var materialDef = parser.json["materials"][ materialIndex ];
+
+      if (  materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) return null;
+
+      return MeshPhysicalMaterial;
+
+    };
+
+    this.extendMaterialParams = ( materialIndex, materialParams ) {
+
+      var parser = this.parser;
+      var materialDef = parser.json["materials"][ materialIndex ];
+
+      if ( materialDef["extensions"] == null || materialDef["extensions"][ this.name ] == null ) {
+
+        return null;
+
+      }
+
+      List<Future> pending = [];
+
+      materialParams.sheenColor = new Color( 0, 0, 0 );
+      materialParams.sheenRoughness = 0;
+      materialParams.sheen = 1;
+
+      Map extension = materialDef["extensions"][ this.name ];
+
+      if ( extension["sheenColorFactor"] != null ) {
+
+        materialParams.sheenColor.fromArray( extension["sheenColorFactor"] );
+
+      }
+
+      if ( extension["sheenRoughnessFactor"] != null ) {
+
+        materialParams.sheenRoughness = extension["sheenRoughnessFactor"];
+
+      }
+
+      if ( extension["sheenColorTexture"] != null ) {
+
+        pending.add( parser.assignTexture( materialParams, 'sheenColorMap', extension["sheenColorTexture"] ) );
+
+      }
+
+      if ( extension["sheenRoughnessTexture"] != null ) {
+
+        pending.add( parser.assignTexture( materialParams, 'sheenRoughnessMap', extension["sheenRoughnessTexture"] ) );
+
+      }
+
+      return Future.wait( pending );
+
+    };
+
+	}
+
+}
 
 /**
  * Transmission Materials Extension
@@ -576,7 +653,7 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
       materialParams.attenuationDistance = extension.attenuationDistance ?? 0;
 
       var colorArray = extension.attenuationColor ?? [ 1, 1, 1 ];
-      materialParams.attenuation = new Color( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ] );
+      materialParams.attenuationColor = new Color( colorArray[ 0 ], colorArray[ 1 ], colorArray[ 2 ] );
 
       return await Future.wait( pending );
 

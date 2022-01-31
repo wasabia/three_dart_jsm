@@ -381,10 +381,10 @@ class GLTFParser {
 
     var options = this.options;
 
-    var _url = resolveURL( bufferDef["uri"], options["path"] );
+    var _url = LoaderUtils.resolveURL( bufferDef["uri"], options["path"] );
     
 
-    final res = await loader.loadAsync( _url, null);
+    final res = await loader.loadAsync( _url );
 
 
     return res;
@@ -603,14 +603,7 @@ class GLTFParser {
 
     String sourceURI = source["uri"] ?? "";
     var isObjectURL = false;
-    var hasAlpha = true;
-
-    var _jpegExp = RegExp(r"\.jpe?g($|\?)", caseSensitive: false);
-    var isJPEG = _jpegExp.hasMatch(sourceURI) || sourceURI.startsWith( "data:image/jpeg" );
-
-
-    if ( source["mimeType"] == 'image/jpeg' || isJPEG ) hasAlpha = false;
-    
+  
     var texture;
     loader.flipY = false;
 
@@ -631,7 +624,6 @@ class GLTFParser {
         //
         // https://en.wikipedia.org/wiki/Portable_Network_Graphics#File_header
         var colorType = new ByteData.view( bufferView, 25, 1 ).getUint8( 0 );
-        hasAlpha = colorType == 6 || colorType == 4 || colorType == 3;
 
       }
 
@@ -657,7 +649,7 @@ class GLTFParser {
 		} else if ( source["uri"] != null ) {
       // https://github.com/wasabia/three_dart/issues/10
       
-      texture = await loader.loadAsync( resolveURL( sourceURI, options["path"] ), null );
+      texture = await loader.loadAsync( LoaderUtils.resolveURL( sourceURI, options["path"] ), null );
     }
 
 
@@ -671,12 +663,6 @@ class GLTFParser {
       texture.name = source["name"] ?? "";
     }
 
-
-    // When there is definitely no alpha channel in the texture, set RGBFormat to save space.
-    if ( ! hasAlpha ) texture.format = RGBFormat;
-
-    // print(" hasAlpha: ${hasAlpha} ");
-    
 
     var samplers = json["samplers"] ?? {};
     var sampler = samplers[ textureDef["sampler"] ] ?? {};
@@ -958,7 +944,6 @@ class GLTFParser {
       materialParams["depthWrite"] = false;
 
     } else {
-
       materialParams["transparent"] = false;
 
       if ( alphaMode == ALPHA_MODES["MASK"] ) {
@@ -1140,6 +1125,8 @@ class GLTFParser {
    */
   loadMesh( meshIndex ) async {
 
+    print(" GLTFParse.loadMesh meshIndex: ${meshIndex} ");
+
     var parser = this;
     var json = this.json;
     var extensions = this.extensions;
@@ -1163,6 +1150,8 @@ class GLTFParser {
 
     final results = await Future.wait(pending);
 
+    print(" GLTFParse.loadMesh results: ${results} ");
+
     var materials = slice(results, 0, results.length - 1 );
     var geometries = results[ results.length - 1 ];
 
@@ -1180,6 +1169,9 @@ class GLTFParser {
 
       var material = materials[ i ];
 
+      print(" GLTFParse.loadMesh primitive: ${primitive} ");
+
+
       if ( primitive["mode"] == WEBGL_CONSTANTS["TRIANGLES"] ||
         primitive["mode"] == WEBGL_CONSTANTS["TRIANGLE_STRIP"] ||
         primitive["mode"] == WEBGL_CONSTANTS["TRIANGLE_FAN"] ||
@@ -1187,6 +1179,10 @@ class GLTFParser {
 
         // .isSkinnedMesh isn't in glTF spec. See ._markDefs()
         mesh = meshDef["isSkinnedMesh"] == true ? new SkinnedMesh( geometry, material ) : new Mesh( geometry, material );
+
+        print(" GLTFParse.loadMesh mesh: ${mesh} ");
+        print(mesh.material);
+        print(mesh.geometry);
 
         if ( mesh.isSkinnedMesh == true && ! mesh.geometry.attributes["skinWeight"].normalized ) {
 
@@ -1235,6 +1231,8 @@ class GLTFParser {
       }
 
       mesh.name = parser.createUniqueName( meshDef["name"] ?? ( 'mesh_${meshIndex}' ) );
+      
+      print(" GLTFParse.loadMesh mesh.name: ${mesh.name} ");
 
       assignExtrasToUserData( mesh, meshDef );
 
@@ -1406,7 +1404,7 @@ class GLTFParser {
         // Node may be a Group (glTF mesh with several primitives) or a Mesh.
         node.traverse( ( object ) {
 
-          if ( object.isMesh == true && object.morphTargetInfluences != null ) {
+          if ( object.morphTargetInfluences != null ) {
 
             targetNames.add( object.name != null ? object.name : object.uuid );
 
@@ -1709,7 +1707,7 @@ class GLTFParser {
 
             if ( skinEntry["inverseBindMatrices"] != null ) {
 
-              mat.fromArray( skinEntry["inverseBindMatrices"].array, offset: j * 16 );
+              mat.fromArray( skinEntry["inverseBindMatrices"].array, j * 16 );
 
             }
 

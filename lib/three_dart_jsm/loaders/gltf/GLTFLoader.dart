@@ -37,6 +37,12 @@ class GLTFLoader extends Loader {
 
 		} );
 
+    this.register( ( parser ) {
+
+			return new GLTFMaterialsSheenExtension( parser );
+
+		} );
+
 		this.register( ( parser ) {
 
 			return new GLTFMaterialsTransmissionExtension( parser );
@@ -76,17 +82,13 @@ class GLTFLoader extends Loader {
   }
 
 
-  loadAsync ( url, Function? onProgress ) async {
+  loadAsync ( url ) async {
     var completer = Completer();
 
     load(
       url, 
       (buffer) {
         completer.complete(buffer);
-      }, 
-      onProgress, 
-      () {
-
       }
     );
 
@@ -94,7 +96,7 @@ class GLTFLoader extends Loader {
 	}
 
 
-  load( url, Function? onLoad, Function? onProgress, Function? onError ) {
+  load( url, Function onLoad, [Function? onProgress, Function? onError] ) {
 
     var scope = this;
 
@@ -148,13 +150,13 @@ class GLTFLoader extends Loader {
 
       // try {
 
-        scope.parse( data, path: resourcePath, onLoad: ( gltf ) {
+        scope.parse( data, resourcePath, ( gltf ) {
 
-          onLoad!( gltf );
+          onLoad( gltf );
 
           scope.manager.itemEnd( url );
 
-        }, onError: _onError );
+        }, _onError );
 
       // } catch ( e ) {
 
@@ -218,7 +220,7 @@ class GLTFLoader extends Loader {
 
   }
 
-  parse(  data, {String? path, Function? onLoad, Function? onError} ) {
+  parse(  data, [String? path, Function? onLoad, Function? onError] ) {
 
     var content;
     var extensions = {};

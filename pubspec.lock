@@ -96,7 +96,7 @@ packages:
       name: flutter_gl_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.2"
+    version: "0.0.3"
   flutter_gl_platform_interface:
     dependency: transitive
     description:
@@ -117,7 +117,7 @@ packages:
       name: flutter_gl_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.1"
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -170,13 +170,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.12.11"
-  material_color_utilities:
-    dependency: transitive
-    description:
-      name: material_color_utilities
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
   meta:
     dependency: transitive
     description:
@@ -258,7 +251,7 @@ packages:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.8"
+    version: "0.4.3"
   three_dart:
     dependency: "direct main"
     description:
@@ -309,5 +302,5 @@ packages:
     source: hosted
     version: "5.1.2"
 sdks:
-  dart: ">=2.16.0-80.1.beta <3.0.0"
+  dart: ">=2.14.0 <3.0.0"
   flutter: ">=2.5.0"

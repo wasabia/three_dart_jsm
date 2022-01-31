@@ -14,7 +14,7 @@ class TTFLoader extends Loader {
 
   }
 
-  loadAsync( url, Function? onProgress ) async {
+  loadAsync( url ) async {
 
 		var scope = this;
 
@@ -23,12 +23,12 @@ class TTFLoader extends Loader {
 		loader.setResponseType( 'arraybuffer' );
 		loader.setRequestHeader( this.requestHeader );
 		loader.setWithCredentials( this.withCredentials );
-		var buffer = await loader.loadAsync( url, null );
+		var buffer = await loader.loadAsync( url );
 
     return this._parse( buffer );
 	}
 
-  load( url, onLoad, onProgress, onError ) {
+  load( url, onLoad, [onProgress, onError] ) {
 
 		var scope = this;
 

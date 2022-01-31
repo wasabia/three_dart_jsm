@@ -454,24 +454,20 @@ class OBJLoader extends Loader {
 	OBJLoader( manager ) : super(manager) {
 	}
 
-  loadAsync ( url, Function? onProgress ) async {
+  loadAsync ( url ) async {
     var completer = Completer();
 
     load(
       url, 
       (buffer) {
         completer.complete(buffer);
-      }, 
-      onProgress, 
-      () {
-
       }
     );
 
     return completer.future;
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load( url, onLoad, [onProgress, onError] ) {
 
 		var scope = this;
 
@@ -483,7 +479,7 @@ class OBJLoader extends Loader {
 
 			// try {
 
-				onLoad!( await scope.parse( text ) );
+				onLoad( await scope.parse( text ) );
 
 			// } catch ( e ) {
 
@@ -513,7 +509,7 @@ class OBJLoader extends Loader {
 
 	}
 
-	parse( text, {String? path, Function? onLoad, Function? onError} ) async {
+	parse( text, [String? path, Function? onLoad, Function? onError] ) async {
 
 		var state = new ParserState();
 

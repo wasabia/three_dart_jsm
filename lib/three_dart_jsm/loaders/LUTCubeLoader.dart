@@ -11,17 +11,17 @@ class LUTCubeLoader extends Loader {
 
   }
 
-  loadAsync( url, Function? onProgress ) async {
+  loadAsync( url ) async {
 
 		var loader = new FileLoader( this.manager );
 		loader.setPath( this.path );
 		loader.setResponseType( 'text' );
-		final resp = await loader.loadAsync( url, null );
+		final resp = await loader.loadAsync( url );
 
     return this.parse( resp );
 	}
 
-	load( url, Function? onLoad, Function? onProgress, Function? onError ) async {
+	load( url, Function onLoad, [Function? onProgress, Function? onError] ) async {
 
 		var loader = new FileLoader( this.manager );
 		loader.setPath( this.path );
@@ -53,7 +53,7 @@ class LUTCubeLoader extends Loader {
     return data;
 	}
 
-	parse(  str, {String? path, Function? onLoad, Function? onError} ) {
+	parse(  str, [String? path, Function? onLoad, Function? onError] ) {
 
 		// Remove empty lines and comments
 		// str = str
@@ -93,7 +93,7 @@ class LUTCubeLoader extends Loader {
 					// more precision than can be captured with Uint8Array.
 					var sizeToken = split[ 1 ];
 					size = parseFloat( sizeToken ).toInt();
-					data = Uint8Array( size * size * size * 3 );
+					data = Uint8Array( size * size * size * 4 );
 					break;
 				case 'DOMAIN_MIN':
 					domainMin.x = parseFloat( split[ 1 ] );
@@ -123,7 +123,8 @@ class LUTCubeLoader extends Loader {
 					data![ currIndex + 0 ] = (r * 255).toInt();
 					data[ currIndex + 1 ] = (g * 255).toInt();
 					data[ currIndex + 2 ] = (b * 255).toInt();
-					currIndex += 3;
+					data[ currIndex + 3 ] = 255;
+					currIndex += 4;
 
 			}
 
@@ -133,7 +134,6 @@ class LUTCubeLoader extends Loader {
 		texture.image!.data = data;
 		texture.image!.width = size;
 		texture.image!.height = size * size;
-		texture.format = RGBFormat;
 		texture.type = UnsignedByteType;
 		texture.magFilter = LinearFilter;
 		texture.wrapS = ClampToEdgeWrapping;
@@ -145,7 +145,6 @@ class LUTCubeLoader extends Loader {
 		texture3D.image!.width = size;
 		texture3D.image!.height = size;
 		texture3D.image!.depth = size;
-		texture3D.format = RGBFormat;
 		texture3D.type = UnsignedByteType;
 		texture3D.magFilter = LinearFilter;
 		texture3D.wrapS = ClampToEdgeWrapping;

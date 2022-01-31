@@ -1,7 +1,7 @@
 part of jsm_modifiers;
 
 // Original src: https://github.com/zz85/threejs-path-flow
-var BITS = 3;
+var CHANNELS = 4;
 var TEXTURE_WIDTH = 1024;
 var TEXTURE_HEIGHT = 4;
 
@@ -13,12 +13,12 @@ var TEXTURE_HEIGHT = 4;
  */
 initSplineTexture( {int numberOfCurves = 1} ) {
 
-	var dataArray = new Float32Array( (TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * BITS).toInt() );
+	var dataArray = new Float32Array( (TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * CHANNELS).toInt() );
 	var dataTexture = new DataTexture(
 		dataArray,
 		TEXTURE_WIDTH,
 		TEXTURE_HEIGHT * numberOfCurves,
-		RGBFormat,
+		RGBAFormat,
 		FloatType,
     null,
     null,
@@ -75,10 +75,11 @@ setTextureValue( texture, index, x, y, z, o ) {
 
 	var image = texture.image;
 	var data = image.data;
-	var i = BITS * TEXTURE_WIDTH * o; // Row Offset
-	data[ index * BITS + i + 0 ] = x;
-	data[ index * BITS + i + 1 ] = y;
-	data[ index * BITS + i + 2 ] = z;
+	var i = CHANNELS * TEXTURE_WIDTH * o; // Row Offset
+	data[ index * CHANNELS + i + 0 ] = x;
+	data[ index * CHANNELS + i + 1 ] = y;
+	data[ index * CHANNELS + i + 2 ] = z;
+	data[ index * CHANNELS + i + 3 ] = 1;
 
 }
 
