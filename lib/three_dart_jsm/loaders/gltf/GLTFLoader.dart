@@ -1,16 +1,13 @@
 part of gltf_loader;
 
-
 class GLTFLoader extends Loader {
-
   late List<Function> pluginCallbacks;
   late dynamic dracoLoader;
   late dynamic ktx2Loader;
   late dynamic ddsLoader;
   late dynamic meshoptDecoder;
 
-  GLTFLoader( manager ) : super(manager) {
-
+  GLTFLoader(manager) : super(manager) {
     this.dracoLoader = null;
     this.ddsLoader = null;
     this.ktx2Loader = null;
@@ -18,229 +15,161 @@ class GLTFLoader extends Loader {
 
     this.pluginCallbacks = [];
 
-    
-    this.register( ( parser ) {
+    this.register((parser) {
+      return new GLTFMaterialsClearcoatExtension(parser);
+    });
 
-			return new GLTFMaterialsClearcoatExtension( parser );
+    this.register((parser) {
+      return new GLTFTextureBasisUExtension(parser);
+    });
 
-		} );
+    this.register((parser) {
+      return new GLTFTextureWebPExtension(parser);
+    });
 
-		this.register( ( parser ) {
+    this.register((parser) {
+      return new GLTFMaterialsSheenExtension(parser);
+    });
 
-			return new GLTFTextureBasisUExtension( parser );
+    this.register((parser) {
+      return new GLTFMaterialsTransmissionExtension(parser);
+    });
 
-		} );
+    this.register((parser) {
+      return new GLTFMaterialsVolumeExtension(parser);
+    });
 
-		this.register( ( parser ) {
+    this.register((parser) {
+      return new GLTFMaterialsIorExtension(parser);
+    });
 
-			return new GLTFTextureWebPExtension( parser );
+    this.register((parser) {
+      return new GLTFMaterialsSpecularExtension(parser);
+    });
 
-		} );
+    this.register((parser) {
+      return new GLTFLightsExtension(parser);
+    });
 
-    this.register( ( parser ) {
-
-			return new GLTFMaterialsSheenExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFMaterialsTransmissionExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFMaterialsVolumeExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFMaterialsIorExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFMaterialsSpecularExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFLightsExtension( parser );
-
-		} );
-
-		this.register( ( parser ) {
-
-			return new GLTFMeshoptCompression( parser );
-
-		} );
-
+    this.register((parser) {
+      return new GLTFMeshoptCompression(parser);
+    });
   }
 
-
-  loadAsync ( url ) async {
+  loadAsync(url) async {
     var completer = Completer();
 
-    load(
-      url, 
-      (buffer) {
-        completer.complete(buffer);
-      }
-    );
+    load(url, (buffer) {
+      completer.complete(buffer);
+    });
 
     return completer.future;
-	}
+  }
 
-
-  load( url, Function onLoad, [Function? onProgress, Function? onError] ) {
-
+  load(url, Function onLoad, [Function? onProgress, Function? onError]) {
     var scope = this;
 
     var resourcePath;
 
-    if ( this.resourcePath != '' ) {
-
+    if (this.resourcePath != '') {
       resourcePath = this.resourcePath;
-
-    } else if ( this.path != '' ) {
-
+    } else if (this.path != '') {
       resourcePath = this.path;
-
     } else {
-
-      resourcePath = LoaderUtils.extractUrlBase( url );
-
+      resourcePath = LoaderUtils.extractUrlBase(url);
     }
-
 
     // Tells the LoadingManager to track an extra item, which resolves after
     // the model is fully loaded. This means the count of items loaded will
     // be incorrect, but ensures manager.onLoad() does not fire early.
-    this.manager.itemStart( url );
+    this.manager.itemStart(url);
 
-    Function _onError = ( e ) {
-
-      if ( onError != null ) {
-
-        onError( e );
-
+    Function _onError = (e) {
+      if (onError != null) {
+        onError(e);
       } else {
-
-        print( e );
-
+        print(e);
       }
 
-      scope.manager.itemError( url );
-      scope.manager.itemEnd( url );
-
+      scope.manager.itemError(url);
+      scope.manager.itemEnd(url);
     };
 
-    var loader = new FileLoader( this.manager );
+    var loader = new FileLoader(this.manager);
 
-    loader.setPath( this.path );
-    loader.setResponseType( 'arraybuffer' );
-    loader.setRequestHeader( this.requestHeader );
-    loader.setWithCredentials( this.withCredentials );
+    loader.setPath(this.path);
+    loader.setResponseType('arraybuffer');
+    loader.setRequestHeader(this.requestHeader);
+    loader.setWithCredentials(this.withCredentials);
 
-    loader.load( url, ( data ) {
-
+    loader.load(url, (data) {
       // try {
 
-        scope.parse( data, resourcePath, ( gltf ) {
+      scope.parse(data, resourcePath, (gltf) {
+        onLoad(gltf);
 
-          onLoad( gltf );
-
-          scope.manager.itemEnd( url );
-
-        }, _onError );
+        scope.manager.itemEnd(url);
+      }, _onError);
 
       // } catch ( e ) {
 
       //   _onError( e );
 
       // }
-
-    }, onProgress, _onError );
-
+    }, onProgress, _onError);
   }
 
-  setDRACOLoader( dracoLoader ) {
-
+  setDRACOLoader(dracoLoader) {
     this.dracoLoader = dracoLoader;
     return this;
-
   }
 
-  setDDSLoader ( ddsLoader ) {
-
+  setDDSLoader(ddsLoader) {
     this.ddsLoader = ddsLoader;
     return this;
-
   }
 
-  setKTX2Loader ( ktx2Loader ) {
-
+  setKTX2Loader(ktx2Loader) {
     this.ktx2Loader = ktx2Loader;
     return this;
-
   }
 
-  setMeshoptDecoder ( meshoptDecoder ) {
-
+  setMeshoptDecoder(meshoptDecoder) {
     this.meshoptDecoder = meshoptDecoder;
     return this;
-
   }
 
-  register ( Function callback ) {
-
-    if ( this.pluginCallbacks.indexOf( callback ) == - 1 ) {
-
-      this.pluginCallbacks.add( callback );
-
+  register(Function callback) {
+    if (this.pluginCallbacks.indexOf(callback) == -1) {
+      this.pluginCallbacks.add(callback);
     }
 
     return this;
-
   }
 
-  unregister( callback ) {
-
-    if ( this.pluginCallbacks.indexOf( callback ) != - 1 ) {
-
-      splice(this.pluginCallbacks, this.pluginCallbacks.indexOf( callback ), 1 );
-
+  unregister(callback) {
+    if (this.pluginCallbacks.indexOf(callback) != -1) {
+      splice(this.pluginCallbacks, this.pluginCallbacks.indexOf(callback), 1);
     }
 
     return this;
-
   }
 
-  parse(  data, [String? path, Function? onLoad, Function? onError] ) {
-
+  parse(data, [String? path, Function? onLoad, Function? onError]) {
     var content;
     var extensions = {};
     var plugins = {};
 
-    if ( data is String ) {
-
+    if (data is String) {
       content = data;
-
     } else {
+      var magic = LoaderUtils.decodeText(Uint8List.view(data.buffer, 0, 4));
 
-      var magic = LoaderUtils.decodeText( Uint8List.view( data.buffer, 0, 4 ) );
-
-
-      if ( magic == BINARY_EXTENSION_HEADER_MAGIC ) {
-
+      if (magic == BINARY_EXTENSION_HEADER_MAGIC) {
         // try {
 
-          extensions[ EXTENSIONS["KHR_BINARY_GLTF"] ] = new GLTFBinaryExtension( data.buffer );
-
+        extensions[EXTENSIONS["KHR_BINARY_GLTF"]] =
+            new GLTFBinaryExtension(data.buffer);
 
         // } catch ( error ) {
 
@@ -249,74 +178,72 @@ class GLTFLoader extends Loader {
 
         // }
 
-        content = extensions[ EXTENSIONS["KHR_BINARY_GLTF"] ].content;
-
+        content = extensions[EXTENSIONS["KHR_BINARY_GLTF"]].content;
       } else {
-
-        content = LoaderUtils.decodeText( data );
-
+        content = LoaderUtils.decodeText(data);
       }
-
     }
 
-    Map<String, dynamic> json = convert.jsonDecode( content );
+    Map<String, dynamic> json = convert.jsonDecode(content);
 
-
-    if ( json["asset"] == null || num.parse(json["asset"]["version"]) < 2.0 ) {
-
-      if ( onError != null ) onError( 'THREE.GLTFLoader: Unsupported asset. glTF versions >= 2.0 are supported.' );
+    if (json["asset"] == null || num.parse(json["asset"]["version"]) < 2.0) {
+      if (onError != null)
+        onError(
+            'THREE.GLTFLoader: Unsupported asset. glTF versions >= 2.0 are supported.');
       return;
-
     }
 
-    var parser = new GLTFParser( json, {
-
-      "path": path != null ? path : this.resourcePath != null ? this.resourcePath : '',
+    var parser = new GLTFParser(json, {
+      "path": path != null
+          ? path
+          : this.resourcePath != null
+              ? this.resourcePath
+              : '',
       "crossOrigin": this.crossOrigin,
       "requestHeader": this.requestHeader,
       "manager": this.manager,
       "ktx2Loader": this.ktx2Loader,
       "meshoptDecoder": this.meshoptDecoder
+    });
 
-    } );
+    parser.fileLoader.setRequestHeader(this.requestHeader);
 
-    parser.fileLoader.setRequestHeader( this.requestHeader );
-
-    for ( var i = 0; i < this.pluginCallbacks.length; i ++ ) {
-
-      var plugin = this.pluginCallbacks[ i ]( parser );
-      plugins[ plugin.name ] = plugin;
+    for (var i = 0; i < this.pluginCallbacks.length; i++) {
+      var plugin = this.pluginCallbacks[i](parser);
+      plugins[plugin.name] = plugin;
 
       // Workaround to avoid determining as unknown extension
       // in addUnknownExtensionsToUserData().
       // Remove this workaround if we move all the existing
       // extension handlers to plugin system
-      extensions[ plugin.name ] = true;
-
+      extensions[plugin.name] = true;
     }
 
-    if ( json["extensionsUsed"] != null ) {
-
-      for ( var i = 0; i < json["extensionsUsed"].length; ++ i ) {
-
-        var extensionName = json["extensionsUsed"][ i ];
+    if (json["extensionsUsed"] != null) {
+      for (var i = 0; i < json["extensionsUsed"].length; ++i) {
+        var extensionName = json["extensionsUsed"][i];
         var extensionsRequired = json["extensionsRequired"] ?? [];
 
-        if( extensionName == EXTENSIONS["KHR_MATERIALS_UNLIT"] ) {
-          extensions[ extensionName ] = new GLTFMaterialsUnlitExtension();
-        } else if(extensionName == EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
-            extensions[ extensionName ] = new GLTFMaterialsPbrSpecularGlossinessExtension();
-        } else if(extensionName == EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]) {
-            extensions[ extensionName ] = new GLTFDracoMeshCompressionExtension( json, this.dracoLoader );
-        } else if(extensionName == EXTENSIONS["MSFT_TEXTURE_DDS"]) {
-            extensions[ extensionName ] = new GLTFTextureDDSExtension( this.ddsLoader );
-        } else if(extensionName == EXTENSIONS["KHR_TEXTURE_TRANSFORM"]) {
-            extensions[ extensionName ] = new GLTFTextureTransformExtension();
-        } else if(extensionName == EXTENSIONS["KHR_MESH_QUANTIZATION"]){
-            extensions[ extensionName ] = new GLTFMeshQuantizationExtension();
+        if (extensionName == EXTENSIONS["KHR_MATERIALS_UNLIT"]) {
+          extensions[extensionName] = new GLTFMaterialsUnlitExtension();
+        } else if (extensionName ==
+            EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
+          extensions[extensionName] =
+              new GLTFMaterialsPbrSpecularGlossinessExtension();
+        } else if (extensionName == EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]) {
+          extensions[extensionName] =
+              new GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
+        } else if (extensionName == EXTENSIONS["MSFT_TEXTURE_DDS"]) {
+          extensions[extensionName] =
+              new GLTFTextureDDSExtension(this.ddsLoader);
+        } else if (extensionName == EXTENSIONS["KHR_TEXTURE_TRANSFORM"]) {
+          extensions[extensionName] = new GLTFTextureTransformExtension();
+        } else if (extensionName == EXTENSIONS["KHR_MESH_QUANTIZATION"]) {
+          extensions[extensionName] = new GLTFMeshQuantizationExtension();
         } else {
-          if ( extensionsRequired.indexOf( extensionName ) >= 0 && plugins[ extensionName ] == null ) {
-            print( 'THREE.GLTFLoader: Unknown extension ${extensionName}.' );
+          if (extensionsRequired.indexOf(extensionName) >= 0 &&
+              plugins[extensionName] == null) {
+            print('THREE.GLTFLoader: Unknown extension ${extensionName}.');
           }
         }
 
@@ -346,14 +273,10 @@ class GLTFLoader extends Loader {
         // }
 
       }
-
     }
 
-    parser.setExtensions( extensions );
-    parser.setPlugins( plugins );
-    parser.parse( onLoad, onError );
-
+    parser.setExtensions(extensions);
+    parser.setPlugins(plugins);
+    parser.parse(onLoad, onError);
   }
-
-
 }

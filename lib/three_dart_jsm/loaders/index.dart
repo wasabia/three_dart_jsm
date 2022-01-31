@@ -1,6 +1,5 @@
 library jsm_loader;
 
-
 import 'dart:async';
 import 'dart:typed_data';
 
@@ -9,7 +8,6 @@ import 'package:three_dart/three_dart.dart';
 
 import 'package:opentype_dart/index.dart' as opentype;
 import 'package:typr_dart/typr_dart.dart' as typr_dart;
-
 
 export './gltf/index.dart';
 // export './darco/index.dart';

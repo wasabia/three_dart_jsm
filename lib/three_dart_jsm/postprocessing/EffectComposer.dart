@@ -1,10 +1,6 @@
-
 part of jsm_postprocessing;
 
-
-
 class EffectComposer {
-
   late WebGLRenderer renderer;
   late WebGLRenderTarget renderTarget1;
   late WebGLRenderTarget renderTarget2;
@@ -24,34 +20,29 @@ class EffectComposer {
 
   late Pass copyPass;
 
-  EffectComposer( WebGLRenderer renderer, WebGLRenderTarget? renderTarget ) {
+  EffectComposer(WebGLRenderer renderer, WebGLRenderTarget? renderTarget) {
     this.renderer = renderer;
 
-    if ( renderTarget == null ) {
-
+    if (renderTarget == null) {
       var parameters = {
         "minFilter": LinearFilter,
         "magFilter": LinearFilter,
         "format": RGBAFormat
       };
 
-      var size = renderer.getSize( new Vector2(null, null) );
+      var size = renderer.getSize(new Vector2(null, null));
       this._pixelRatio = renderer.getPixelRatio();
       this._width = size.width;
       this._height = size.height;
 
-      renderTarget = new WebGLRenderTarget( 
-        (this._width * this._pixelRatio).toInt(), 
-        (this._height * this._pixelRatio).toInt(), 
-        WebGLRenderTargetOptions(parameters) 
-      );
-  
+      renderTarget = new WebGLRenderTarget(
+          (this._width * this._pixelRatio).toInt(),
+          (this._height * this._pixelRatio).toInt(),
+          WebGLRenderTargetOptions(parameters));
     } else {
-
       this._pixelRatio = 1;
       this._width = renderTarget.width;
       this._height = renderTarget.height;
-
     }
 
     this.renderTarget1 = renderTarget;
@@ -67,194 +58,150 @@ class EffectComposer {
 
     // dependencies
 
-    if ( CopyShader == null ) {
-
-      print( 'THREE.EffectComposer relies on CopyShader' );
-
+    if (CopyShader == null) {
+      print('THREE.EffectComposer relies on CopyShader');
     }
 
-    if ( ShaderPass == null ) {
-
-      print( 'THREE.EffectComposer relies on ShaderPass' );
-
+    if (ShaderPass == null) {
+      print('THREE.EffectComposer relies on ShaderPass');
     }
 
-    this.copyPass = new ShaderPass( CopyShader, null );
+    this.copyPass = new ShaderPass(CopyShader, null);
 
     this.clock = new Clock(false);
   }
 
-	swapBuffers () {
+  swapBuffers() {
+    var tmp = this.readBuffer;
+    this.readBuffer = this.writeBuffer;
+    this.writeBuffer = tmp;
+  }
 
-		var tmp = this.readBuffer;
-		this.readBuffer = this.writeBuffer;
-		this.writeBuffer = tmp;
+  addPass(pass) {
+    this.passes.add(pass);
+    pass.setSize(
+        this._width * this._pixelRatio, this._height * this._pixelRatio);
+  }
 
-	}
+  insertPass(pass, index) {
+    splice(this.passes, index, 0, pass);
+    pass.setSize(
+        this._width * this._pixelRatio, this._height * this._pixelRatio);
+  }
 
-	addPass ( pass ) {
+  removePass(pass) {
+    var index = this.passes.indexOf(pass);
 
-		this.passes.add( pass );
-		pass.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
-
-	}
-
-	insertPass ( pass, index ) {
-
-		splice(this.passes, index, 0, pass );
-		pass.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
-
-	}
-
-	removePass ( pass ) {
-
-		var index = this.passes.indexOf( pass );
-
-		if ( index != - 1 ) {
-
-			splice(this.passes, index, 1 );
-
-		}
-
-	}
+    if (index != -1) {
+      splice(this.passes, index, 1);
+    }
+  }
 
   clearPass() {
     this.passes.clear();
   }
 
-	isLastEnabledPass ( passIndex ) {
+  isLastEnabledPass(passIndex) {
+    for (var i = passIndex + 1; i < this.passes.length; i++) {
+      if (this.passes[i].enabled) {
+        return false;
+      }
+    }
 
-		for ( var i = passIndex + 1; i < this.passes.length; i ++ ) {
+    return true;
+  }
 
-			if ( this.passes[ i ].enabled ) {
+  render(deltaTime) {
+    // deltaTime value is in seconds
 
-				return false;
+    if (deltaTime == null) {
+      deltaTime = this.clock.getDelta();
+    }
 
-			}
+    var currentRenderTarget = this.renderer.getRenderTarget();
 
-		}
+    var maskActive = false;
 
-		return true;
+    var pass, i, il = this.passes.length;
 
-	}
+    for (i = 0; i < il; i++) {
+      pass = this.passes[i];
 
-	render ( deltaTime ) {
+      if (pass.enabled == false) continue;
 
-		// deltaTime value is in seconds
+      pass.renderToScreen = (this.renderToScreen && this.isLastEnabledPass(i));
+      pass.render(this.renderer, this.writeBuffer, this.readBuffer,
+          deltaTime: deltaTime, maskActive: maskActive);
 
-		if ( deltaTime == null ) {
+      if (pass.needsSwap) {
+        if (maskActive) {
+          var context = this.renderer.getContext();
+          var stencil = this.renderer.state.buffers["stencil"];
 
-			deltaTime = this.clock.getDelta();
+          //context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
+          stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
 
-		}
+          this.copyPass.render(this.renderer, this.writeBuffer, this.readBuffer,
+              deltaTime: deltaTime);
 
-		var currentRenderTarget = this.renderer.getRenderTarget();
+          //context.stencilFunc( context.EQUAL, 1, 0xffffffff );
+          stencil.setFunc(context.EQUAL, 1, 0xffffffff);
+        }
 
-		var maskActive = false;
+        this.swapBuffers();
+      }
 
-		var pass, i, il = this.passes.length;
+      if (MaskPass != null) {
+        if (pass.runtimeType.toString() == "MaskPass") {
+          maskActive = true;
+        } else if (pass.runtimeType.toString() == "ClearMaskPass") {
+          maskActive = false;
+        }
+      }
+    }
 
+    this.renderer.setRenderTarget(currentRenderTarget);
+  }
 
-		for ( i = 0; i < il; i ++ ) {
+  reset(renderTarget) {
+    if (renderTarget == null) {
+      var size = this.renderer.getSize(new Vector2(null, null));
+      this._pixelRatio = this.renderer.getPixelRatio();
+      this._width = size.width;
+      this._height = size.height;
 
-			pass = this.passes[ i ];
+      renderTarget = this.renderTarget1.clone();
+      renderTarget.setSize(
+          this._width * this._pixelRatio, this._height * this._pixelRatio);
+    }
 
-			if ( pass.enabled == false ) continue;
+    this.renderTarget1.dispose();
+    this.renderTarget2.dispose();
+    this.renderTarget1 = renderTarget;
+    this.renderTarget2 = renderTarget.clone();
 
-			pass.renderToScreen = ( this.renderToScreen && this.isLastEnabledPass( i ) );
-			pass.render( this.renderer, this.writeBuffer, this.readBuffer, deltaTime: deltaTime, maskActive: maskActive );
+    this.writeBuffer = this.renderTarget1;
+    this.readBuffer = this.renderTarget2;
+  }
 
-			if ( pass.needsSwap ) {
+  setSize(width, height) {
+    this._width = width;
+    this._height = height;
 
-				if ( maskActive ) {
+    var effectiveWidth = this._width * this._pixelRatio;
+    var effectiveHeight = this._height * this._pixelRatio;
 
-					var context = this.renderer.getContext();
-					var stencil = this.renderer.state.buffers["stencil"];
+    this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
+    this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
 
-					//context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
-					stencil.setFunc( context.NOTEQUAL, 1, 0xffffffff );
+    for (var i = 0; i < this.passes.length; i++) {
+      this.passes[i].setSize(effectiveWidth, effectiveHeight);
+    }
+  }
 
-					this.copyPass.render( this.renderer, this.writeBuffer, this.readBuffer, deltaTime: deltaTime );
+  setPixelRatio(pixelRatio) {
+    this._pixelRatio = pixelRatio;
 
-					//context.stencilFunc( context.EQUAL, 1, 0xffffffff );
-					stencil.setFunc( context.EQUAL, 1, 0xffffffff );
-
-				}
-
-				this.swapBuffers();
-
-			}
-
-			if ( MaskPass != null ) {
-
-				if ( pass.runtimeType.toString() == "MaskPass" ) {
-
-					maskActive = true;
-
-				} else if ( pass.runtimeType.toString() == "ClearMaskPass" ) {
-
-					maskActive = false;
-
-				}
-
-			}
-
-		}
-
-		this.renderer.setRenderTarget( currentRenderTarget );
-
-	}
-
-	reset( renderTarget ) {
-
-		if ( renderTarget == null ) {
-
-			var size = this.renderer.getSize( new Vector2(null, null) );
-			this._pixelRatio = this.renderer.getPixelRatio();
-			this._width = size.width;
-			this._height = size.height;
-
-			renderTarget = this.renderTarget1.clone();
-			renderTarget.setSize( this._width * this._pixelRatio, this._height * this._pixelRatio );
-
-		}
-
-		this.renderTarget1.dispose();
-		this.renderTarget2.dispose();
-		this.renderTarget1 = renderTarget;
-		this.renderTarget2 = renderTarget.clone();
-
-		this.writeBuffer = this.renderTarget1;
-		this.readBuffer = this.renderTarget2;
-
-	}
-
-	setSize ( width, height ) {
-
-		this._width = width;
-		this._height = height;
-
-		var effectiveWidth = this._width * this._pixelRatio;
-		var effectiveHeight = this._height * this._pixelRatio;
-
-		this.renderTarget1.setSize( effectiveWidth, effectiveHeight );
-		this.renderTarget2.setSize( effectiveWidth, effectiveHeight );
-
-		for ( var i = 0; i < this.passes.length; i ++ ) {
-
-			this.passes[ i ].setSize( effectiveWidth, effectiveHeight );
-
-		}
-
-	}
-
-	setPixelRatio ( pixelRatio ) {
-
-		this._pixelRatio = pixelRatio;
-
-		this.setSize( this._width, this._height );
-
-	}
-
-
+    this.setSize(this._width, this._height);
+  }
 }

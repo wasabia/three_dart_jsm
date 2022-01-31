@@ -1,16 +1,12 @@
 part of jsm_utils;
 
-
 class BufferGeometryUtils {
-
-  static computeTangents( geometry ) {
-
+  static computeTangents(geometry) {
     geometry.computeTangents();
-    print( 'THREE.BufferGeometryUtils: .computeTangents() has been removed. Use BufferGeometry.computeTangents() instead.' );
-
+    print(
+        'THREE.BufferGeometryUtils: .computeTangents() has been removed. Use BufferGeometry.computeTangents() instead.');
   }
 }
-
 
 // /**
 // 	 * @param  {Array<BufferGeometry>} geometries
@@ -922,4 +918,3 @@ class BufferGeometryUtils {
 // 	};
 
 // }
-

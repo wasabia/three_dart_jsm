@@ -1,6 +1,5 @@
 library three_jsm;
 
-
 export './postprocessing/index.dart';
 export './loaders/index.dart';
 export './modifiers/index.dart';

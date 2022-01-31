@@ -21,7 +21,7 @@
 
 // 			// geometry = new THREE.BufferGeometry().fromGeometry( geometry );
 //       throw( 'THREE.EdgesGeometry no longer supports THREE.Geometry. Use THREE.BufferGeometry instead.' );
-   
+
 // 		}
 
 // 		var precisionPoints = 4;
@@ -85,7 +85,7 @@
 
 // 				var hash = "${ vecHash0 }_${ vecHash1 }";
 // 				var reverseHash = "${ vecHash1 }_${ vecHash0 }";
-     
+
 // 				if ( edgeData.keys.toList().indexOf(reverseHash) >= 0 && [ reverseHash ] != null ) {
 
 // 					// if we found a sibling edge add it into the vertex array if

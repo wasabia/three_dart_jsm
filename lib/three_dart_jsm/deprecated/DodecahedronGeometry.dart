@@ -1,20 +1,12 @@
 part of jsm_deprecated;
 
 class DodecahedronGeometry extends Geometry {
-
   String type = "DodecahedronGeometry";
 
-	DodecahedronGeometry( {radius = 0, detail = 0} ) : super() {
+  DodecahedronGeometry({radius = 0, detail = 0}) : super() {
+    this.parameters = {"radius": radius, "detail": detail};
 
-		this.parameters = {
-			"radius": radius,
-			"detail": detail
-		};
-
-		this.fromBufferGeometry( THREE.DodecahedronGeometry( radius, detail ) );
-		this.mergeVertices();
-
-	}
-
+    this.fromBufferGeometry(THREE.DodecahedronGeometry(radius, detail));
+    this.mergeVertices();
+  }
 }
-

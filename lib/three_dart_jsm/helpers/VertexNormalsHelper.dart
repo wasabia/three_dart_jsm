@@ -1,110 +1,98 @@
 part of jsm_helpers;
 
-
 var _v1 = new Vector3.init();
 var _v2 = new Vector3.init();
 var _normalMatrix = new Matrix3();
 
 class VertexNormalsHelper extends LineSegments {
-
-
   late Object3D object;
   late int size;
 
-  VertexNormalsHelper.create(geometry, material) : super(geometry, material) {
+  VertexNormalsHelper.create(geometry, material) : super(geometry, material) {}
 
-  }
+  factory VertexNormalsHelper(object, [size = 1, color = 0xff0000]) {
+    var nNormals = 0;
 
+    var objGeometry = object.geometry;
 
-	factory VertexNormalsHelper( object, [size = 1, color = 0xff0000] ) {
+    if (objGeometry != null && objGeometry.isGeometry) {
+      throw ('THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.');
+    } else if (objGeometry != null && objGeometry.isBufferGeometry) {
+      nNormals = objGeometry.attributes["normal"].count;
+    }
 
-		var nNormals = 0;
+    //
 
-		var objGeometry = object.geometry;
+    var geometry = new BufferGeometry();
 
-		if ( objGeometry != null && objGeometry.isGeometry ) {
+    var positions =
+        new Float32BufferAttribute(Float32Array(nNormals * 2 * 3), 3, false);
 
-			throw( 'THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.' );
-		
-		} else if ( objGeometry != null && objGeometry.isBufferGeometry ) {
+    geometry.setAttribute('position', positions);
 
-			nNormals = objGeometry.attributes["normal"].count;
+    var vnh = VertexNormalsHelper.create(
+        geometry, new LineBasicMaterial({"color": color, "toneMapped": false}));
 
-		}
+    vnh.object = object;
+    vnh.size = size;
+    vnh.type = 'VertexNormalsHelper';
 
-		//
+    //
 
-		var geometry = new BufferGeometry();
+    vnh.matrixAutoUpdate = false;
 
-		var positions = new Float32BufferAttribute( Float32Array(nNormals * 2 * 3), 3, false );
-
-		geometry.setAttribute( 'position', positions );
-
-		var vnh = VertexNormalsHelper.create( geometry, new LineBasicMaterial( { "color": color, "toneMapped": false } ) );
-
-		vnh.object = object;
-		vnh.size = size;
-		vnh.type = 'VertexNormalsHelper';
-
-		//
-
-		vnh.matrixAutoUpdate = false;
-
-		vnh.update();
+    vnh.update();
 
     return vnh;
-	}
+  }
 
-	update() {
+  update() {
+    this.object.updateMatrixWorld(true);
 
-		this.object.updateMatrixWorld( true );
+    _normalMatrix.getNormalMatrix(this.object.matrixWorld);
 
-		_normalMatrix.getNormalMatrix( this.object.matrixWorld );
+    var matrixWorld = this.object.matrixWorld;
 
-		var matrixWorld = this.object.matrixWorld;
+    var position = this.geometry!.attributes["position"];
 
-		var position = this.geometry!.attributes["position"];
+    //
 
-		//
+    var objGeometry = this.object.geometry;
 
-		var objGeometry = this.object.geometry;
+    if (objGeometry != null && objGeometry.isGeometry) {
+      throw ('THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.');
+    } else if (objGeometry != null && objGeometry.isBufferGeometry) {
+      var objPos = objGeometry.attributes["position"];
 
-		if ( objGeometry != null && objGeometry.isGeometry ) {
+      var objNorm = objGeometry.attributes["normal"];
 
-			throw( 'THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.' );
+      var idx = 0;
 
-		} else if ( objGeometry != null && objGeometry.isBufferGeometry ) {
+      // for simplicity, ignore index and drawcalls, and render every normal
 
-			var objPos = objGeometry.attributes["position"];
+      for (var j = 0, jl = objPos.count; j < jl; j++) {
+        _v1
+            .set(objPos.getX(j), objPos.getY(j), objPos.getZ(j))
+            .applyMatrix4(matrixWorld);
 
-			var objNorm = objGeometry.attributes["normal"];
+        _v2.set(objNorm.getX(j), objNorm.getY(j), objNorm.getZ(j));
 
-			var idx = 0;
+        _v2
+            .applyMatrix3(_normalMatrix)
+            .normalize()
+            .multiplyScalar(this.size)
+            .add(_v1);
 
-			// for simplicity, ignore index and drawcalls, and render every normal
+        position.setXYZ(idx, _v1.x, _v1.y, _v1.z);
 
-			for ( var j = 0, jl = objPos.count; j < jl; j ++ ) {
+        idx = idx + 1;
 
-				_v1.set( objPos.getX( j ), objPos.getY( j ), objPos.getZ( j ) ).applyMatrix4( matrixWorld );
+        position.setXYZ(idx, _v2.x, _v2.y, _v2.z);
 
-				_v2.set( objNorm.getX( j ), objNorm.getY( j ), objNorm.getZ( j ) );
+        idx = idx + 1;
+      }
+    }
 
-				_v2.applyMatrix3( _normalMatrix ).normalize().multiplyScalar( this.size ).add( _v1 );
-
-				position.setXYZ( idx, _v1.x, _v1.y, _v1.z );
-
-				idx = idx + 1;
-
-				position.setXYZ( idx, _v2.x, _v2.y, _v2.z );
-
-				idx = idx + 1;
-
-			}
-
-		}
-
-		position.needsUpdate = true;
-
-	}
-
+    position.needsUpdate = true;
+  }
 }

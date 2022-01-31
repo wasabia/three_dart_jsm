@@ -1,6 +1,5 @@
 part of gltf_loader;
 
-
 /**
  * Specular-Glossiness Extension
  *
@@ -14,26 +13,24 @@ part of gltf_loader;
  */
 
 class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
-
   bool isGLTFSpecularGlossinessMaterial = true;
   late Map<String, dynamic> _extraUniforms;
 
   String type = "GLTFSpecularGlossinessMaterial";
 
-
-  GLTFMeshStandardSGMaterial( params ) : super(params) {
+  GLTFMeshStandardSGMaterial(params) : super(params) {
     //various chunks that need replacing
     var specularMapParsFragmentChunk = [
       '#ifdef USE_SPECULARMAP',
       '	uniform sampler2D specularMap;',
       '#endif'
-    ].join( '\n' );
+    ].join('\n');
 
     var glossinessMapParsFragmentChunk = [
       '#ifdef USE_GLOSSINESSMAP',
       '	uniform sampler2D glossinessMap;',
       '#endif'
-    ].join( '\n' );
+    ].join('\n');
 
     var specularMapFragmentChunk = [
       'vec3 specularFactor = specular;',
@@ -42,7 +39,7 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
       '	// reads channel RGB, compatible with a glTF Specular-Glossiness (RGBA) texture',
       '	specularFactor *= texelSpecular.rgb;',
       '#endif'
-    ].join( '\n' );
+    ].join('\n');
 
     var glossinessMapFragmentChunk = [
       'float glossinessFactor = glossiness;',
@@ -51,7 +48,7 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
       '	// reads channel A, compatible with a glTF Specular-Glossiness (RGBA) texture',
       '	glossinessFactor *= texelGlossiness.a;',
       '#endif'
-    ].join( '\n' );
+    ].join('\n');
 
     var lightPhysicalFragmentChunk = [
       'PhysicalMaterial material;',
@@ -62,44 +59,42 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
       'material.specularRoughness += geometryRoughness;',
       'material.specularRoughness = min( material.specularRoughness, 1.0 );',
       'material.specularColor = specularFactor;',
-    ].join( '\n' );
+    ].join('\n');
 
     this.uniforms = {
-      "specular": { "value": Color.fromHex( 0xffffff ) },
-      "glossiness": { "value": 1 },
-      "specularMap": { "value": null },
-      "glossinessMap": { "value": null }
+      "specular": {"value": Color.fromHex(0xffffff)},
+      "glossiness": {"value": 1},
+      "specularMap": {"value": null},
+      "glossinessMap": {"value": null}
     };
 
     this._extraUniforms = uniforms!;
 
-    this.onBeforeCompile = ( shader ) {
-
-      uniforms!.forEach( (uniformName, _v) {
-
-        shader.uniforms[ uniformName ] = uniforms![ uniformName ];
-
+    this.onBeforeCompile = (shader) {
+      uniforms!.forEach((uniformName, _v) {
+        shader.uniforms[uniformName] = uniforms![uniformName];
       });
 
       shader.fragmentShader = shader.fragmentShader
-        .replace( 'uniform float roughness;', 'uniform vec3 specular;' )
-        .replace( 'uniform float metalness;', 'uniform float glossiness;' )
-        .replace( '#include <roughnessmap_pars_fragment>', specularMapParsFragmentChunk )
-        .replace( '#include <metalnessmap_pars_fragment>', glossinessMapParsFragmentChunk )
-        .replace( '#include <roughnessmap_fragment>', specularMapFragmentChunk )
-        .replace( '#include <metalnessmap_fragment>', glossinessMapFragmentChunk )
-        .replace( '#include <lights_physical_fragment>', lightPhysicalFragmentChunk );
-
+          .replace('uniform float roughness;', 'uniform vec3 specular;')
+          .replace('uniform float metalness;', 'uniform float glossiness;')
+          .replace('#include <roughnessmap_pars_fragment>',
+              specularMapParsFragmentChunk)
+          .replace('#include <metalnessmap_pars_fragment>',
+              glossinessMapParsFragmentChunk)
+          .replace('#include <roughnessmap_fragment>', specularMapFragmentChunk)
+          .replace(
+              '#include <metalnessmap_fragment>', glossinessMapFragmentChunk)
+          .replace('#include <lights_physical_fragment>',
+              lightPhysicalFragmentChunk);
     };
-
 
     // delete this.metalness;
     // delete this.roughness;
     // delete this.metalnessMap;
     // delete this.roughnessMap;
 
-    this.setValues( params );
-
+    this.setValues(params);
   }
 
   get specular => uniforms!["specular"]["value"];
@@ -107,67 +102,52 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
   set specular(v) {
     uniforms!["specular"]["value"] = v;
   }
- 
+
   get specularMap => uniforms!["specularMap"]["value"];
-  set specularMap( v ) {
+  set specularMap(v) {
     uniforms!["specularMap"]["value"] = v;
 
-    if ( v != null ) {
-
-      this.defines!["USE_SPECULARMAP"] = ''; // USE_UV is set by the renderer for specular maps
+    if (v != null) {
+      this.defines!["USE_SPECULARMAP"] =
+          ''; // USE_UV is set by the renderer for specular maps
 
     } else {
-
       // delete this.defines.USE_SPECULARMAP;
       this.defines!.remove("USE_SPECULARMAP");
     }
-
   }
-  
+
   get glossiness => uniforms!["glossiness"]["value"];
 
-  set glossiness( v ) {
+  set glossiness(v) {
     uniforms!["glossiness"]["value"] = v;
   }
 
   get glossinessMap => uniforms!["glossinessMap"]["value"];
-  set glossinessMap( v ) {
-
+  set glossinessMap(v) {
     uniforms!["glossinessMap"]["value"] = v;
 
-    if ( v != null ) {
-
+    if (v != null) {
       this.defines!["USE_GLOSSINESSMAP"] = '';
       this.defines!["USE_UV"] = '';
-
     } else {
-
       // delete this.defines.USE_GLOSSINESSMAP;
       // delete this.defines.USE_UV;
       this.defines!.remove("USE_GLOSSINESSMAP");
       this.defines!.remove("USE_UV");
-
     }
-
   }
-  
 
-  copy( source ) {
-
-		super.copy( source );
-		this.specularMap = source.specularMap;
-		this.specular!.copy( source.specular );
-		this.glossinessMap = source.glossinessMap;
-		this.glossiness = source.glossiness;
-		// delete this.metalness;
-		// delete this.roughness;
-		// delete this.metalnessMap;
-		// delete this.roughnessMap;
-		return this;
-
-	}
-
-
-
-
+  copy(source) {
+    super.copy(source);
+    this.specularMap = source.specularMap;
+    this.specular!.copy(source.specular);
+    this.glossinessMap = source.glossinessMap;
+    this.glossiness = source.glossiness;
+    // delete this.metalness;
+    // delete this.roughness;
+    // delete this.metalnessMap;
+    // delete this.roughnessMap;
+    return this;
+  }
 }

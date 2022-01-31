@@ -6,8 +6,6 @@ import 'dart:typed_data';
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/loaders/darco/index.dart';
 
-
-
 class DRACOLoaderPlatform extends Loader with DRACOLoader {
   static WeakMap taskCache = new WeakMap();
 
@@ -35,44 +33,35 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
     "uv": "Float32Array"
   };
 
-  DRACOLoaderPlatform ( manager ) : super( manager ) {
+  DRACOLoaderPlatform(manager) : super(manager) {}
+
+  setDecoderPath(path) {
+    this.decoderPath = path;
+
+    return this;
   }
 
-  setDecoderPath ( path ) {
+  setDecoderConfig(Map<String, dynamic> config) {
+    this.decoderConfig = config;
 
-		this.decoderPath = path;
+    return this;
+  }
 
-		return this;
+  setWorkerLimit(workerLimit) {
+    this.workerLimit = workerLimit;
 
-	}
+    return this;
+  }
 
-	setDecoderConfig ( Map<String, dynamic> config ) {
+  load(url, onLoad, onProgress, onError) async {
+    var loader = new FileLoader(this.manager);
 
-		this.decoderConfig = config;
+    loader.setPath(this.path);
+    loader.setResponseType('arraybuffer');
+    loader.setRequestHeader(this.requestHeader);
+    loader.setWithCredentials(this.withCredentials);
 
-		return this;
-
-	}
-
-	setWorkerLimit ( workerLimit ) {
-
-		this.workerLimit = workerLimit;
-
-		return this;
-
-	}
-
-	load ( url, onLoad, onProgress, onError ) async {
-
-		var loader = new FileLoader( this.manager );
-
-		loader.setPath( this.path );
-		loader.setResponseType( 'arraybuffer' );
-		loader.setRequestHeader( this.requestHeader );
-		loader.setWithCredentials( this.withCredentials );
-
-		var buffer = await loader.loadAsync( url, onProgress );
-
+    var buffer = await loader.loadAsync(url, onProgress);
 
     var taskConfig = {
       "attributeIDs": this.defaultAttributeIDs,
@@ -80,183 +69,161 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
       "useUniqueIDs": false
     };
 
-    await this.decodeGeometry( buffer, taskConfig );
+    await this.decodeGeometry(buffer, taskConfig);
 
-    if(onLoad != null) onLoad();
-	}
+    if (onLoad != null) onLoad();
+  }
 
-	/** @deprecated Kept for backward-compatibility with previous DRACOLoader versions. */
-	decodeDracoFile ( buffer, callback, attributeIDs, attributeTypes ) {
+  /** @deprecated Kept for backward-compatibility with previous DRACOLoader versions. */
+  decodeDracoFile(buffer, callback, attributeIDs, attributeTypes) {
+    var taskConfig = {
+      "attributeIDs": attributeIDs ?? this.defaultAttributeIDs,
+      "attributeTypes": attributeTypes ?? this.defaultAttributeTypes,
+      "useUniqueIDs": attributeIDs != null
+    };
 
-		var taskConfig = {
-			"attributeIDs": attributeIDs ?? this.defaultAttributeIDs,
-			"attributeTypes": attributeTypes ?? this.defaultAttributeTypes,
-			"useUniqueIDs": attributeIDs != null
-		};
+    this.decodeGeometry(buffer, taskConfig).then(callback);
+  }
 
-		this.decodeGeometry( buffer, taskConfig ).then( callback );
+  decodeGeometry(ByteBuffer buffer, taskConfig) async {
+    // TODO: For backward-compatibility, support 'attributeTypes' objects containing
+    // references (rather than names) to typed array constructors. These must be
+    // serialized before sending them to the worker.
+    taskConfig["attributeTypes"].forEach((attribute, _value) {
+      var type = taskConfig["attributeTypes"][attribute];
 
-	}
+      // if ( type.bytesPerElement != null ) {
+      // 	taskConfig["attributeTypes"][ attribute ] = type.name;
+      // }
 
-	decodeGeometry ( ByteBuffer buffer, taskConfig ) async {
-
-		// TODO: For backward-compatibility, support 'attributeTypes' objects containing
-		// references (rather than names) to typed array constructors. These must be
-		// serialized before sending them to the worker.
-		taskConfig["attributeTypes"].forEach( (attribute, _value) {
-
-			var type = taskConfig["attributeTypes"][ attribute ];
-
-			// if ( type.bytesPerElement != null ) {
-			// 	taskConfig["attributeTypes"][ attribute ] = type.name;
-			// }
-      
-      if(type == Float32List) {
-        taskConfig["attributeTypes"][ attribute ] = "Float32Array";
+      if (type == Float32List) {
+        taskConfig["attributeTypes"][attribute] = "Float32Array";
       } else {
-        print("DRACOLoader-Web taskConfig attributeTypes attribute: ${attribute} type: ${type} ${type.runtimeType} is not support ");
+        print(
+            "DRACOLoader-Web taskConfig attributeTypes attribute: ${attribute} type: ${type} ${type.runtimeType} is not support ");
       }
+    });
 
-		} );
+    //
 
-		//
+    String taskKey = convert.jsonEncode(taskConfig);
 
-		String taskKey = convert.jsonEncode( taskConfig );
+    // Check for an existing task using this buffer. A transferred buffer cannot be transferred
+    // again from this thread.
+    if (DRACOLoaderPlatform.taskCache.has(buffer)) {
+      var cachedTask = DRACOLoaderPlatform.taskCache.get(buffer);
 
-		// Check for an existing task using this buffer. A transferred buffer cannot be transferred
-		// again from this thread.
-		if ( DRACOLoaderPlatform.taskCache.has( buffer ) ) {
+      if (cachedTask.key == taskKey) {
+        return cachedTask.promise;
+      } else if (buffer.lengthInBytes == 0) {
+        // Technically, it would be possible to wait for the previous task to complete,
+        // transfer the buffer back, and decode again with the second configuration. That
+        // is complex, and I don't know of any reason to decode a Draco buffer twice in
+        // different ways, so this is left unimplemented.
+        throw ('THREE.DRACOLoader: Unable to re-decode a buffer with different ' +
+            'settings. Buffer has already been transferred.');
+      }
+    }
 
-			var cachedTask = DRACOLoaderPlatform.taskCache.get( buffer );
+    //
 
-			if ( cachedTask.key == taskKey ) {
+    var worker;
+    var taskID = this.workerNextTaskID++;
+    var taskCost = buffer.lengthInBytes;
 
-				return cachedTask.promise;
+    // Obtain a worker and assign a task, and construct a geometry instance
+    // when the task completes.
 
-			} else if ( buffer.lengthInBytes == 0 ) {
-
-				// Technically, it would be possible to wait for the previous task to complete,
-				// transfer the buffer back, and decode again with the second configuration. That
-				// is complex, and I don't know of any reason to decode a Draco buffer twice in
-				// different ways, so this is left unimplemented.
-				throw(
-
-					'THREE.DRACOLoader: Unable to re-decode a buffer with different ' +
-					'settings. Buffer has already been transferred.'
-
-				);
-
-			}
-
-		}
-
-		//
-
-		var worker;
-		var taskID = this.workerNextTaskID ++;
-		var taskCost = buffer.lengthInBytes;
-
-		// Obtain a worker and assign a task, and construct a geometry instance
-		// when the task completes.
-    
-    worker = await this._getWorker( taskID, taskCost );
+    worker = await this._getWorker(taskID, taskCost);
 
     var completer = Completer();
 
     var _data = getWorkData(worker);
     var _callbacks = _data["_callbacks"] ?? {};
-    _callbacks[taskID] = { "resolve": completer, "reject": null };
+    _callbacks[taskID] = {"resolve": completer, "reject": null};
     _data["_callbacks"] = _callbacks;
- 
-    worker.postMessage( { "type": 'decode', "id": taskID, "taskConfig": taskConfig, "buffer": buffer }, [ buffer ] );
+
+    worker.postMessage({
+      "type": 'decode',
+      "id": taskID,
+      "taskConfig": taskConfig,
+      "buffer": buffer
+    }, [
+      buffer
+    ]);
 
     var message = await completer.future;
 
-    var geometryPending = this._createGeometry( message["geometry"] );
+    var geometryPending = this._createGeometry(message["geometry"]);
 
-		// Remove task from the task list.
-		// Note: replaced '.finally()' with '.catch().then()' block - iOS 11 support (#19416)
-    if ( worker != null && taskID != null ) {
-      this._releaseTask( worker, taskID );
+    // Remove task from the task list.
+    // Note: replaced '.finally()' with '.catch().then()' block - iOS 11 support (#19416)
+    if (worker != null && taskID != null) {
+      this._releaseTask(worker, taskID);
       // this.debug();
     }
 
-		// Cache the task result.
-		DRACOLoaderPlatform.taskCache[buffer] = {
-			"key": taskKey,
-			"promise": geometryPending
-		};
+    // Cache the task result.
+    DRACOLoaderPlatform.taskCache[buffer] = {
+      "key": taskKey,
+      "promise": geometryPending
+    };
 
-		return geometryPending;
+    return geometryPending;
+  }
 
-	}
+  _createGeometry(geometryData) {
+    var geometry = new BufferGeometry();
 
-	_createGeometry ( geometryData ) {
+    if (geometryData["index"] != null) {
+      geometry.setIndex(
+          new BufferAttribute(geometryData["index"]["array"], 1, false));
+    }
 
-		var geometry = new BufferGeometry();
+    for (var i = 0; i < geometryData["attributes"].length; i++) {
+      var attribute = geometryData["attributes"][i];
+      var name = attribute["name"];
+      var array = attribute["array"];
+      var itemSize = attribute["itemSize"];
 
-		if ( geometryData["index"] != null ) {
+      geometry.setAttribute(name, new BufferAttribute(array, itemSize, false));
+    }
 
-			geometry.setIndex( new BufferAttribute( geometryData["index"]["array"], 1, false ) );
+    return geometry;
+  }
 
-		}
+  _loadLibrary(url, responseType) async {
+    var loader = new FileLoader(this.manager);
+    loader.setPath(this.decoderPath);
+    loader.setResponseType(responseType);
+    loader.setWithCredentials(this.withCredentials);
 
-		for ( var i = 0; i < geometryData["attributes"].length; i ++ ) {
+    final _data = await loader.loadAsync(url, null);
 
-			var attribute = geometryData["attributes"][ i ];
-			var name = attribute["name"];
-			var array = attribute["array"];
-			var itemSize = attribute["itemSize"];
+    return _data;
+  }
 
-			geometry.setAttribute( name, new BufferAttribute( array, itemSize, false ) );
+  preload() async {
+    await this._initDecoder();
 
-		}
+    return this;
+  }
 
-		return geometry;
+  _initDecoder() async {
+    if (this.decoderPending != null) return this.decoderPending;
 
-	}
-
-	_loadLibrary ( url, responseType ) async {
-
-		var loader = new FileLoader( this.manager );
-		loader.setPath( this.decoderPath );
-		loader.setResponseType( responseType );
-		loader.setWithCredentials( this.withCredentials );
-
-    final _data = await loader.loadAsync( url, null );
-
-		return _data;
-	}
-
-	preload () async {
-
-		await this._initDecoder();
-
-		return this;
-
-	}
-
-	_initDecoder () async {
-
-		if ( this.decoderPending != null ) return this.decoderPending;
-
-		var useJS = this.decoderConfig["type"] == 'js';
-		String jsContent;
+    var useJS = this.decoderConfig["type"] == 'js';
+    String jsContent;
     Uint8List? wasmLib;
 
-		if ( useJS ) {
+    if (useJS) {
+      jsContent = await this._loadLibrary('draco_decoder.js', 'text');
+    } else {
+      jsContent = await this._loadLibrary('draco_wasm_wrapper.js', 'text');
+      wasmLib = await this._loadLibrary('draco_decoder.wasm', 'arraybuffer');
+    }
 
-			jsContent = await this._loadLibrary( 'draco_decoder.js', 'text' );
-
-		} else {
-
-			jsContent = await this._loadLibrary( 'draco_wasm_wrapper.js', 'text' );
-			wasmLib = await this._loadLibrary( 'draco_decoder.wasm', 'arraybuffer' );
-
-		}
-
-
-    if ( ! useJS ) {
+    if (!useJS) {
       this.decoderConfig["wasmBinary"] = wasmLib!;
     }
 
@@ -267,20 +234,18 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
       jsContent,
       '',
       '/* worker */',
-      fn.substring( fn.indexOf( '{' ) + 1, fn.lastIndexOf( '}' ) )
-    ].join( '\n' );
+      fn.substring(fn.indexOf('{') + 1, fn.lastIndexOf('}'))
+    ].join('\n');
 
-    this.workerSourceURL = Url.createObjectUrlFromBlob( new Blob( [ body ] ) );
+    this.workerSourceURL = Url.createObjectUrlFromBlob(new Blob([body]));
 
-		return this.decoderPending;
-
-	}
+    return this.decoderPending;
+  }
 
   getWorkData(worker) {
-
     var _data = workerData[worker];
 
-    if(_data == null) {
+    if (_data == null) {
       workerData[worker] = {};
       _data = workerData[worker];
     }
@@ -288,13 +253,11 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
     return _data;
   }
 
-	_getWorker( int taskID, taskCost ) async {
-
+  _getWorker(int taskID, taskCost) async {
     await this._initDecoder();
 
-		if ( this.workerPool.length < this.workerLimit ) {
-
-      var worker = new Worker( this.workerSourceURL );
+    if (this.workerPool.length < this.workerLimit) {
+      var worker = new Worker(this.workerSourceURL);
 
       Map _data = this.getWorkData(worker);
 
@@ -302,17 +265,14 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
       _data["_taskCosts"] = {};
       _data["_taskLoad"] = 0;
 
-      worker.postMessage( { "type": 'init', "decoderConfig": this.decoderConfig } );
+      worker.postMessage({"type": 'init', "decoderConfig": this.decoderConfig});
 
-
-      worker.onMessage.listen(( e ) {
-
+      worker.onMessage.listen((e) {
         var message = e.data;
 
         // print("DRACOLoader-Web e.............on message  ");
 
-        switch ( message["type"] ) {
-
+        switch (message["type"]) {
           case 'decode':
             var _data = this.getWorkData(worker);
             var _callbacks = _data["_callbacks"];
@@ -323,32 +283,25 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
           case 'error':
             // worker._callbacks[ message.id ].reject( message );
             // TODO
-            throw("DRACOLoader-Web error message: ${message} ");
+            throw ("DRACOLoader-Web error message: ${message} ");
             break;
 
           default:
-            print( 'THREE.DRACOLoader: Unexpected message, ${message.type}' );
-
+            print('THREE.DRACOLoader: Unexpected message, ${message.type}');
         }
-
       });
 
-      this.workerPool.add( worker );
-
+      this.workerPool.add(worker);
     } else {
-
-      this.workerPool.sort( ( a, b ) {
-
+      this.workerPool.sort((a, b) {
         var _dataA = getWorkData(a);
         var _dataB = getWorkData(b);
 
-        return _dataA["_taskLoad"] > _dataB["_taskLoad"] ? - 1 : 1;
-
-      } );
-
+        return _dataA["_taskLoad"] > _dataB["_taskLoad"] ? -1 : 1;
+      });
     }
 
-    var worker = this.workerPool[ this.workerPool.length - 1 ];
+    var worker = this.workerPool[this.workerPool.length - 1];
 
     var _data = getWorkData(worker);
     var _taskCosts = _data["_taskCosts"];
@@ -358,50 +311,38 @@ class DRACOLoaderPlatform extends Loader with DRACOLoader {
     // worker._taskCosts[ taskID ] = taskCost;
     // worker._taskLoad += taskCost;
     return worker;
+  }
 
-	}
-
-	_releaseTask( worker, int taskID ) {
-
+  _releaseTask(worker, int taskID) {
     Map _data = this.getWorkData(worker);
     Map<int, int> _taskCosts = Map<int, int>.from(_data["_taskCosts"]);
 
     int _taskLoad = _data["_taskLoad"];
-		_taskLoad -= _taskCosts[ taskID ]!;
+    _taskLoad -= _taskCosts[taskID]!;
     _data["_taskLoad"] = _taskLoad;
 
     var _callbacks = _data["_callbacks"];
     _callbacks.remove(taskID);
 
     _taskCosts.remove(taskID);
-		// delete worker._callbacks[ taskID ];
-		// delete worker._taskCosts[ taskID ];
+    // delete worker._callbacks[ taskID ];
+    // delete worker._taskCosts[ taskID ];
+  }
 
-	}
+  debug() {
+    print('Task load: ${this.workerPool.map((worker) => worker._taskLoad)}');
+  }
 
-	debug () {
+  dispose() {
+    for (var i = 0; i < this.workerPool.length; ++i) {
+      this.workerPool[i].terminate();
+    }
 
-		print( 'Task load: ${this.workerPool.map( ( worker ) => worker._taskLoad )}' );
+    this.workerPool.length = 0;
 
-	}
-
-	dispose () {
-
-		for ( var i = 0; i < this.workerPool.length; ++ i ) {
-
-			this.workerPool[ i ].terminate();
-
-		}
-
-		this.workerPool.length = 0;
-
-		return this;
-
-	}
-
-
+    return this;
+  }
 }
-
 
 /* WEB WORKER */
 

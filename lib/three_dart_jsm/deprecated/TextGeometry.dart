@@ -17,21 +17,13 @@ part of jsm_deprecated;
  * }
  */
 
-
 class TextGeometry extends Geometry {
-
   String type = 'TextGeometry';
 
-	TextGeometry( text, parameters ) : super() {
+  TextGeometry(text, parameters) : super() {
+    this.parameters = {"text": text, "parameters": parameters};
 
-		this.parameters = {
-			"text": text,
-			"parameters": parameters
-		};
-
-		this.fromBufferGeometry( THREE.TextGeometry( text, parameters ) );
-		this.mergeVertices();
-
-	}
-
+    this.fromBufferGeometry(THREE.TextGeometry(text, parameters));
+    this.mergeVertices();
+  }
 }

@@ -23,58 +23,40 @@ part of jsm_deprecated;
  */
 
 class ExtrudeGeometry extends Geometry {
-
   String type = "ExtrudeGeometry";
 
-	ExtrudeGeometry( shapes, options ) : super() {
-		this.parameters = {
-			"shapes": shapes,
-			"options": options
-		};
+  ExtrudeGeometry(shapes, options) : super() {
+    this.parameters = {"shapes": shapes, "options": options};
 
-		this.fromBufferGeometry( new THREE.ExtrudeGeometry( shapes, options ) );
-		this.mergeVertices();
+    this.fromBufferGeometry(new THREE.ExtrudeGeometry(shapes, options));
+    this.mergeVertices();
+  }
 
-	}
+  toJSON() {
+    var data = super.toJSON();
 
-	toJSON() {
+    var shapes = this.parameters["shapes"];
+    var options = this.parameters["options"];
 
-		var data = super.toJSON();
+    return toJSON3(shapes, options, data);
+  }
 
-		var shapes = this.parameters["shapes"];
-		var options = this.parameters["options"];
-
-		return toJSON3( shapes, options, data );
-
-	}
-
-
-  Function toJSON3 = ( shapes, options, data ) {
-
+  Function toJSON3 = (shapes, options, data) {
     data.shapes = [];
 
-    if ( shapes is List ) {
+    if (shapes is List) {
+      for (var i = 0, l = shapes.length; i < l; i++) {
+        var shape = shapes[i];
 
-      for ( var i = 0, l = shapes.length; i < l; i ++ ) {
-
-        var shape = shapes[ i ];
-
-        data.shapes.add( shape.uuid );
-
+        data.shapes.add(shape.uuid);
       }
-
     } else {
-
-      data.shapes.add( shapes.uuid );
-
+      data.shapes.add(shapes.uuid);
     }
 
-    if ( options.extrudePath != null ) data.options.extrudePath = options.extrudePath.toJSON();
+    if (options.extrudePath != null)
+      data.options.extrudePath = options.extrudePath.toJSON();
 
     return data;
-
   };
-
 }
-
-

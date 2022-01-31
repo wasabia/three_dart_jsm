@@ -14,24 +14,19 @@ part of jsm_lines;
  */
 
 final UniformsLib_line = {
-	"linewidth": { "value": 1 },
-	"resolution": { "value": new Vector2( 1, 1 ) },
-	"dashScale": { "value": 1 },
-	"dashSize": { "value": 1 },
-	"dashOffset": { "value": 0 },
-	"gapSize": { "value": 1 }, // todo FIX - maybe change to totalSize
-	"opacity": { "value": 1 }
+  "linewidth": {"value": 1},
+  "resolution": {"value": new Vector2(1, 1)},
+  "dashScale": {"value": 1},
+  "dashSize": {"value": 1},
+  "dashOffset": {"value": 0},
+  "gapSize": {"value": 1}, // todo FIX - maybe change to totalSize
+  "opacity": {"value": 1}
 };
 
 final ShaderLib_line = {
-
-	"uniforms": UniformsUtils.merge( [
-		UniformsLib["common"],
-		UniformsLib["fog"],
-		UniformsLib_line
-	] ),
-
-	"vertexShader": """
+  "uniforms": UniformsUtils.merge(
+      [UniformsLib["common"], UniformsLib["fog"], UniformsLib_line]),
+  "vertexShader": """
 		#include <common>
 		#include <color_pars_vertex>
 		#include <fog_pars_vertex>
@@ -176,8 +171,7 @@ final ShaderLib_line = {
 
 		}
 		""",
-
-	"fragmentShader": """
+  "fragmentShader": """
 		uniform vec3 diffuse;
 		uniform float opacity;
 
@@ -242,21 +236,21 @@ class LineMaterial extends ShaderMaterial {
   String type = 'LineMaterial';
   bool dashed = false;
 
-  LineMaterial(parameters) : super({
-		"uniforms": UniformsUtils.clone( ShaderLib_line["uniforms"] ),
-		"vertexShader": ShaderLib_line["vertexShader"],
-		"fragmentShader": ShaderLib_line["fragmentShader"],
-		"clipping": true // required for clipping support
-	}) {
-
-    this.setValues( parameters );
+  LineMaterial(parameters)
+      : super({
+          "uniforms": UniformsUtils.clone(ShaderLib_line["uniforms"]),
+          "vertexShader": ShaderLib_line["vertexShader"],
+          "fragmentShader": ShaderLib_line["fragmentShader"],
+          "clipping": true // required for clipping support
+        }) {
+    this.setValues(parameters);
   }
 
   setValue(String key, dynamic newValue) {
-    if(key == "dashed") {
+    if (key == "dashed") {
       dashed = newValue;
-    } else if(key == "resolution") {
-      resolution = newValue;  
+    } else if (key == "resolution") {
+      resolution = newValue;
     } else {
       super.setValue(key, newValue);
     }
@@ -266,7 +260,7 @@ class LineMaterial extends ShaderMaterial {
   set color(value) {
     this.uniforms!["diffuse"]["value"] = value;
   }
-	
+
   get linewidth => this.uniforms!["linewidth"]["value"];
   set linewidth(value) {
     this.uniforms!["linewidth"] = {"value": value};
@@ -301,5 +295,4 @@ class LineMaterial extends ShaderMaterial {
   set resolution(value) {
     this.uniforms!["resolution"]["value"] = value;
   }
-
 }

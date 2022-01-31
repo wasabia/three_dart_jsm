@@ -4,15 +4,11 @@
  */
 
 Map<String, dynamic> UnpackDepthRGBAShader = {
-
-	"uniforms": {
-
-		'tDiffuse': { },
-		'opacity': { "value": 1.0 }
-
-	},
-
-	"vertexShader": """
+  "uniforms": {
+    'tDiffuse': {},
+    'opacity': {"value": 1.0}
+  },
+  "vertexShader": """
 
 		varying vec2 vUv;
 
@@ -23,8 +19,7 @@ Map<String, dynamic> UnpackDepthRGBAShader = {
 
 		}
   """,
-
-	"fragmentShader": """
+  "fragmentShader": """
 
 		uniform float opacity;
 
@@ -41,6 +36,4 @@ Map<String, dynamic> UnpackDepthRGBAShader = {
 
 		}
   """
-
 };
-

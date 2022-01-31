@@ -6,9 +6,6 @@ import 'dart:typed_data';
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 
-
-
-
 part './EffectComposer.dart';
 part './Pass.dart';
 part './MaskPass.dart';

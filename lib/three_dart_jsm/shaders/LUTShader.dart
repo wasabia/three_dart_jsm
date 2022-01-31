@@ -1,21 +1,15 @@
-
 var LUTShader = {
-
-	"defines": {
-		"USE_3DTEXTURE": 1,
-	},
-
-	"uniforms": {
-		"lut3d": { "value": null },
-
-		"lut": { "value": null },
-		"lutSize": { "value": 0 },
-
-		"tDiffuse": { "value": null },
-		"intensity": { "value": 1.0 },
-	},
-
-	"vertexShader": """
+  "defines": {
+    "USE_3DTEXTURE": 1,
+  },
+  "uniforms": {
+    "lut3d": {"value": null},
+    "lut": {"value": null},
+    "lutSize": {"value": 0},
+    "tDiffuse": {"value": null},
+    "intensity": {"value": 1.0},
+  },
+  "vertexShader": """
 
 		varying vec2 vUv;
 
@@ -27,9 +21,7 @@ var LUTShader = {
 		}
 
 	""",
-
-
-	"fragmentShader": """
+  "fragmentShader": """
 		precision highp sampler3D;
 
 		#if USE_3DTEXTURE
@@ -87,5 +79,4 @@ var LUTShader = {
 		}
 
 	""",
-
 };
