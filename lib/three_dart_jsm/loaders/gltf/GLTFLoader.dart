@@ -7,7 +7,7 @@ class GLTFLoader extends Loader {
   late dynamic ddsLoader;
   late dynamic meshoptDecoder;
 
-  GLTFLoader(manager) : super(manager) {
+  GLTFLoader([manager]) : super(manager) {
     this.dracoLoader = null;
     this.ddsLoader = null;
     this.ktx2Loader = null;

@@ -216,7 +216,7 @@ class GLTFParser {
     var cacheKey = '${type}:${index}';
     var dependency = this.cache.get(cacheKey);
 
-    print(" GLTFParse.getDependency type: ${type} index: ${index} ");
+    // print(" GLTFParse.getDependency type: ${type} index: ${index} ");
 
     if (dependency == null) {
       switch (type) {
@@ -1023,7 +1023,6 @@ class GLTFParser {
    * @return {Promise<Group|Mesh|SkinnedMesh>}
    */
   loadMesh(meshIndex) async {
-    print(" GLTFParse.loadMesh meshIndex: ${meshIndex} ");
 
     var parser = this;
     var json = this.json;
@@ -1046,8 +1045,6 @@ class GLTFParser {
 
     final results = await Future.wait(pending);
 
-    print(" GLTFParse.loadMesh results: ${results} ");
-
     var materials = slice(results, 0, results.length - 1);
     var geometries = results[results.length - 1];
 
@@ -1063,7 +1060,6 @@ class GLTFParser {
 
       var material = materials[i];
 
-      print(" GLTFParse.loadMesh primitive: ${primitive} ");
 
       if (primitive["mode"] == WEBGL_CONSTANTS["TRIANGLES"] ||
           primitive["mode"] == WEBGL_CONSTANTS["TRIANGLE_STRIP"] ||
@@ -1073,10 +1069,6 @@ class GLTFParser {
         mesh = meshDef["isSkinnedMesh"] == true
             ? new SkinnedMesh(geometry, material)
             : new Mesh(geometry, material);
-
-        print(" GLTFParse.loadMesh mesh: ${mesh} ");
-        print(mesh.material);
-        print(mesh.geometry);
 
         if (mesh.isSkinnedMesh == true &&
             !mesh.geometry.attributes["skinWeight"].normalized) {
@@ -1110,8 +1102,6 @@ class GLTFParser {
 
       mesh.name =
           parser.createUniqueName(meshDef["name"] ?? ('mesh_${meshIndex}'));
-
-      print(" GLTFParse.loadMesh mesh.name: ${mesh.name} ");
 
       assignExtrasToUserData(mesh, meshDef);
 

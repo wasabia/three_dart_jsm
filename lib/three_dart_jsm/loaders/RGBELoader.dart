@@ -326,7 +326,7 @@ class RGBELoader extends DataTextureLoader {
           Math.min(sourceArray[sourceOffset + 1] * scale, 65504));
       destArray[destOffset + 2] = DataUtils.toHalfFloat(
           Math.min(sourceArray[sourceOffset + 2] * scale, 65504));
-      destArray[destOffset + 3] = DataUtils.toHalfFloat(1);
+      destArray[destOffset + 3] = DataUtils.toHalfFloat(1.0);
     };
 
     // var byteArray = new Uint8Array( buffer );
