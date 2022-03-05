@@ -1,7 +1,6 @@
 part of three_webgpu;
 
 class WebGPUBindings {
-
   late GPUDevice device;
   late WebGPUInfo info;
   late WebGPUProperties properties;
@@ -13,285 +12,217 @@ class WebGPUBindings {
   late WeakMap uniformsData;
   late WeakMap updateMap;
 
-	WebGPUBindings( device, info, properties, textures, renderPipelines, computePipelines, attributes, nodes ) {
+  WebGPUBindings(device, info, properties, textures, renderPipelines,
+      computePipelines, attributes, nodes) {
+    this.device = device;
+    this.info = info;
+    this.properties = properties;
+    this.textures = textures;
+    this.renderPipelines = renderPipelines;
+    this.computePipelines = computePipelines;
+    this.attributes = attributes;
+    this.nodes = nodes;
 
-		this.device = device;
-		this.info = info;
-		this.properties = properties;
-		this.textures = textures;
-		this.renderPipelines = renderPipelines;
-		this.computePipelines = computePipelines;
-		this.attributes = attributes;
-		this.nodes = nodes;
+    this.uniformsData = new WeakMap();
 
-		this.uniformsData = new WeakMap();
+    this.updateMap = new WeakMap();
+  }
 
-		this.updateMap = new WeakMap();
+  Map get(object) {
+    var data = this.uniformsData.get(object);
 
-	}
+    if (data == undefined) {
+      // each object defines an array of bindings (ubos, textures, samplers etc.)
 
-	Map get( object ) {
+      var nodeBuilder = this.nodes.get(object);
+      var bindings = nodeBuilder.getBindings();
 
-		var data = this.uniformsData.get( object );
+      // setup (static) binding layout and (dynamic) binding group
 
-		if ( data == undefined ) {
+      WebGPURenderPipeline renderPipeline = this.renderPipelines.get(object);
 
-			// each object defines an array of bindings (ubos, textures, samplers etc.)
-
-			var nodeBuilder = this.nodes.get( object );
-			var bindings = nodeBuilder.getBindings();
-
-			// setup (static) binding layout and (dynamic) binding group
-
-			WebGPURenderPipeline renderPipeline = this.renderPipelines.get( object );
-
-			// var bindGroupLayout = renderPipeline.pipeline.getBindGroupLayout( 0 );
+      // var bindGroupLayout = renderPipeline.pipeline.getBindGroupLayout( 0 );
       var bindGroupLayout = renderPipeline.bindGroupLayout;
 
+      var bindGroup = this._createBindGroup(bindings, bindGroupLayout);
 
-			var bindGroup = this._createBindGroup( bindings, bindGroupLayout );
+      data = {
+        "layout": bindGroupLayout,
+        "group": bindGroup,
+        "bindings": bindings
+      };
 
-			data = {
-				"layout": bindGroupLayout,
-				"group": bindGroup,
-				"bindings": bindings
-			};
+      this.uniformsData.set(object, data);
+    }
 
-			this.uniformsData.set( object, data );
+    return data;
+  }
 
-		}
+  remove(object) {
+    this.uniformsData.delete(object);
+  }
 
-		return data;
+  getForCompute(param) {
+    var data = this.uniformsData.get(param);
 
-	}
+    if (data == undefined) {
+      // bindings are not yet retrieved via node material
 
-	remove( object ) {
+      var bindings = param.bindings != undefined ? param.bindings.slice() : [];
 
-		this.uniformsData.delete( object );
+      var computePipeline = this.computePipelines.get(param);
 
-	}
+      var bindLayout = computePipeline.getBindGroupLayout(0);
+      var bindGroup = this._createBindGroup(bindings, bindLayout);
 
-	getForCompute( param ) {
+      data = {"layout": bindLayout, "group": bindGroup, "bindings": bindings};
 
-		var data = this.uniformsData.get( param );
+      this.uniformsData.set(param, data);
+    }
 
-		if ( data == undefined ) {
+    return data;
+  }
 
-			// bindings are not yet retrieved via node material
+  update(object) {
+    var textures = this.textures;
 
-			var bindings = param.bindings != undefined ? param.bindings.slice() : [];
+    var data = this.get(object);
 
-			var computePipeline = this.computePipelines.get( param );
+    var bindings = data["bindings"];
 
-			var bindLayout = computePipeline.getBindGroupLayout( 0 );
-			var bindGroup = this._createBindGroup( bindings, bindLayout );
+    var updateMap = this.updateMap;
+    var frame = this.info.render["frame"];
 
-			data = {
-				"layout": bindLayout,
-				"group": bindGroup,
-				"bindings": bindings
-			};
+    var needsBindGroupRefresh = false;
 
-			this.uniformsData.set( param, data );
+    // iterate over all bindings and check if buffer updates or a new binding group is required
 
-		}
+    for (var binding in bindings) {
+      var isShared = binding.isShared;
+      var isUpdated = updateMap.get(binding) == frame;
 
-		return data;
+      if (isShared && isUpdated) continue;
+      if (binding is WebGPUUniformBuffer) {
+        var buffer = binding.getBuffer();
+        var bufferGPU = binding.bufferGPU!;
 
-	}
+        var needsBufferWrite = binding.update();
 
-	update( object ) {
-
-    
-		var textures = this.textures;
-
-		var data = this.get( object );
-
-		var bindings = data["bindings"];
-
-		var updateMap = this.updateMap;
-		var frame = this.info.render["frame"];
-
-		var needsBindGroupRefresh = false;
-
-		// iterate over all bindings and check if buffer updates or a new binding group is required
-    
-		for ( var binding in bindings ) {
-			var isShared = binding.isShared;
-			var isUpdated = updateMap.get( binding ) == frame;
-
-			if ( isShared && isUpdated ) continue;
-			if ( binding is WebGPUUniformBuffer ) {
-
-				var buffer = binding.getBuffer();
-				var bufferGPU = binding.bufferGPU!;
-
-				var needsBufferWrite = binding.update();
-
-				if ( needsBufferWrite == true ) {
-
-          if(buffer is Float32Array) {
+        if (needsBufferWrite == true) {
+          if (buffer is Float32Array) {
             print("WebGPUBindings TODO 优化 内存复制   ");
-            this.device.queue.writeBuffer( bufferGPU, 0, buffer.toDartList(), 0 );
+            this.device.queue.writeBuffer(bufferGPU, 0, buffer.toDartList(), 0);
           } else {
-            this.device.queue.writeBuffer( bufferGPU, 0, buffer, 0 );
+            this.device.queue.writeBuffer(bufferGPU, 0, buffer, 0);
           }
+        }
+      } else if (binding.isStorageBuffer) {
+        var attribute = binding.attribute;
+        this.attributes.update(attribute, false, binding.usage);
+      } else if (binding.isSampler) {
+        var texture = binding.getTexture();
 
-				}
+        textures.updateSampler(texture);
 
-			} else if ( binding.isStorageBuffer ) {
+        var samplerGPU = textures.getSampler(texture);
 
-				var attribute = binding.attribute;
-				this.attributes.update( attribute, false, binding.usage );
+        if (binding.samplerGPU != samplerGPU) {
+          binding.samplerGPU = samplerGPU;
+          needsBindGroupRefresh = true;
+        }
+      } else if (binding.isSampledTexture) {
+        var texture = binding.getTexture();
 
-			} else if ( binding.isSampler ) {
+        var needsTextureRefresh = textures.updateTexture(texture);
+        var textureGPU = textures.getTextureGPU(texture);
 
-				var texture = binding.getTexture();
+        if (textureGPU != undefined && binding.textureGPU != textureGPU ||
+            needsTextureRefresh == true) {
+          binding.textureGPU = textureGPU;
+          needsBindGroupRefresh = true;
+        }
+      }
 
-				textures.updateSampler( texture );
+      updateMap.set(binding, frame);
+    }
 
-				var samplerGPU = textures.getSampler( texture );
+    if (needsBindGroupRefresh == true) {
+      data["group"] = this._createBindGroup(bindings, data["layout"]);
+    }
+  }
 
-				if ( binding.samplerGPU != samplerGPU ) {
+  dispose() {
+    this.uniformsData = new WeakMap();
+    this.updateMap = new WeakMap();
+  }
 
-					binding.samplerGPU = samplerGPU;
-					needsBindGroupRefresh = true;
+  _createBindGroup(bindings, layout) {
+    var bindingPoint = 0;
+    List<GPUBindGroupEntry> entries = [];
 
-				}
+    for (var binding in bindings) {
+      if (binding is WebGPUUniformBuffer) {
+        if (binding.bufferGPU == null) {
+          var byteLength = binding.getByteLength();
 
-			} else if ( binding.isSampledTexture ) {
+          binding.bufferGPU = this.device.createBuffer(
+              GPUBufferDescriptor(size: byteLength, usage: binding.usage));
+        }
 
-				var texture = binding.getTexture();
+        entries.add(GPUBindGroupEntry(
+            binding: bindingPoint, buffer: binding.bufferGPU));
+      } else if (binding is WebGPUStorageBuffer) {
+        if (binding.bufferGPU == null) {
+          var attribute = binding.attribute;
 
-				var needsTextureRefresh = textures.updateTexture( texture );
-				var textureGPU = textures.getTextureGPU( texture );
+          this.attributes.update(attribute, false, binding.usage);
+          binding.bufferGPU = this.attributes.get(attribute).buffer;
+        }
 
-				if ( textureGPU != undefined && binding.textureGPU != textureGPU || needsTextureRefresh == true ) {
+        entries.add(GPUBindGroupEntry(
+            binding: bindingPoint, buffer: binding.bufferGPU));
+      } else if (binding is WebGPUSampler) {
+        if (binding.samplerGPU == null) {
+          binding.samplerGPU = this.textures.getDefaultSampler();
+        }
 
-					binding.textureGPU = textureGPU;
-					needsBindGroupRefresh = true;
-
-				}
-
-			}
-
-			updateMap.set( binding, frame );
-
-		}
-
-		if ( needsBindGroupRefresh == true ) {
-
-			data["group"] = this._createBindGroup( bindings, data["layout"] );
-
-		}
-
-	}
-
-	dispose() {
-
-		this.uniformsData = new WeakMap();
-		this.updateMap = new WeakMap();
-
-	}
-
-	_createBindGroup( bindings, layout ) {
-
-		var bindingPoint = 0;
-		List<GPUBindGroupEntry> entries = [];
-
-		for ( var binding in bindings ) {
-			if ( binding is WebGPUUniformBuffer ) {
-
-				if ( binding.bufferGPU == null ) {
-
-					var byteLength = binding.getByteLength();
-
-
-
-					binding.bufferGPU = this.device.createBuffer(
-            GPUBufferDescriptor(size: byteLength, usage: binding.usage)
-          );
-
-				}
-
-				entries.add( GPUBindGroupEntry( binding: bindingPoint, buffer: binding.bufferGPU ) );
-
-			} else if ( binding is WebGPUStorageBuffer ) {
-
-				if ( binding.bufferGPU == null ) {
-
-					var attribute = binding.attribute;
-
-					this.attributes.update( attribute, false, binding.usage );
-					binding.bufferGPU = this.attributes.get( attribute ).buffer;
-
-				}
-
-				entries.add( GPUBindGroupEntry( binding: bindingPoint, buffer: binding.bufferGPU ) );
-
-			} else if ( binding is WebGPUSampler ) {
-
-				if ( binding.samplerGPU == null ) {
-
-					binding.samplerGPU = this.textures.getDefaultSampler();
-
-				}
-
-				entries.add( GPUBindGroupEntry( binding: bindingPoint, sampler: binding.samplerGPU ) );
-
-			} else if ( binding is WebGPUSampledTexture ) {
-
-				if ( binding.textureGPU == null ) {
-
-					if ( binding is WebGPUSampledCubeTexture ) {
-
-						binding.textureGPU = this.textures.getDefaultCubeTexture();
-
-					} else {
-
-						binding.textureGPU = this.textures.getDefaultTexture();
-
-					}
-
-				}
+        entries.add(GPUBindGroupEntry(
+            binding: bindingPoint, sampler: binding.samplerGPU));
+      } else if (binding is WebGPUSampledTexture) {
+        if (binding.textureGPU == null) {
+          if (binding is WebGPUSampledCubeTexture) {
+            binding.textureGPU = this.textures.getDefaultCubeTexture();
+          } else {
+            binding.textureGPU = this.textures.getDefaultTexture();
+          }
+        }
 
         convertDimension(String dim) {
-          if(dim == "2d") {
+          if (dim == "2d") {
             return 1;
           } else {
-            throw("WebGPUBindings convertDimension dim: ${dim} need support ");
+            throw ("WebGPUBindings convertDimension dim: ${dim} need support ");
           }
         }
 
         int _dim = convertDimension(binding.dimension);
 
-				entries.add(
-          GPUBindGroupEntry(
+        entries.add(GPUBindGroupEntry(
             binding: bindingPoint,
-            textureView: binding.textureGPU.createView( GPUTextureViewDescriptor( dimension: _dim ) )
-          )
-        );
+            textureView: binding.textureGPU
+                .createView(GPUTextureViewDescriptor(dimension: _dim))));
+      }
 
-			}
-
-			bindingPoint ++;
-
-		}
+      bindingPoint++;
+    }
 
     print("WebGPUBindings createBindGroup entries: ${entries.length}  ");
 
-		var _bindGroup = this.device.createBindGroup( 
-      GPUBindGroupDescriptor(
-        layout: layout,
-        entries: entries,
-        entryCount: entries.length
-      )
-    );
+    var _bindGroup = this.device.createBindGroup(GPUBindGroupDescriptor(
+        layout: layout, entries: entries, entryCount: entries.length));
 
-    print( entries.map((e) => e.pointer.ref.size).toList() );
+    print(entries.map((e) => e.pointer.ref.size).toList());
 
     return _bindGroup;
-
-	}
-
+  }
 }

@@ -1,15 +1,11 @@
 part of renderer_nodes;
 
 class NodeShaderStage {
-	static const String Vertex = 'vertex';
-	static const String Fragment = 'fragment';
+  static const String Vertex = 'vertex';
+  static const String Fragment = 'fragment';
 }
 
-enum NodeUpdateType {
-	None,
-	Frame,
-	Object
-}
+enum NodeUpdateType { None, Frame, Object }
 
 // export const NodeType = {
 // 	Boolean: 'bool',

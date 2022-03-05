@@ -1,41 +1,31 @@
 part of renderer_nodes;
 
-
 class ContextNode extends Node {
-
   late dynamic node;
   late dynamic context;
 
-	ContextNode( node, [context] ) : super() {
+  ContextNode(node, [context]) : super() {
+    this.node = node;
+    this.context = context ?? {};
+  }
 
-		this.node = node;
-		this.context = context ?? {};
+  getNodeType([builder, output]) {
+    return this.node.getNodeType(builder);
+  }
 
-	}
-
-	getNodeType( [builder, output] ) {
-
-		return this.node.getNodeType( builder );
-
-	}
-
-	generate( [builder, output] ) {
-
-		var previousContext = builder.getContext();
+  generate([builder, output]) {
+    var previousContext = builder.getContext();
 
     Map _context = {};
-    _context.addAll( builder.context );
-    _context.addAll( this.context );
+    _context.addAll(builder.context);
+    _context.addAll(this.context);
 
-		builder.setContext( _context );
+    builder.setContext(_context);
 
-		var snippet = this.node.build( builder, output );
+    var snippet = this.node.build(builder, output);
 
-		builder.setContext( previousContext );
+    builder.setContext(previousContext);
 
-		return snippet;
-
-	}
-
+    return snippet;
+  }
 }
-

@@ -249,14 +249,14 @@ addMorphTargets(geometry, targets, parser) async {
   for (var i = 0, il = targets.length; i < il; i++) {
     var target = targets[i];
 
-    if ( target["POSITION"] != null ) hasMorphPosition = true;
-    if ( target["NORMAL"] != null ) hasMorphNormal = true;
-    if ( target["COLOR_0"] != null ) hasMorphColor = true;
+    if (target["POSITION"] != null) hasMorphPosition = true;
+    if (target["NORMAL"] != null) hasMorphNormal = true;
+    if (target["COLOR_0"] != null) hasMorphColor = true;
 
-    if ( hasMorphPosition && hasMorphNormal && hasMorphColor ) break;
+    if (hasMorphPosition && hasMorphNormal && hasMorphColor) break;
   }
 
-  if (!hasMorphPosition && !hasMorphNormal && ! hasMorphColor) return geometry;
+  if (!hasMorphPosition && !hasMorphNormal && !hasMorphColor) return geometry;
 
   List<BufferAttribute> morphPositions = [];
   List<BufferAttribute> morphNormals = [];
@@ -281,20 +281,18 @@ addMorphTargets(geometry, targets, parser) async {
       morphNormals.add(_normal);
     }
 
-    if ( hasMorphColor ) {
+    if (hasMorphColor) {
+      var _color = target["COLOR_0"] != null
+          ? await parser.getDependency('accessor', target["COLOR_0"])
+          : geometry.attributes["color"];
 
-			var _color = target["COLOR_0"] != null
-				? await parser.getDependency( 'accessor', target["COLOR_0"] )
-				: geometry.attributes["color"];
-
-			morphColors.add( _color );
-
-		}
+      morphColors.add(_color);
+    }
   }
 
   if (hasMorphPosition) geometry.morphAttributes["position"] = morphPositions;
   if (hasMorphNormal) geometry.morphAttributes["normal"] = morphNormals;
-  if ( hasMorphColor ) geometry.morphAttributes["color"] = morphColors;
+  if (hasMorphColor) geometry.morphAttributes["color"] = morphColors;
 
   geometry.morphTargetsRelative = true;
 

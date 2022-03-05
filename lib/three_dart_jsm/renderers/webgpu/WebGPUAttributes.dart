@@ -1,152 +1,108 @@
 part of three_webgpu;
 
 class WebGPUAttributes {
-
   late WeakMap buffers;
   late GPUDevice device;
 
-	WebGPUAttributes( device ) {
+  WebGPUAttributes(device) {
+    this.buffers = new WeakMap();
+    this.device = device;
+  }
 
-		this.buffers = new WeakMap();
-		this.device = device;
+  get(attribute) {
+    if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
-	}
+    return this.buffers.get(attribute);
+  }
 
-	get( attribute ) {
+  remove(attribute) {
+    if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
-		if ( attribute.isInterleavedBufferAttribute ) attribute = attribute.data;
+    var data = this.buffers.get(attribute);
 
-		return this.buffers.get( attribute );
+    if (data != null) {
+      data.buffer.destroy();
 
-	}
+      this.buffers.delete(attribute);
+    }
+  }
 
-	remove( attribute ) {
+  update(attribute, [isIndex = false, usage = null]) {
+    if (attribute.isInterleavedBufferAttribute) attribute = attribute.data;
 
-		if ( attribute.isInterleavedBufferAttribute ) attribute = attribute.data;
+    var data = this.buffers.get(attribute);
 
-		var data = this.buffers.get( attribute );
+    if (data == undefined) {
+      if (usage == null) {
+        usage =
+            (isIndex == true) ? GPUBufferUsage.Index : GPUBufferUsage.Vertex;
+      }
 
-		if ( data != null ) {
+      data = this._createBuffer(attribute, usage);
 
-			data.buffer.destroy();
+      this.buffers.set(attribute, data);
+    } else if (usage != null && usage != data.usage) {
+      data.buffer.destroy();
 
-			this.buffers.delete( attribute );
+      data = this._createBuffer(attribute, usage);
 
-		}
+      this.buffers.set(attribute, data);
+    } else if (data["version"] < attribute.version) {
+      this._writeBuffer(data["buffer"], attribute);
 
-	}
+      data["version"] = attribute.version;
+    }
+  }
 
-	update( attribute, [isIndex = false, usage = null] ) {
+  Map _createBuffer(attribute, usage) {
+    var array = attribute.array;
+    var size = array.byteLength +
+        ((4 - (array.byteLength % 4)) %
+            4); // ensure 4 byte alignment, see #20441
 
-		if ( attribute.isInterleavedBufferAttribute ) attribute = attribute.data;
-
-		var data = this.buffers.get( attribute );
-
-		if ( data == undefined ) {
-
-			if ( usage == null ) {
-
-				usage = ( isIndex == true ) ? GPUBufferUsage.Index : GPUBufferUsage.Vertex;
-
-			}
-
-			data = this._createBuffer( attribute, usage );
-
-			this.buffers.set( attribute, data );
-
-		} else if ( usage != null && usage != data.usage ) {
-
-			data.buffer.destroy();
-
-			data = this._createBuffer( attribute, usage );
-
-			this.buffers.set( attribute, data );
-
-		} else if ( data["version"] < attribute.version ) {
-
-			this._writeBuffer( data["buffer"], attribute );
-
-			data["version"] = attribute.version;
-
-		}
-
-	}
-
-	Map _createBuffer( attribute, usage ) {
-		var array = attribute.array;
-		var size = array.byteLength + ( ( 4 - ( array.byteLength % 4 ) ) % 4 ); // ensure 4 byte alignment, see #20441
-
-		var buffer = this.device.createBuffer( 
-      GPUBufferDescriptor(
+    var buffer = this.device.createBuffer(GPUBufferDescriptor(
         size: size,
         usage: usage | GPUBufferUsage.CopyDst,
-        mappedAtCreation: true
-      ));
+        mappedAtCreation: true));
 
-    
-
-    if( array is Float32Array ) {
+    if (array is Float32Array) {
       Pointer<Float> p = buffer.getMappedRange().cast();
 
-      for(var i = 0; i < array.len; i ++) {
+      for (var i = 0; i < array.len; i++) {
         p[i] = array[i];
       }
-    } else if( array is Uint16Array ) {
+    } else if (array is Uint16Array) {
       Pointer<Int16> p = buffer.getMappedRange().cast();
 
-      for(var i = 0; i < array.len; i ++) {
+      for (var i = 0; i < array.len; i++) {
         p[i] = array[i];
       }
     } else {
-      throw("WebGPUAttributes attribute upload buffer ${array} is not support ");
+      throw ("WebGPUAttributes attribute upload buffer ${array} is not support ");
     }
 
-    
+    buffer.unmap();
 
-
-		buffer.unmap();
-
-    
     // TODO
-		// attribute.onUploadCallback();
+    // attribute.onUploadCallback();
 
-		return {
-			"version": attribute.version,
-			"buffer": buffer,
-			"usage": usage
-		};
+    return {"version": attribute.version, "buffer": buffer, "usage": usage};
+  }
 
-	}
+  _writeBuffer(buffer, attribute) {
+    var array = attribute.array;
+    var updateRange = attribute.updateRange;
 
-	_writeBuffer( buffer, attribute ) {
+    if (updateRange.count == -1) {
+      // Not using update ranges
 
-		var array = attribute.array;
-		var updateRange = attribute.updateRange;
+      this.device.queue.writeBuffer(buffer, 0, array, 0);
+    } else {
+      this.device.queue.writeBuffer(
+          buffer, 0, array, updateRange.count * array.BYTES_PER_ELEMENT);
 
-		if ( updateRange.count == - 1 ) {
+      updateRange.count = -1; // reset range
 
-			// Not using update ranges
-
-			this.device.queue.writeBuffer(
-				buffer,
-				0,
-				array,
-				0
-			);
-
-		} else {
-
-			this.device.queue.writeBuffer(
-				buffer,
-        0,
-				array,
-				updateRange.count * array.BYTES_PER_ELEMENT
-			);
-
-			updateRange.count = - 1; // reset range
-
-		}
-
-	}
-
+    }
+  }
 }

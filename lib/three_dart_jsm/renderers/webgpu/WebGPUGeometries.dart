@@ -1,52 +1,41 @@
 part of three_webgpu;
 
 class WebGPUGeometries {
-
   late WebGPUAttributes attributes;
   late WebGPUInfo info;
   late WeakMap geometries;
 
-	WebGPUGeometries( WebGPUAttributes attributes, WebGPUInfo info ) {
+  WebGPUGeometries(WebGPUAttributes attributes, WebGPUInfo info) {
+    this.attributes = attributes;
+    this.info = info;
 
-		this.attributes = attributes;
-		this.info = info;
+    this.geometries = new WeakMap();
+  }
 
-		this.geometries = new WeakMap();
+  update(geometry) {
+    if (this.geometries.has(geometry) == false) {
+      // var disposeCallback = onGeometryDispose.bind( this );
 
-	}
+      // this.geometries.set( geometry, onGeometryDispose );
 
-	update( geometry ) {
+      this.info.memory["geometries"]++;
 
-		if ( this.geometries.has( geometry ) == false ) {
+      // geometry.addEventListener( 'dispose', onGeometryDispose );
 
-			// var disposeCallback = onGeometryDispose.bind( this );
+    }
 
-			// this.geometries.set( geometry, onGeometryDispose );
+    var geometryAttributes = geometry.attributes;
 
-			this.info.memory["geometries"] ++;
+    for (var name in geometryAttributes.keys) {
+      this.attributes.update(geometryAttributes[name]);
+    }
 
-			// geometry.addEventListener( 'dispose', onGeometryDispose );
+    var index = geometry.index;
 
-		}
-
-		var geometryAttributes = geometry.attributes;
-
-		for ( var name in geometryAttributes.keys ) {
-
-			this.attributes.update( geometryAttributes[ name ] );
-
-		}
-
-		var index = geometry.index;
-
-		if ( index != null ) {
-
-			this.attributes.update( index, true );
-
-		}
-
-	}
-
+    if (index != null) {
+      this.attributes.update(index, true);
+    }
+  }
 
   // onGeometryDispose( event ) {
 
@@ -59,7 +48,6 @@ class WebGPUGeometries {
 
   //   geometry.removeEventListener( 'dispose', disposeCallback );
 
- 
   //   var index = geometry.index;
   //   var geometryAttributes = geometry.attributes;
 
@@ -77,6 +65,4 @@ class WebGPUGeometries {
 
   // }
 
-
 }
-

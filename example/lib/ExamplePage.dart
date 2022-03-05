@@ -1,4 +1,3 @@
-
 import 'package:example/misc_controls_orbit.dart';
 
 import 'package:flutter/material.dart';
@@ -6,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'misc_controls_arcball.dart';
 import 'misc_controls_map.dart';
 import 'misc_controls_trackball.dart';
-
 
 class ExamplePage extends StatefulWidget {
   String? id;
@@ -35,7 +33,6 @@ class _MyAppState extends State<ExamplePage> {
       page = misc_controls_arcball(fileName: fileName);
     } else if (fileName == "misc_controls_map") {
       page = misc_controls_map(fileName: fileName);
-      
     } else {
       throw ("ExamplePage fileName ${fileName} is not support yet ");
     }

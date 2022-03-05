@@ -1,40 +1,31 @@
 part of renderer_nodes;
 
 class TempNode extends Node {
+  TempNode([type]) : super(type) {}
 
-	TempNode( [type] ) : super( type ) {
+  build(builder, [output]) {
+    var type = builder.getVectorType(this.getNodeType(builder, output));
 
-	}
+    if (builder.context["temp"] != false &&
+        type != 'void ' &&
+        output != 'void') {
+      Map nodeData = builder.getDataFromNode(this);
 
-	build( builder, [output] ) {
+      if (nodeData["snippet"] == undefined) {
+        var snippet = super.build(builder, type);
 
-		var type = builder.getVectorType( this.getNodeType( builder, output ) );
+        var nodeVar = builder.getVarFromNode(this, type);
+        var propertyName = builder.getPropertyName(nodeVar);
 
-		if ( builder.context["temp"] != false && type != 'void ' && output != 'void' ) {
+        builder.addFlowCode("${propertyName} = ${snippet}");
 
-			Map nodeData = builder.getDataFromNode( this );
+        nodeData["snippet"] = snippet;
+        nodeData["propertyName"] = propertyName;
+      }
 
-			if ( nodeData["snippet"] == undefined ) {
+      return builder.format(nodeData["propertyName"], type, output);
+    }
 
-				var snippet = super.build( builder, type );
-
-				var nodeVar = builder.getVarFromNode( this, type );
-				var propertyName = builder.getPropertyName( nodeVar );
-
-				builder.addFlowCode( "${propertyName} = ${snippet}" );
-
-				nodeData["snippet"] = snippet;
-				nodeData["propertyName"] = propertyName;
-
-			}
-
-			return builder.format( nodeData["propertyName"], type, output );
-
-		}
-
-		return super.build( builder, output );
-
-	}
-
+    return super.build(builder, output);
+  }
 }
-

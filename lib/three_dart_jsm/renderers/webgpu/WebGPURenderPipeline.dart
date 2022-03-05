@@ -115,33 +115,36 @@ class WebGPURenderPipeline {
             format: colorFormat,
             writeMask: colorWriteMask));
     var _depthStencilState = GPUDepthStencilState(
-        format: depthStencilFormat,
-        depthWriteEnabled: material.depthWrite,
-        depthCompare: depthCompare,
-        stencilFront: GPUStencilFaceState(compare: stencilFront['compare']),
-        // stencilBack: {}, // three.js does not provide an API to configure the back function (gl.stencilFuncSeparate() was never used)
-        // stencilBack: GPUStencilFaceState(
-        //   compare: GPUCompareFunction.Never
-        // ),
-        // stencilReadMask: material.stencilFuncMask,
-        // stencilWriteMask: material.stencilWriteMask
-        
-        );
+      format: depthStencilFormat,
+      depthWriteEnabled: material.depthWrite,
+      depthCompare: depthCompare,
+      stencilFront: GPUStencilFaceState(compare: stencilFront['compare']),
+      // stencilBack: {}, // three.js does not provide an API to configure the back function (gl.stencilFuncSeparate() was never used)
+      // stencilBack: GPUStencilFaceState(
+      //   compare: GPUCompareFunction.Never
+      // ),
+      // stencilReadMask: material.stencilFuncMask,
+      // stencilWriteMask: material.stencilWriteMask
+    );
 
-    bindGroupLayout = this._device.createBindGroupLayout(GPUBindGroupLayoutDescriptor(entries: [
-      GPUBindGroupLayoutEntry(
-          binding: 0,
-          visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
-          buffer: GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform )),
-      GPUBindGroupLayoutEntry(
-          binding: 1,
-          visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
-          buffer: GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform ))
-    ], entryCount: 2));
+    bindGroupLayout = this
+        ._device
+        .createBindGroupLayout(GPUBindGroupLayoutDescriptor(entries: [
+          GPUBindGroupLayoutEntry(
+              binding: 0,
+              visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
+              buffer:
+                  GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform)),
+          GPUBindGroupLayoutEntry(
+              binding: 1,
+              visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
+              buffer:
+                  GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform))
+        ], entryCount: 2));
 
-    var pipelineLayout = this._device.createPipelineLayout(GPUPipelineLayoutDescriptor(
-      bindGroupLayouts: bindGroupLayout,
-      bindGroupLayoutCount: 1));
+    var pipelineLayout = this._device.createPipelineLayout(
+        GPUPipelineLayoutDescriptor(
+            bindGroupLayouts: bindGroupLayout, bindGroupLayoutCount: 1));
 
     var _renderPipelineDescriptor = GPURenderPipelineDescriptor(
         layout: pipelineLayout,
@@ -151,7 +154,8 @@ class WebGPURenderPipeline {
         depthStencil: _depthStencilState,
         multisample: GPUMultisampleState(count: this._sampleCount));
 
-    this.pipeline = this._device.createRenderPipeline(_renderPipelineDescriptor);
+    this.pipeline =
+        this._device.createRenderPipeline(_renderPipelineDescriptor);
   }
 
   _getArrayStride(type, bytesPerElement) {

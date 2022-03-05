@@ -1,43 +1,32 @@
 part of renderer_nodes;
 
 class JoinNode extends Node {
-
   late List nodes;
 
-	JoinNode( [nodes] ) : super() {
+  JoinNode([nodes]) : super() {
+    generateLength = 1;
 
-		generateLength = 1;
+    this.nodes = nodes ?? [];
+  }
 
-		this.nodes = nodes ?? [];
+  getNodeType([builder, output]) {
+    return builder.getTypeFromLength(this.nodes.length);
+  }
 
-	}
+  generate([builder, output]) {
+    var type = this.getNodeType(builder);
+    var nodes = this.nodes;
 
-	getNodeType( [builder, output] ) {
+    var snippetValues = [];
 
-		return builder.getTypeFromLength( this.nodes.length );
+    for (var i = 0; i < nodes.length; i++) {
+      var input = nodes[i];
 
-	}
+      var inputSnippet = input.build(builder, 'float');
 
-	generate( [builder, output] ) {
+      snippetValues.add(inputSnippet);
+    }
 
-		var type = this.getNodeType( builder );
-		var nodes = this.nodes;
-
-		var snippetValues = [];
-
-		for ( var i = 0; i < nodes.length; i ++ ) {
-
-			var input = nodes[ i ];
-
-			var inputSnippet = input.build( builder, 'float' );
-
-			snippetValues.add( inputSnippet );
-
-		}
-
-		return "${ builder.getType( type ) }( ${ snippetValues.join( ', ' ) } )";
-
-	}
-
+    return "${builder.getType(type)}( ${snippetValues.join(', ')} )";
+  }
 }
-

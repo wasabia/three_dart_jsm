@@ -1,40 +1,28 @@
 part of three_webgpu;
 
 class WebGPUProperties {
-
   late WeakMap properties;
 
-	WebGPUProperties() {
+  WebGPUProperties() {
+    this.properties = new WeakMap();
+  }
 
-		this.properties = new WeakMap();
+  get(object) {
+    var map = this.properties.get(object);
 
-	}
+    if (map == undefined) {
+      map = {};
+      this.properties.set(object, map);
+    }
 
-	get( object ) {
+    return map;
+  }
 
-	  var map = this.properties.get( object );
+  remove(object) {
+    this.properties.delete(object);
+  }
 
-		if ( map == undefined ) {
-
-			map = {};
-			this.properties.set( object, map );
-
-		}
-
-		return map;
-
-	}
-
-	remove( object ) {
-
-		this.properties.delete( object );
-
-	}
-
-	dispose() {
-
-		this.properties = new WeakMap();
-
-	}
-
+  dispose() {
+    this.properties = new WeakMap();
+  }
 }

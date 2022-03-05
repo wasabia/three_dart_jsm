@@ -11,7 +11,6 @@ class VertexNormalsHelper extends LineSegments {
   VertexNormalsHelper.create(geometry, material) : super(geometry, material) {}
 
   factory VertexNormalsHelper(object, [size = 1, color = 0xff0000]) {
-
     var geometry = new BufferGeometry();
 
     var nNormals = object.geometry.attributes["normal"].count;

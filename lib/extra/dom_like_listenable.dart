@@ -7,17 +7,14 @@ class DomLikeListenable extends StatefulWidget {
   WidgetBuilder builder;
 
   DomLikeListenable({Key? key, required this.builder}) : super(key: key);
-  
+
   @override
   State<StatefulWidget> createState() {
     return DomLikeListenableState();
   }
-
 }
 
-
 class DomLikeListenableState extends State<DomLikeListenable> {
-
   Map<String, List<Function>> _listeners = {};
 
   double? _clientWidth;
@@ -33,7 +30,6 @@ class DomLikeListenableState extends State<DomLikeListenable> {
     super.initState();
   }
 
-
   addEventListener(String name, Function callback, [bool flag = false]) {
     var _cls = _listeners[name] ?? [];
     _cls.add(callback);
@@ -48,9 +44,8 @@ class DomLikeListenableState extends State<DomLikeListenable> {
 
   @override
   Widget build(BuildContext context) {
-
     WidgetsBinding.instance?.addPostFrameCallback((t) {
-      if(_clientWidth == null || _clientHeight == null) {
+      if (_clientWidth == null || _clientHeight == null) {
         RenderBox getBox = context.findRenderObject() as RenderBox;
         _clientWidth = getBox.size.width;
         _clientHeight = getBox.size.height;
@@ -58,8 +53,8 @@ class DomLikeListenableState extends State<DomLikeListenable> {
     });
 
     return Listener(
-      onPointerSignal: (pointerSignal){
-        if(pointerSignal is PointerScrollEvent){
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
           _onWheel(context, pointerSignal);
         }
       },
@@ -78,7 +73,7 @@ class DomLikeListenableState extends State<DomLikeListenable> {
       child: widget.builder(context),
     );
   }
-  
+
   _onWheel(BuildContext context, PointerScrollEvent event) {
     var wpe = WebPointerEvent.fromPointerScrollEvent(context, event);
 
@@ -86,7 +81,6 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   }
 
   _onPointerDown(BuildContext context, PointerDownEvent event) {
-
     var wpe = WebPointerEvent.fromPointerDownEvent(context, event);
 
     emit("touchstart", wpe);
@@ -107,17 +101,14 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   }
 
   _onPointerCancel(BuildContext context, PointerCancelEvent event) {
-
     // emit("pointercancel", event);
   }
 
-
-
   emit(String name, event) {
     var _callbacks = _listeners[name];
-    if(_callbacks != null && _callbacks.length > 0) {
+    if (_callbacks != null && _callbacks.length > 0) {
       var _len = _callbacks.length;
-      for(int i = 0; i < _len; i++) {
+      for (int i = 0; i < _len; i++) {
         var _cb = _callbacks[i];
         _cb(event);
       }
@@ -139,13 +130,9 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   exitPointerLock() {
     // TODO
   }
-
 }
 
-
-
 class WebPointerEvent {
-
   late int pointerId;
   late int button;
   String pointerType = 'touch';
@@ -163,21 +150,21 @@ class WebPointerEvent {
   double deltaY = 0.0;
   double deltaX = 0.0;
 
-
-  WebPointerEvent() {
-
-  }
+  WebPointerEvent() {}
 
   static String getPointerType(event) {
     return event.kind == PointerDeviceKind.touch ? 'touch' : 'mouse';
   }
 
   static int getButton(event) {
-
-    if( event.kind == PointerDeviceKind.touch ) {
+    if (event.kind == PointerDeviceKind.touch) {
       return event.buttons == 0x01 ? 1 : 0;
     } else {
-      return event.buttons == 2 ? 2 : event.buttons == 0x01 ? 0 : 1;
+      return event.buttons == 2
+          ? 2
+          : event.buttons == 0x01
+              ? 0
+              : 1;
     }
   }
 
@@ -195,28 +182,31 @@ class WebPointerEvent {
     wpe.pageX = event.position.dx;
     wpe.pageY = event.position.dy;
 
-    if(event is PointerScrollEvent) {
+    if (event is PointerScrollEvent) {
       wpe.deltaX = event.scrollDelta.dx;
       wpe.deltaY = event.scrollDelta.dy;
     }
-    
 
     return wpe;
   }
 
-  factory WebPointerEvent.fromPointerScrollEvent(BuildContext context, PointerScrollEvent event) {
+  factory WebPointerEvent.fromPointerScrollEvent(
+      BuildContext context, PointerScrollEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerDownEvent(BuildContext context, PointerDownEvent event) {
+  factory WebPointerEvent.fromPointerDownEvent(
+      BuildContext context, PointerDownEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerMoveEvent(BuildContext context, PointerMoveEvent event) {
+  factory WebPointerEvent.fromPointerMoveEvent(
+      BuildContext context, PointerMoveEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerUpEvent(BuildContext context, PointerUpEvent event) {
+  factory WebPointerEvent.fromPointerUpEvent(
+      BuildContext context, PointerUpEvent event) {
     return convertEvent(context, event);
   }
 
@@ -227,6 +217,4 @@ class WebPointerEvent {
   String toString() {
     return "pointerId: ${pointerId} button: ${button} pointerType: ${pointerType} clientX: ${clientX} clientY: ${clientY} pageX: ${pageX} pageY: ${pageY} ";
   }
-
 }
-

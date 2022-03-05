@@ -1,35 +1,24 @@
 part of renderer_nodes;
 
 class PropertyNode extends Node {
-
   late String? name;
 
-	PropertyNode( [name = null, nodeType = 'vec4'] ) : super( nodeType ) {
+  PropertyNode([name = null, nodeType = 'vec4']) : super(nodeType) {
+    this.name = name;
+  }
 
-		this.name = name;
+  getHash([builder]) {
+    return this.name ?? super.getHash(builder);
+  }
 
-	}
+  generate([builder, output]) {
+    var nodeVary = builder.getVarFromNode(this, this.getNodeType(builder));
+    var name = this.name;
 
-	getHash( [builder] ) {
+    if (name != null) {
+      nodeVary.name = name;
+    }
 
-		return this.name ?? super.getHash( builder );
-
-	}
-
-	generate( [builder, output] ) {
-
-		var nodeVary = builder.getVarFromNode( this, this.getNodeType( builder ) );
-		var name = this.name;
-
-		if ( name != null ) {
-
-			nodeVary.name = name;
-
-		}
-
-		return builder.getPropertyName( nodeVary );
-
-	}
-
+    return builder.getPropertyName(nodeVary);
+  }
 }
-

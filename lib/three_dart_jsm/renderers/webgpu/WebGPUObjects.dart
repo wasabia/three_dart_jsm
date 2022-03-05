@@ -1,47 +1,34 @@
 part of three_webgpu;
 
 class WebGPUObjects {
-
   late WebGPUGeometries geometries;
   late WebGPUInfo info;
   late WeakMap updateMap;
 
+  WebGPUObjects(geometries, info) {
+    this.geometries = geometries;
+    this.info = info;
 
-	WebGPUObjects( geometries, info ) {
+    this.updateMap = new WeakMap();
+  }
 
-		this.geometries = geometries;
-		this.info = info;
+  update(object) {
+    var geometry = object.geometry;
+    var updateMap = this.updateMap;
+    var frame = this.info.render["frame"];
 
-		this.updateMap = new WeakMap();
+    if (geometry.isBufferGeometry != true) {
+      throw ('THREE.WebGPURenderer: This renderer only supports THREE.BufferGeometry for geometries.');
+    }
 
-	}
+    if (updateMap.get(geometry) != frame) {
+      this.geometries.update(geometry);
 
-	update( object ) {
+      updateMap.set(geometry, frame);
+    }
+  }
 
-		var geometry = object.geometry;
-		var updateMap = this.updateMap;
-		var frame = this.info.render["frame"];
-
-		if ( geometry.isBufferGeometry != true ) {
-
-			throw( 'THREE.WebGPURenderer: This renderer only supports THREE.BufferGeometry for geometries.' );
-
-		}
-
-		if ( updateMap.get( geometry ) != frame ) {
-
-			this.geometries.update( geometry );
-
-			updateMap.set( geometry, frame );
-
-		}
-
-	}
-
-	dispose() {
-
-		this.updateMap = new WeakMap();
-
-	}
-
+  dispose() {
+    this.updateMap = new WeakMap();
+  }
 }

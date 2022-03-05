@@ -515,7 +515,7 @@ class GLTFParser {
 
     Map<String, dynamic> textureDef = json["textures"][textureIndex];
     var sourceIndex = textureDef["source"];
-		var sourceDef = json["images"][ sourceIndex ];
+    var sourceDef = json["images"][sourceIndex];
 
     var textureExtensions = textureDef["extensions"] ?? {};
 
@@ -550,41 +550,38 @@ class GLTFParser {
     var json = this.json;
 
     Map textureDef = json["textures"][textureIndex];
-    Map sourceDef = json["images"][ sourceIndex ];
+    Map sourceDef = json["images"][sourceIndex];
 
     // var URL = self.URL || self.webkitURL;
 
-    var cacheKey = '${( sourceDef["uri"] ?? sourceDef["bufferView"] )}:${textureDef["sampler"]}';
+    var cacheKey =
+        '${(sourceDef["uri"] ?? sourceDef["bufferView"])}:${textureDef["sampler"]}';
 
-		if ( this.textureCache[ cacheKey ] != null ) {
+    if (this.textureCache[cacheKey] != null) {
+      // See https://github.com/mrdoob/three.js/issues/21559.
+      return this.textureCache[cacheKey];
+    }
 
-			// See https://github.com/mrdoob/three.js/issues/21559.
-			return this.textureCache[ cacheKey ];
-
-		}
-
-
-    var texture = await this.loadImageSource( sourceIndex, loader );
+    var texture = await this.loadImageSource(sourceIndex, loader);
 
     texture.flipY = false;
 
-    if ( textureDef["name"] != null ) texture.name = textureDef["name"];
+    if (textureDef["name"] != null) texture.name = textureDef["name"];
 
     var samplers = json["samplers"] ?? {};
-    Map sampler = samplers[ textureDef["sampler"] ] ?? {};
+    Map sampler = samplers[textureDef["sampler"]] ?? {};
 
-    texture.magFilter = WEBGL_FILTERS[ sampler["magFilter"] ] ?? LinearFilter;
-    texture.minFilter = WEBGL_FILTERS[ sampler["minFilter"] ] ?? LinearMipmapLinearFilter;
-    texture.wrapS = WEBGL_WRAPPINGS[ sampler["wrapS"] ] ?? RepeatWrapping;
-    texture.wrapT = WEBGL_WRAPPINGS[ sampler["wrapT"] ] ?? RepeatWrapping;
+    texture.magFilter = WEBGL_FILTERS[sampler["magFilter"]] ?? LinearFilter;
+    texture.minFilter =
+        WEBGL_FILTERS[sampler["minFilter"]] ?? LinearMipmapLinearFilter;
+    texture.wrapS = WEBGL_WRAPPINGS[sampler["wrapS"]] ?? RepeatWrapping;
+    texture.wrapT = WEBGL_WRAPPINGS[sampler["wrapT"]] ?? RepeatWrapping;
 
-    parser.associations[texture] = { "textures": textureIndex };
+    parser.associations[texture] = {"textures": textureIndex};
 
-		this.textureCache[ cacheKey ] = texture;
+    this.textureCache[cacheKey] = texture;
 
-		return texture;
-
-
+    return texture;
 
     // String sourceURI = sourceDef["uri"] ?? "";
     // var isObjectURL = false;
@@ -663,50 +660,48 @@ class GLTFParser {
     // return texture;
   }
 
-  loadImageSource( sourceIndex, loader ) async {
-
-		var parser = this;
-		var json = this.json;
-		var options = this.options;
+  loadImageSource(sourceIndex, loader) async {
+    var parser = this;
+    var json = this.json;
+    var options = this.options;
     var texture;
 
-		if ( this.sourceCache[ sourceIndex ] != null ) {
-			texture = this.sourceCache[ sourceIndex ];
+    if (this.sourceCache[sourceIndex] != null) {
+      texture = this.sourceCache[sourceIndex];
       return texture.clone();
-		}
+    }
 
-		Map sourceDef = json["images"][ sourceIndex ];
+    Map sourceDef = json["images"][sourceIndex];
 
-		// var URL = self.URL || self.webkitURL;
+    // var URL = self.URL || self.webkitURL;
 
-		var sourceURI = sourceDef["uri"] ?? '';
-		var isObjectURL = false;
+    var sourceURI = sourceDef["uri"] ?? '';
+    var isObjectURL = false;
 
-		if ( sourceDef["bufferView"] != null ) {
+    if (sourceDef["bufferView"] != null) {
+      // Load binary image data from bufferView, if provided.
 
-			// Load binary image data from bufferView, if provided.
-
-      var bufferView = await parser.getDependency( 'bufferView', sourceDef["bufferView"] );
+      var bufferView =
+          await parser.getDependency('bufferView', sourceDef["bufferView"]);
 
       isObjectURL = true;
-      var blob = Blob(bufferView.asUint8List(), {"type": sourceDef["mimeType"]});
+      var blob =
+          Blob(bufferView.asUint8List(), {"type": sourceDef["mimeType"]});
       // sourceURI = URL.createObjectURL( blob );
 
       texture = await loader.loadAsync(blob, null);
+    } else if (sourceDef["uri"] != null) {
+      texture = await loader.loadAsync(
+          LoaderUtils.resolveURL(sourceURI, options["path"]), null);
+    } else if (sourceDef["uri"] == null) {
+      throw ('THREE.GLTFLoader: Image ' +
+          sourceIndex +
+          ' is missing URI and bufferView');
+    }
 
-    } else if(sourceDef["uri"] != null) {
-      texture = await loader.loadAsync( LoaderUtils.resolveURL(sourceURI, options["path"]), null );
-		} else if ( sourceDef["uri"] == null ) {
-
-			throw( 'THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView' );
-
-		}
-
-
-		this.sourceCache[ sourceIndex ] = texture;
-		return texture;
-
-	}
+    this.sourceCache[sourceIndex] = texture;
+    return texture;
+  }
 
   /**
    * Asynchronously assigns a texture to the given material parameters.
@@ -1108,7 +1103,6 @@ class GLTFParser {
    * @return {Promise<Group|Mesh|SkinnedMesh>}
    */
   loadMesh(meshIndex) async {
-
     var parser = this;
     var json = this.json;
     var extensions = this.extensions;
@@ -1144,7 +1138,6 @@ class GLTFParser {
       var mesh;
 
       var material = materials[i];
-
 
       if (primitive["mode"] == WEBGL_CONSTANTS["TRIANGLES"] ||
           primitive["mode"] == WEBGL_CONSTANTS["TRIANGLE_STRIP"] ||

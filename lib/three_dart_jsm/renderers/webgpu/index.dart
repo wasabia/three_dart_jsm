@@ -4,19 +4,8 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter_gl/native-array/index.dart';
-import 'package:flutter_webgpu/flutter_webgpu.dart';
-import 'package:three_dart/three3d/WeakMap.dart';
-import 'package:three_dart/three3d/constants.dart';
-import 'package:three_dart/three3d/lights/index.dart';
-import 'package:three_dart/three3d/math/index.dart';
-import 'package:three_dart/extra/console.dart';
-import 'package:three_dart/three3d/objects/index.dart';
-import 'package:three_dart/three3d/renderers/index.dart';
-import 'package:three_dart/three3d/renderers/nodes/index.dart';
-import 'package:three_dart/three3d/scenes/index.dart';
-import 'package:three_dart/three3d/textures/index.dart';
+import 'package:three_dart/three_dart.dart';
 
-export 'package:three_dart/three3d/renderers/nodes/index.dart';
 
 
 part './extension_helper.dart';

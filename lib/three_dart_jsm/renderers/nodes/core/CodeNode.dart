@@ -1,79 +1,57 @@
 part of renderer_nodes;
 
 class CodeNode extends Node {
-
   late String code;
   late bool useKeywords;
   late List _includes;
 
+  CodeNode([code = '', nodeType = 'code']) : super(nodeType) {
+    this.code = code;
 
-	CodeNode( [code = '', nodeType = 'code'] ) : super( nodeType ) {
+    this.useKeywords = false;
 
-		this.code = code;
+    this._includes = [];
+  }
 
-		this.useKeywords = false;
+  setIncludes(includes) {
+    this._includes = includes;
 
-		this._includes = [];
+    return this;
+  }
 
-	}
+  getIncludes(builder) {
+    return this._includes;
+  }
 
-	setIncludes( includes ) {
+  @override
+  generate([builder, output]) {
+    if (this.useKeywords == true) {
+      var contextKeywords = builder.context.keywords;
 
-		this._includes = includes;
+      if (contextKeywords != undefined) {
+        var nodeData = builder.getDataFromNode(this, builder.shaderStage);
 
-		return this;
+        if (nodeData.keywords == undefined) {
+          nodeData.keywords = [];
+        }
 
-	}
+        if (nodeData.keywords.indexOf(contextKeywords) == -1) {
+          contextKeywords.include(builder, this.code);
 
-	getIncludes( builder ) {
+          nodeData.keywords.push(contextKeywords);
+        }
+      }
+    }
 
-		return this._includes;
+    var includes = this.getIncludes(builder);
 
-	}
+    for (var include in includes) {
+      include.build(builder);
+    }
 
-	@override
-  generate( [builder, output] ) {
+    var nodeCode = builder.getCodeFromNode(this, this.getNodeType(builder));
+    nodeCode.code = this.code;
 
-		if ( this.useKeywords == true ) {
-
-			var contextKeywords = builder.context.keywords;
-
-			if ( contextKeywords != undefined ) {
-
-				var nodeData = builder.getDataFromNode( this, builder.shaderStage );
-
-				if ( nodeData.keywords == undefined ) {
-
-					nodeData.keywords = [];
-
-				}
-
-				if ( nodeData.keywords.indexOf( contextKeywords ) == - 1 ) {
-
-					contextKeywords.include( builder, this.code );
-
-					nodeData.keywords.push( contextKeywords );
-
-				}
-
-			}
-
-		}
-
-		var includes = this.getIncludes( builder );
-
-		for ( var include in includes ) {
-
-			include.build( builder );
-
-		}
-
-		var nodeCode = builder.getCodeFromNode( this, this.getNodeType( builder ) );
-		nodeCode.code = this.code;
-
-		return nodeCode.code;
-
-	}
-
+    return nodeCode.code;
+  }
 }
-

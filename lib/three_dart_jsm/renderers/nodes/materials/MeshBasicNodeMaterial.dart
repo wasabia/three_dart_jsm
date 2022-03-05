@@ -1,7 +1,6 @@
 part of renderer_nodes;
 
 class MeshBasicNodeMaterial extends MeshBasicMaterial {
-
   bool isNodeMaterial = true;
 
   dynamic colorNode;
@@ -10,31 +9,27 @@ class MeshBasicNodeMaterial extends MeshBasicMaterial {
   dynamic lightNode;
   dynamic positionNode;
 
-	MeshBasicNodeMaterial( parameters ) : super(parameters) {
-		this.colorNode = null;
-		this.opacityNode = null;
+  MeshBasicNodeMaterial(parameters) : super(parameters) {
+    this.colorNode = null;
+    this.opacityNode = null;
 
-		this.alphaTestNode = null;
+    this.alphaTestNode = null;
 
-		this.lightNode = null;
+    this.lightNode = null;
 
-		this.positionNode = null;
+    this.positionNode = null;
+  }
 
-	}
+  copy(source) {
+    this.colorNode = source.colorNode;
+    this.opacityNode = source.opacityNode;
 
-	copy( source ) {
+    this.alphaTestNode = source.alphaTestNode;
 
-		this.colorNode = source.colorNode;
-		this.opacityNode = source.opacityNode;
+    this.lightNode = source.lightNode;
 
-		this.alphaTestNode = source.alphaTestNode;
+    this.positionNode = source.positionNode;
 
-		this.lightNode = source.lightNode;
-
-		this.positionNode = source.positionNode;
-
-		return super.copy( source );
-
-	}
-
+    return super.copy(source);
+  }
 }

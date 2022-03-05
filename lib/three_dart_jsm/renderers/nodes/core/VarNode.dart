@@ -1,58 +1,44 @@
 part of renderer_nodes;
 
 class VarNode extends Node {
-
   late dynamic node;
   String? name;
 
-	VarNode( node, [name = null, nodeType = null] ) : super( nodeType ) {
+  VarNode(node, [name = null, nodeType = null]) : super(nodeType) {
     generateLength = 1;
-		this.node = node;
-		this.name = name;
-	}
+    this.node = node;
+    this.name = name;
+  }
 
-	getHash( [builder] ) {
+  getHash([builder]) {
+    return this.name ?? super.getHash(builder);
+  }
 
-		return this.name ?? super.getHash( builder );
+  getNodeType([builder, output]) {
+    return super.getNodeType(builder) ?? this.node.getNodeType(builder);
+  }
 
-	}
+  generate([builder, output]) {
+    var type = builder.getVectorType(this.getNodeType(builder));
+    var node = this.node;
+    var name = this.name;
 
-	getNodeType( [builder, output] ) {
+    var snippet = node.build(builder, type);
 
-		return super.getNodeType( builder ) ?? this.node.getNodeType( builder );
+    var nodeVar = builder.getVarFromNode(this, type);
 
-	}
+    if (name != null) {
+      nodeVar.name = name;
+    }
 
-	generate( [builder, output] ) {
+    var propertyName = builder.getPropertyName(nodeVar);
 
-		var type = builder.getVectorType( this.getNodeType( builder ) );
-		var node = this.node;
-		var name = this.name;
+    builder.addFlowCode("${propertyName} = ${snippet}");
 
-		var snippet = node.build( builder, type );
-
-		var nodeVar = builder.getVarFromNode( this, type );
-
-		if ( name != null ) {
-
-			nodeVar.name = name;
-
-		}
-
-		var propertyName = builder.getPropertyName( nodeVar );
-
-		builder.addFlowCode( "${propertyName} = ${snippet}" );
-
-		return propertyName;
-
-	}
-
+    return propertyName;
+  }
 
   getProperty(String name) {
     return super.getProperty(name);
   }
-
 }
-
-
-

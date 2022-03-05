@@ -21,7 +21,6 @@ part './core/NodeKeywords.dart';
 part './core/NodeAttribute.dart';
 part './core/NodeParser.dart';
 
-
 part './parsers/WGSLNodeParser.dart';
 part './parsers/WGSLNodeFunction.dart';
 part './core/NodeFunction.dart';
@@ -71,6 +70,3 @@ part './lights/LightContextNode.dart';
 part './functions/BSDFs.dart';
 part './display/ColorSpaceNode.dart';
 part './core/ArrayInputNode.dart';
-
-
-

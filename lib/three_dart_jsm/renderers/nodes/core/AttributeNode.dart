@@ -1,51 +1,37 @@
 part of renderer_nodes;
 
 class AttributeNode extends Node {
-
   late String _attributeName;
 
-	AttributeNode( attributeName, nodeType ) : super( nodeType ) {
+  AttributeNode(attributeName, nodeType) : super(nodeType) {
     generateLength = 1;
-		this._attributeName = attributeName;
+    this._attributeName = attributeName;
+  }
 
-	}
+  getHash([builder]) {
+    return this.getAttributeName(builder);
+  }
 
-	getHash( [builder] ) {
+  setAttributeName(attributeName) {
+    this._attributeName = attributeName;
 
-		return this.getAttributeName( builder );
+    return this;
+  }
 
-	}
+  getAttributeName(builder) {
+    return this._attributeName;
+  }
 
-	setAttributeName( attributeName ) {
+  generate([builder, output]) {
+    var attribute = builder.getAttribute(
+        this.getAttributeName(builder), this.getNodeType(builder));
 
-		this._attributeName = attributeName;
+    if (builder.isShaderStage('vertex')) {
+      return attribute.name;
+    } else {
+      var nodeVary = new VaryNode(this);
 
-		return this;
-
-	}
-
-	getAttributeName( builder ) {
-
-		return this._attributeName;
-
-	}
-
-	generate( [builder, output] ) {
-
-		var attribute = builder.getAttribute( this.getAttributeName( builder ), this.getNodeType( builder ) );
-
-		if ( builder.isShaderStage( 'vertex' ) ) {
-
-			return attribute.name;
-
-		} else {
-
-			var nodeVary = new VaryNode( this );
-
-			return nodeVary.build( builder, attribute.type );
-
-		}
-
-	}
-
+      return nodeVary.build(builder, attribute.type);
+    }
+  }
 }

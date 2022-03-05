@@ -1,52 +1,40 @@
 part of renderer_nodes;
 
 class LightContextNode extends ContextNode {
+  LightContextNode(node) : super(node) {}
 
-	LightContextNode( node ) : super( node ) {
+  getNodeType([builder, output]) {
+    return 'vec3';
+  }
 
-	}
+  generate([builder, output]) {
+    var material = builder.material;
 
-	getNodeType( [builder, output] ) {
+    var lightingModel = null;
 
-		return 'vec3';
+    if (material.isMeshStandardMaterial == true) {
+      lightingModel = PhysicalLightingModel;
+    }
 
-	}
+    var directDiffuse = new VarNode(new Vector3Node(), 'DirectDiffuse', 'vec3');
+    var directSpecular =
+        new VarNode(new Vector3Node(), 'DirectSpecular', 'vec3');
 
-	generate( [builder, output] ) {
+    this.context.directDiffuse = directDiffuse;
+    this.context.directSpecular = directSpecular;
 
-		var material = builder.material;
+    if (lightingModel != null) {
+      this.context.lightingModel = lightingModel;
+    }
 
-		var lightingModel = null;
+    // add code
 
-		if ( material.isMeshStandardMaterial == true ) {
+    var type = this.getNodeType(builder);
 
-			lightingModel = PhysicalLightingModel;
+    super.generate(builder, type);
 
-		}
+    var totalLight = new OperatorNode('+', directDiffuse, directSpecular);
 
-		var directDiffuse = new VarNode( new Vector3Node(), 'DirectDiffuse', 'vec3' );
-		var directSpecular = new VarNode( new Vector3Node(), 'DirectSpecular', 'vec3' );
-
-		this.context.directDiffuse = directDiffuse;
-		this.context.directSpecular = directSpecular;
-
-		if ( lightingModel != null ) {
-
-			this.context.lightingModel = lightingModel;
-
-		}
-
-		// add code
-
-		var type = this.getNodeType( builder );
-
-		super.generate( builder, type );
-
-		var totalLight = new OperatorNode( '+', directDiffuse, directSpecular );
-
-		return totalLight.build( builder, type );
-
-	}
-
+    return totalLight.build(builder, type);
+  }
 }
-

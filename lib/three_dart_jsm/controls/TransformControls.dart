@@ -1,6 +1,5 @@
 part of jsm_controls;
 
-
 var _tempVector = new Vector3();
 var _tempVector2 = new Vector3();
 var _tempQuaternion = new Quaternion();

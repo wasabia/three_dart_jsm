@@ -1,7 +1,5 @@
 part of three_webgpu;
 
-
-
 // export const GPUPrimitiveTopology = {
 // 	PointList: 'point-list',
 // 	LineList: 'line-list',
@@ -225,15 +223,15 @@ part of three_webgpu;
 // };
 
 class GPUBindingType {
-	static String UniformBuffer = 'uniform-buffer';
-	static String StorageBuffer = 'storage-buffer';
-	static String ReadonlyStorageBuffer = 'readonly-storage-buffer';
-	static String Sampler = 'sampler';
-	static String ComparisonSampler = 'comparison-sampler';
-	static String SampledTexture = 'sampled-texture';
-	static String MultisampledTexture = 'multisampled-texture';
-	static String ReadonlyStorageTexture = 'readonly-storage-texture';
-	static String WriteonlyStorageTexture = 'writeonly-storage-texture';
+  static String UniformBuffer = 'uniform-buffer';
+  static String StorageBuffer = 'storage-buffer';
+  static String ReadonlyStorageBuffer = 'readonly-storage-buffer';
+  static String Sampler = 'sampler';
+  static String ComparisonSampler = 'comparison-sampler';
+  static String SampledTexture = 'sampled-texture';
+  static String MultisampledTexture = 'multisampled-texture';
+  static String ReadonlyStorageTexture = 'readonly-storage-texture';
+  static String WriteonlyStorageTexture = 'writeonly-storage-texture';
 }
 
 // export const GPUTextureDimension = {
@@ -243,14 +241,13 @@ class GPUBindingType {
 // };
 
 class GPUTextureViewDimension {
-	static const String OneD = '1d';
-	static const String TwoD = '2d';
-	static const String TwoDArray = '2d-array';
-	static const String Cube = 'cube';
-	static const String CubeArray = 'cube-array';
-	static const String ThreeD = '3d';
+  static const String OneD = '1d';
+  static const String TwoD = '2d';
+  static const String TwoDArray = '2d-array';
+  static const String Cube = 'cube';
+  static const String CubeArray = 'cube-array';
+  static const String ThreeD = '3d';
 }
-
 
 // export const GPUInputStepMode = {
 // 	Vertex: 'vertex',

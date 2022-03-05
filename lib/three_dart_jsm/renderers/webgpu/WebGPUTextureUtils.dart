@@ -18,25 +18,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-
 // ported from https://github.com/toji/web-texture-tool/blob/master/src/webgpu-mipmap-generator.js
 
 part of three_webgpu;
 
 class WebGPUTextureUtils {
-
   late GPUDevice device;
   late GPUSampler sampler;
   late dynamic pipelines;
   late dynamic mipmapVertexShaderModule;
   late dynamic mipmapFragmentShaderModule;
 
+  WebGPUTextureUtils(device) {
+    this.device = device;
 
-	WebGPUTextureUtils( device ) {
-
-		this.device = device;
-
-		var mipmapVertexSource = """
+    var mipmapVertexSource = """
 struct VarysStruct {
 
 	[[ builtin( position ) ]] Position: vec4<f32>;
@@ -71,7 +67,7 @@ fn main( [[ builtin( vertex_index ) ]] vertexIndex : u32 ) -> VarysStruct {
 }
 """;
 
-		var mipmapFragmentSource = """
+    var mipmapFragmentSource = """
 [[ group( 0 ), binding( 0 ) ]] 
 var imgSampler : sampler;
 
@@ -86,120 +82,79 @@ fn main( [[ location( 0 ) ]] vTex : vec2<f32> ) -> [[ location( 0 ) ]] vec4<f32>
 }
 """;
 
-		this.sampler = device.createSampler( { "minFilter": GPUFilterMode.Linear } );
+    this.sampler = device.createSampler({"minFilter": GPUFilterMode.Linear});
 
-		// We'll need a new pipeline for every texture format used.
-		this.pipelines = {};
+    // We'll need a new pipeline for every texture format used.
+    this.pipelines = {};
 
-		this.mipmapVertexShaderModule = device.createShaderModule(
-      GPUShaderModuleDescriptor(
-        code: mipmapVertexSource
-      )
-    );
+    this.mipmapVertexShaderModule = device.createShaderModule(
+        GPUShaderModuleDescriptor(code: mipmapVertexSource));
 
-		this.mipmapFragmentShaderModule = device.createShaderModule(   
-      GPUShaderModuleDescriptor(
-        code: mipmapFragmentSource
-      )
-    );
+    this.mipmapFragmentShaderModule = device.createShaderModule(
+        GPUShaderModuleDescriptor(code: mipmapFragmentSource));
+  }
 
-	}
+  getMipmapPipeline(format) {
+    var pipeline = this.pipelines[format];
 
-	getMipmapPipeline( format ) {
-
-		var pipeline = this.pipelines[ format ];
-
-		if ( pipeline == undefined ) {
-
-			pipeline = this.device.createRenderPipeline( 
-        
-        GPURenderPipelineDescriptor(
-          vertex: GPUVertexState(module: mipmapVertexShaderModule, entryPoint: 'main'),
+    if (pipeline == undefined) {
+      pipeline = this.device.createRenderPipeline(GPURenderPipelineDescriptor(
+          vertex: GPUVertexState(
+              module: mipmapVertexShaderModule, entryPoint: 'main'),
           fragment: GPUFragmentState(
-            module: mipmapFragmentShaderModule, 
-            entryPoint: 'main', 
-            targets: GPUColorTargetState(format: format)
-          ),
+              module: mipmapFragmentShaderModule,
+              entryPoint: 'main',
+              targets: GPUColorTargetState(format: format)),
           primitive: GPUPrimitiveState(
-            topology: GPUPrimitiveTopology.TriangleStrip,
-            stripIndexFormat: GPUIndexFormat.Uint32
-          ),
-          multisample: GPUMultisampleState()
-        )
-        
-      );
+              topology: GPUPrimitiveTopology.TriangleStrip,
+              stripIndexFormat: GPUIndexFormat.Uint32),
+          multisample: GPUMultisampleState()));
 
-			this.pipelines[ format ] = pipeline;
+      this.pipelines[format] = pipeline;
+    }
 
-		}
+    return pipeline;
+  }
 
-		return pipeline;
+  generateMipmaps(GPUTexture textureGPU, textureGPUDescriptor) {
+    var pipeline = this.getMipmapPipeline(textureGPUDescriptor.format);
 
-	}
+    var commandEncoder = this.device.createCommandEncoder();
+    var bindGroupLayout =
+        pipeline.getBindGroupLayout(0); // @TODO: Consider making this static.
 
-	generateMipmaps( GPUTexture textureGPU, textureGPUDescriptor ) {
+    var srcView = textureGPU.createView(
+        GPUTextureViewDescriptor(baseMipLevel: 0, mipLevelCount: 1));
 
-		var pipeline = this.getMipmapPipeline( textureGPUDescriptor.format );
+    for (var i = 1; i < textureGPUDescriptor.mipLevelCount; i++) {
+      var dstView = textureGPU.createView(
+          GPUTextureViewDescriptor(baseMipLevel: i, mipLevelCount: 1));
 
-		var commandEncoder = this.device.createCommandEncoder();
-		var bindGroupLayout = pipeline.getBindGroupLayout( 0 ); // @TODO: Consider making this static.
-
-		var srcView = textureGPU.createView(
-      GPUTextureViewDescriptor(
-        baseMipLevel: 0,
-        mipLevelCount: 1
-      )
-    );
-
-		for ( var i = 1; i < textureGPUDescriptor.mipLevelCount; i ++ ) {
-
-			var dstView = textureGPU.createView(
-        GPUTextureViewDescriptor(
-          baseMipLevel: i,
-          mipLevelCount: 1
-        )
-      );
-
-			var passEncoder = commandEncoder.beginRenderPass( 
-        GPURenderPassDescriptor(
+      var passEncoder = commandEncoder.beginRenderPass(GPURenderPassDescriptor(
           colorAttachments: GPURenderPassColorAttachment(
-            view: dstView, clearColor: GPUColor(r: 0, g: 0, b: 0, a: 0),
+              view: dstView,
+              clearColor: GPUColor(r: 0, g: 0, b: 0, a: 0),
+              loadOp: GPULoadOp.Clear, // TODO Confirm
+              storeOp: GPUStoreOp.Store // TODO Confirm
+              ),
+          depthStencilAttachment: GPURenderPassDepthStencilAttachment()));
 
-            loadOp: GPULoadOp.Clear, // TODO Confirm
-            storeOp: GPUStoreOp.Store // TODO Confirm
-          ),
-          depthStencilAttachment: GPURenderPassDepthStencilAttachment()
-        )
-      );
-
-			var bindGroup = this.device.createBindGroup(
-        GPUBindGroupDescriptor(
+      var bindGroup = this.device.createBindGroup(GPUBindGroupDescriptor(
           layout: bindGroupLayout,
           entries: [
-            GPUBindGroupEntry(
-              binding: 0,
-              sampler: this.sampler
-            ),
-            GPUBindGroupEntry(
-              binding: 1,
-              textureView: srcView
-            )
+            GPUBindGroupEntry(binding: 0, sampler: this.sampler),
+            GPUBindGroupEntry(binding: 1, textureView: srcView)
           ],
-          entryCount: 2
-        )
-      );
+          entryCount: 2));
 
-			passEncoder.setPipeline( pipeline );
-			passEncoder.setBindGroup( 0, bindGroup );
-			passEncoder.draw( 4, 1, 0, 0 );
-			passEncoder.endPass();
+      passEncoder.setPipeline(pipeline);
+      passEncoder.setBindGroup(0, bindGroup);
+      passEncoder.draw(4, 1, 0, 0);
+      passEncoder.endPass();
 
-			srcView = dstView;
+      srcView = dstView;
+    }
 
-		}
-
-		this.device.queue.submit( commandEncoder.finish() );
-
-	}
-
+    this.device.queue.submit(commandEncoder.finish());
+  }
 }
