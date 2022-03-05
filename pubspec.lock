@@ -258,7 +258,7 @@ packages:
       name: three_dart
       url: "https://pub.flutter-io.cn"
     source: hosted
-    version: "0.0.6"
+    version: "0.0.7"
   typed_data:
     dependency: transitive
     description:
