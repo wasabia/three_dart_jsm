@@ -21,6 +21,9 @@ class GLTFParser {
   Function? extendMaterialParams;
   Function? loadBufferView;
 
+  late Map textureCache;
+  late Map sourceCache;
+
   GLTFParser(json, Map<String, dynamic>? options) {
     this.json = json ?? {};
     this.extensions = {};
@@ -29,6 +32,9 @@ class GLTFParser {
 
     // loader object cache
     this.cache = new GLTFRegistry();
+
+    this.textureCache = {};
+    this.sourceCache = {};
 
     // associations between Three.js objects and glTF elements
     this.associations = new Map();
@@ -508,6 +514,8 @@ class GLTFParser {
     var options = this.options;
 
     Map<String, dynamic> textureDef = json["textures"][textureIndex];
+    var sourceIndex = textureDef["source"];
+		var sourceDef = json["images"][ sourceIndex ];
 
     var textureExtensions = textureDef["extensions"] ?? {};
 
@@ -522,8 +530,8 @@ class GLTFParser {
 
     var loader;
 
-    if (source["uri"] != null) {
-      loader = options["manager"].getHandler(source["uri"]);
+    if (sourceDef["uri"] != null) {
+      loader = options["manager"].getHandler(sourceDef["uri"]);
     }
 
     if (loader == null) {
@@ -532,96 +540,173 @@ class GLTFParser {
           : this.textureLoader;
     }
 
-    return this.loadTextureImage(textureIndex, source, loader);
+    return this.loadTextureImage(textureIndex, sourceIndex, loader);
   }
 
-  loadTextureImage(textureIndex, Map<String, dynamic> source, loader) async {
+  loadTextureImage(textureIndex, sourceIndex, loader) async {
     // print(" GLTFParser.loadTextureImage source: ${source} textureIndex: ${textureIndex} loader: ${loader} ");
 
     var parser = this;
     var json = this.json;
-    var options = this.options;
 
-    var textureDef = json["textures"][textureIndex];
+    Map textureDef = json["textures"][textureIndex];
+    Map sourceDef = json["images"][ sourceIndex ];
 
     // var URL = self.URL || self.webkitURL;
 
-    String sourceURI = source["uri"] ?? "";
-    var isObjectURL = false;
+    var cacheKey = '${( sourceDef["uri"] ?? sourceDef["bufferView"] )}:${textureDef["sampler"]}';
 
-    var texture;
-    loader.flipY = false;
+		if ( this.textureCache[ cacheKey ] != null ) {
 
-    if (source["bufferView"] != null) {
-      // Load binary image data from bufferView, if provided.
+			// See https://github.com/mrdoob/three.js/issues/21559.
+			return this.textureCache[ cacheKey ];
 
-      // print("GLTFParser.loadTextureImage textureIndex: ${textureIndex} source->bufferView is not null TODO ");
+		}
 
-      var bufferView =
-          await parser.getDependency('bufferView', source["bufferView"]);
 
-      if (source["mimeType"] == 'image/png') {
-        // Inspect the PNG 'IHDR' chunk to determine whether the image could have an
-        // alpha channel. This check is conservative — the image could have an alpha
-        // channel with all values == 1, and the indexed type (colorType == 3) only
-        // sometimes contains alpha.
-        //
-        // https://en.wikipedia.org/wiki/Portable_Network_Graphics#File_header
-        var colorType = new ByteData.view(bufferView, 25, 1).getUint8(0);
-      }
+    var texture = await this.loadImageSource( sourceIndex, loader );
 
-      // should be in a isolate
-      // var _image = Image.decodeImage( bufferView.asUint8List() );
-      // var _pixels = _image!.getBytes();
-
-      // var imageElement = ImageElement(data: _pixels, width: _image.width, height: _image.height);
-      // texture = Texture(imageElement, null, null, null, null, null, null, null, null, null);
-
-      isObjectURL = true;
-      var blob = Blob(bufferView.asUint8List(), {"type": source["mimeType"]});
-      // sourceURI = createObjectURL( blob );
-
-      texture = await loader.loadAsync(blob, null);
-    } else if (source["uri"] == null) {
-      throw ('THREE.GLTFLoader: Image ' +
-          textureIndex +
-          ' is missing URI and bufferView');
-    } else if (source["uri"] != null) {
-      // https://github.com/wasabia/three_dart/issues/10
-
-      texture = await loader.loadAsync(
-          LoaderUtils.resolveURL(sourceURI, options["path"]), null);
-    }
-
-    texture.needsUpdate = true;
     texture.flipY = false;
 
-    if (textureDef["name"] != null) {
-      texture.name = textureDef["name"];
-    } else {
-      texture.name = source["name"] ?? "";
-    }
+    if ( textureDef["name"] != null ) texture.name = textureDef["name"];
 
     var samplers = json["samplers"] ?? {};
-    var sampler = samplers[textureDef["sampler"]] ?? {};
+    Map sampler = samplers[ textureDef["sampler"] ] ?? {};
 
-    texture.magFilter = WEBGL_FILTERS[sampler["magFilter"]] ?? LinearFilter;
-    texture.minFilter =
-        WEBGL_FILTERS[sampler["minFilter"]] ?? LinearMipmapLinearFilter;
-    texture.wrapS = WEBGL_WRAPPINGS[sampler["wrapS"]] ?? RepeatWrapping;
-    texture.wrapT = WEBGL_WRAPPINGS[sampler["wrapT"]] ?? RepeatWrapping;
+    texture.magFilter = WEBGL_FILTERS[ sampler["magFilter"] ] ?? LinearFilter;
+    texture.minFilter = WEBGL_FILTERS[ sampler["minFilter"] ] ?? LinearMipmapLinearFilter;
+    texture.wrapS = WEBGL_WRAPPINGS[ sampler["wrapS"] ] ?? RepeatWrapping;
+    texture.wrapT = WEBGL_WRAPPINGS[ sampler["wrapT"] ] ?? RepeatWrapping;
 
-    // parser.associations.set( texture, {
-    //   type: 'textures',
-    //   index: textureIndex
-    // } );
+    parser.associations[texture] = { "textures": textureIndex };
 
-    parser.associations[texture] = {"type": "textures", "index": textureIndex};
+		this.textureCache[ cacheKey ] = texture;
 
-    // this.textureCache[ cacheKey ] = texture;
+		return texture;
 
-    return texture;
+
+
+    // String sourceURI = sourceDef["uri"] ?? "";
+    // var isObjectURL = false;
+
+    // var texture;
+    // loader.flipY = false;
+
+    // if (sourceDef["bufferView"] != null) {
+    //   // Load binary image data from bufferView, if provided.
+
+    //   // print("GLTFParser.loadTextureImage textureIndex: ${textureIndex} source->bufferView is not null TODO ");
+
+    //   var bufferView =
+    //       await parser.getDependency('bufferView', sourceDef["bufferView"]);
+
+    //   if (sourceDef["mimeType"] == 'image/png') {
+    //     // Inspect the PNG 'IHDR' chunk to determine whether the image could have an
+    //     // alpha channel. This check is conservative — the image could have an alpha
+    //     // channel with all values == 1, and the indexed type (colorType == 3) only
+    //     // sometimes contains alpha.
+    //     //
+    //     // https://en.wikipedia.org/wiki/Portable_Network_Graphics#File_header
+    //     var colorType = new ByteData.view(bufferView, 25, 1).getUint8(0);
+    //   }
+
+    //   // should be in a isolate
+    //   // var _image = Image.decodeImage( bufferView.asUint8List() );
+    //   // var _pixels = _image!.getBytes();
+
+    //   // var imageElement = ImageElement(data: _pixels, width: _image.width, height: _image.height);
+    //   // texture = Texture(imageElement, null, null, null, null, null, null, null, null, null);
+
+    //   isObjectURL = true;
+    //   var blob = Blob(bufferView.asUint8List(), {"type": source["mimeType"]});
+    //   // sourceURI = createObjectURL( blob );
+
+    //   texture = await loader.loadAsync(blob, null);
+    // } else if (sourceDef["uri"] == null) {
+    //   throw ('THREE.GLTFLoader: Image ' +
+    //       textureIndex +
+    //       ' is missing URI and bufferView');
+    // } else if (sourceDef["uri"] != null) {
+    //   // https://github.com/wasabia/three_dart/issues/10
+
+    //   texture = await loader.loadAsync(
+    //       LoaderUtils.resolveURL(sourceURI, options["path"]), null);
+    // }
+
+    // texture.needsUpdate = true;
+    // texture.flipY = false;
+
+    // if (textureDef["name"] != null) {
+    //   texture.name = textureDef["name"];
+    // } else {
+    //   texture.name = sourceDef["name"] ?? "";
+    // }
+
+    // var samplers = json["samplers"] ?? {};
+    // var sampler = samplers[textureDef["sampler"]] ?? {};
+
+    // texture.magFilter = WEBGL_FILTERS[sampler["magFilter"]] ?? LinearFilter;
+    // texture.minFilter =
+    //     WEBGL_FILTERS[sampler["minFilter"]] ?? LinearMipmapLinearFilter;
+    // texture.wrapS = WEBGL_WRAPPINGS[sampler["wrapS"]] ?? RepeatWrapping;
+    // texture.wrapT = WEBGL_WRAPPINGS[sampler["wrapT"]] ?? RepeatWrapping;
+
+    // // parser.associations.set( texture, {
+    // //   type: 'textures',
+    // //   index: textureIndex
+    // // } );
+
+    // parser.associations[texture] = {"type": "textures", "index": textureIndex};
+
+    // // this.textureCache[ cacheKey ] = texture;
+
+    // return texture;
   }
+
+  loadImageSource( sourceIndex, loader ) async {
+
+		var parser = this;
+		var json = this.json;
+		var options = this.options;
+    var texture;
+
+		if ( this.sourceCache[ sourceIndex ] != null ) {
+			texture = this.sourceCache[ sourceIndex ];
+      return texture.clone();
+		}
+
+		Map sourceDef = json["images"][ sourceIndex ];
+
+		// var URL = self.URL || self.webkitURL;
+
+		var sourceURI = sourceDef["uri"] ?? '';
+		var isObjectURL = false;
+
+		if ( sourceDef["bufferView"] != null ) {
+
+			// Load binary image data from bufferView, if provided.
+
+      var bufferView = await parser.getDependency( 'bufferView', sourceDef["bufferView"] );
+
+      isObjectURL = true;
+      var blob = Blob(bufferView.asUint8List(), {"type": sourceDef["mimeType"]});
+      // sourceURI = URL.createObjectURL( blob );
+
+      texture = await loader.loadAsync(blob, null);
+
+    } else if(sourceDef["uri"] != null) {
+      texture = await loader.loadAsync( LoaderUtils.resolveURL(sourceURI, options["path"]), null );
+		} else if ( sourceDef["uri"] == null ) {
+
+			throw( 'THREE.GLTFLoader: Image ' + sourceIndex + ' is missing URI and bufferView' );
+
+		}
+
+
+		this.sourceCache[ sourceIndex ] = texture;
+		return texture;
+
+	}
 
   /**
    * Asynchronously assigns a texture to the given material parameters.

@@ -11,20 +11,10 @@ class VertexNormalsHelper extends LineSegments {
   VertexNormalsHelper.create(geometry, material) : super(geometry, material) {}
 
   factory VertexNormalsHelper(object, [size = 1, color = 0xff0000]) {
-    var nNormals = 0;
-
-    var objGeometry = object.geometry;
-
-    if (objGeometry != null && objGeometry.isGeometry) {
-      throw ('THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.');
-    } else if (objGeometry != null && objGeometry.isBufferGeometry) {
-      nNormals = objGeometry.attributes["normal"].count;
-    }
-
-    //
 
     var geometry = new BufferGeometry();
 
+    var nNormals = object.geometry.attributes["normal"].count;
     var positions =
         new Float32BufferAttribute(Float32Array(nNormals * 2 * 3), 3, false);
 

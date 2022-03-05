@@ -241,23 +241,26 @@ Function assignExtrasToUserData = (object, gltfDef) {
  * @param {GLTFParser} parser
  * @return {Promise<BufferGeometry>}
  */
-Function addMorphTargets = (geometry, targets, parser) async {
+addMorphTargets(geometry, targets, parser) async {
   var hasMorphPosition = false;
   var hasMorphNormal = false;
+  var hasMorphColor = false;
 
   for (var i = 0, il = targets.length; i < il; i++) {
     var target = targets[i];
 
-    if (target["POSITION"] != null) hasMorphPosition = true;
-    if (target["NORMAL"] != null) hasMorphNormal = true;
+    if ( target["POSITION"] != null ) hasMorphPosition = true;
+    if ( target["NORMAL"] != null ) hasMorphNormal = true;
+    if ( target["COLOR_0"] != null ) hasMorphColor = true;
 
-    if (hasMorphPosition && hasMorphNormal) break;
+    if ( hasMorphPosition && hasMorphNormal && hasMorphColor ) break;
   }
 
-  if (!hasMorphPosition && !hasMorphNormal) return geometry;
+  if (!hasMorphPosition && !hasMorphNormal && ! hasMorphColor) return geometry;
 
   List<BufferAttribute> morphPositions = [];
   List<BufferAttribute> morphNormals = [];
+  List<BufferAttribute> morphColors = [];
 
   for (var i = 0, il = targets.length; i < il; i++) {
     var target = targets[i];
@@ -277,14 +280,26 @@ Function addMorphTargets = (geometry, targets, parser) async {
 
       morphNormals.add(_normal);
     }
+
+    if ( hasMorphColor ) {
+
+			var _color = target["COLOR_0"] != null
+				? await parser.getDependency( 'accessor', target["COLOR_0"] )
+				: geometry.attributes["color"];
+
+			morphColors.add( _color );
+
+		}
   }
 
   if (hasMorphPosition) geometry.morphAttributes["position"] = morphPositions;
   if (hasMorphNormal) geometry.morphAttributes["normal"] = morphNormals;
+  if ( hasMorphColor ) geometry.morphAttributes["color"] = morphColors;
+
   geometry.morphTargetsRelative = true;
 
   return geometry;
-};
+}
 
 /**
  * @param {Mesh} mesh

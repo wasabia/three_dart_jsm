@@ -10,7 +10,6 @@ import 'package:opentype_dart/index.dart' as opentype;
 import 'package:typr_dart/typr_dart.dart' as typr_dart;
 
 export './gltf/index.dart';
-// export './darco/index.dart';
 
 part 'LUTCubeLoader.dart';
 part 'TTFLoader.dart';

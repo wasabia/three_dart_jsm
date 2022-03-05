@@ -256,43 +256,43 @@ class LineMaterial extends ShaderMaterial {
     }
   }
 
-  get color => this.uniforms!["diffuse"]["value"];
+  get color => this.uniforms["diffuse"]["value"];
   set color(value) {
-    this.uniforms!["diffuse"]["value"] = value;
+    this.uniforms["diffuse"]["value"] = value;
   }
 
-  get linewidth => this.uniforms!["linewidth"]["value"];
+  get linewidth => this.uniforms["linewidth"]["value"];
   set linewidth(value) {
-    this.uniforms!["linewidth"] = {"value": value};
+    this.uniforms["linewidth"] = {"value": value};
   }
 
-  get dashScale => this.uniforms!["dashScale"]["value"];
+  get dashScale => this.uniforms["dashScale"]["value"];
   set dashScale(value) {
-    this.uniforms!["dashScale"]["value"] = value;
+    this.uniforms["dashScale"]["value"] = value;
   }
 
-  get dashSize => this.uniforms!["dashSize"]["value"];
+  get dashSize => this.uniforms["dashSize"]["value"];
   set dashSize(value) {
-    this.uniforms!["dashSize"]["value"] = value;
+    this.uniforms["dashSize"]["value"] = value;
   }
 
-  get dashOffset => this.uniforms!["dashOffset"]["value"];
+  get dashOffset => this.uniforms["dashOffset"]["value"];
   set dashOffset(value) {
-    this.uniforms!["dashOffset"]["value"] = value;
+    this.uniforms["dashOffset"]["value"] = value;
   }
 
-  get gapSize => this.uniforms!["gapSize"]["value"];
+  get gapSize => this.uniforms["gapSize"]["value"];
   set gapSize(value) {
-    this.uniforms!["gapSize"]["value"] = value;
+    this.uniforms["gapSize"]["value"] = value;
   }
 
-  get opacity => this.uniforms!["opacity"]["value"];
+  get opacity => this.uniforms["opacity"]["value"];
   set opacity(value) {
-    this.uniforms!["opacity"]["value"] = value;
+    this.uniforms["opacity"]["value"] = value;
   }
 
-  get resolution => this.uniforms!["resolution"]["value"];
+  get resolution => this.uniforms["resolution"]["value"];
   set resolution(value) {
-    this.uniforms!["resolution"]["value"] = value;
+    this.uniforms["resolution"]["value"] = value;
   }
 }

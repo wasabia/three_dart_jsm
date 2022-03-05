@@ -824,7 +824,7 @@ class BufferGeometryUtils {
 
 // 		}
 
-// 	} else if ( positionAttribute !== undefined ) {
+// 	} else {
 
 // 		// non-indexed buffer geometry
 

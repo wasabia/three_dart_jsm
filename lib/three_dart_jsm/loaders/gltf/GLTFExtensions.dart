@@ -599,8 +599,7 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
       return null;
     }
 
-    var exten = textureDef["extensions"][this.name];
-    var source = json["images"][exten.source];
+    var extension = textureDef["extensions"][this.name];
     var loader = parser.options.ktx2Loader;
 
     if (!loader) {
@@ -613,7 +612,7 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
       }
     }
 
-    return parser.loadTextureImage(textureIndex, source, loader);
+    return parser.loadTextureImage(textureIndex, extension.source, loader);
   }
 }
 

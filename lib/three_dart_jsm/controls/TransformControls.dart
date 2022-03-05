@@ -1,6 +1,5 @@
 part of jsm_controls;
 
-var _raycaster = new Raycaster(null, null, null, null);
 
 var _tempVector = new Vector3();
 var _tempVector2 = new Vector3();
@@ -11,7 +10,6 @@ var _unit = {
   "Z": new Vector3(0, 0, 1)
 };
 
-var _changeEvent = Event({"type": 'change'});
 var _mouseDownEvent = Event({"type": 'mouseDown'});
 var _mouseUpEvent = Event({"type": 'mouseUp', "mode": null});
 var _objectChangeEvent = Event({"type": 'objectChange'});
@@ -493,7 +491,7 @@ class TransformControls extends Object3D {
   }
 
   // updateMatrixWorld  updates key transformation variables
-  updateMatrixWorld(bool force) {
+  updateMatrixWorld([bool force = false]) {
     if (this.object != null) {
       this.object.updateMatrixWorld(force);
 

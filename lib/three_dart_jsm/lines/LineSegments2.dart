@@ -112,8 +112,8 @@ class LineSegments2 extends Mesh {
     mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
 
     for (var i = 0, l = instanceStart.count; i < l; i++) {
-      start.fromBufferAttribute(instanceStart, i, null);
-      end.fromBufferAttribute(instanceEnd, i, null);
+      start.fromBufferAttribute(instanceStart, i);
+      end.fromBufferAttribute(instanceEnd, i);
 
       start.w = 1;
       end.w = 1;

@@ -107,7 +107,7 @@ class TransformControlsPlane extends Mesh {
     return tcp;
   }
 
-  updateMatrixWorld(force) {
+  updateMatrixWorld([bool force = false]) {
     var space = this.space;
 
     this.position.copy(this.worldPosition);

@@ -10,16 +10,7 @@ class VertexTangentsHelper extends LineSegments {
   VertexTangentsHelper.create(geometry, material) : super(geometry, material) {}
 
   factory VertexTangentsHelper(object, [size = 1, color = 0x00ffff]) {
-    var objGeometry = object.geometry;
-
-    if (!(objGeometry != null && objGeometry.isBufferGeometry)) {
-      throw ('THREE.VertexTangentsHelper: geometry not an instance of THREE.BufferGeometry. ${objGeometry}');
-    }
-
-    var nTangents = objGeometry.attributes["tangent"].count;
-
-    //
-
+    var nTangents = object.geometry.attributes["tangent"].count;
     var geometry = new BufferGeometry();
 
     var positions =

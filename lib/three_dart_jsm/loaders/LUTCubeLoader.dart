@@ -120,7 +120,7 @@ class LUTCubeLoader extends Loader {
     texture.wrapT = ClampToEdgeWrapping;
     texture.generateMipmaps = false;
 
-    var texture3D = new DataTexture3D();
+    var texture3D = new Data3DTexture();
     texture3D.image!.data = data;
     texture3D.image!.width = size;
     texture3D.image!.height = size;

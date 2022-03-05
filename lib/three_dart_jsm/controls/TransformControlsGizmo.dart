@@ -748,7 +748,7 @@ class TransformControlsGizmo extends Object3D {
 
   // updateMatrixWorld will update transformations and appearance of individual handles
 
-  updateMatrixWorld(force) {
+  updateMatrixWorld([bool force = false]) {
     var space = (this.mode == 'scale')
         ? 'local'
         : this.space; // scale always oriented to local rotation

@@ -68,11 +68,11 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
       "glossinessMap": {"value": null}
     };
 
-    this._extraUniforms = uniforms!;
+    this._extraUniforms = uniforms;
 
     this.onBeforeCompile = (shader) {
-      uniforms!.forEach((uniformName, _v) {
-        shader.uniforms[uniformName] = uniforms![uniformName];
+      uniforms.forEach((uniformName, _v) {
+        shader.uniforms[uniformName] = uniforms[uniformName];
       });
 
       shader.fragmentShader = shader.fragmentShader
@@ -97,15 +97,15 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
     this.setValues(params);
   }
 
-  get specular => uniforms!["specular"]["value"];
+  get specular => uniforms["specular"]["value"];
 
   set specular(v) {
-    uniforms!["specular"]["value"] = v;
+    uniforms["specular"]["value"] = v;
   }
 
-  get specularMap => uniforms!["specularMap"]["value"];
+  get specularMap => uniforms["specularMap"]["value"];
   set specularMap(v) {
-    uniforms!["specularMap"]["value"] = v;
+    uniforms["specularMap"]["value"] = v;
 
     if (v != null) {
       this.defines!["USE_SPECULARMAP"] =
@@ -117,15 +117,15 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
     }
   }
 
-  get glossiness => uniforms!["glossiness"]["value"];
+  get glossiness => uniforms["glossiness"]["value"];
 
   set glossiness(v) {
-    uniforms!["glossiness"]["value"] = v;
+    uniforms["glossiness"]["value"] = v;
   }
 
-  get glossinessMap => uniforms!["glossinessMap"]["value"];
+  get glossinessMap => uniforms["glossinessMap"]["value"];
   set glossinessMap(v) {
-    uniforms!["glossinessMap"]["value"] = v;
+    uniforms["glossinessMap"]["value"] = v;
 
     if (v != null) {
       this.defines!["USE_GLOSSINESSMAP"] = '';
