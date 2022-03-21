@@ -6,7 +6,7 @@ import 'package:three_dart/three3d/math/index.dart';
  * http://o3d.googlecode.com/svn/trunk/samples/convolution.html
  */
 
-var ConvolutionShader = {
+Map ConvolutionShader = {
   "defines": {'KERNEL_SIZE_FLOAT': '25.0', 'KERNEL_SIZE_INT': '25'},
   "uniforms": {
     'tDiffuse': {"value": null},

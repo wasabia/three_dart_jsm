@@ -62,12 +62,12 @@ class MeshSurfaceSampler {
     // Accumulate weights for each mesh face.
 
     for (var i = 0; i < positionAttribute.count; i += 3) {
-      num faceWeight = 1;
+      double faceWeight = 1;
 
       if (weightAttribute != null) {
-        faceWeight = weightAttribute.getX(i) +
-            weightAttribute.getX(i + 1) +
-            weightAttribute.getX(i + 2);
+        faceWeight = weightAttribute.getX(i)!.toDouble() +
+            weightAttribute.getX(i + 1)!.toDouble() +
+            weightAttribute.getX(i + 2)!.toDouble();
       }
 
       _face.a.fromBufferAttribute(positionAttribute, i);
@@ -83,7 +83,7 @@ class MeshSurfaceSampler {
 
     this.distribution = new Float32Array(positionAttribute.count ~/ 3);
 
-    num cumulativeTotal = 0;
+    double cumulativeTotal = 0;
 
     for (var i = 0; i < faceWeights.length; i++) {
       cumulativeTotal += faceWeights[i];

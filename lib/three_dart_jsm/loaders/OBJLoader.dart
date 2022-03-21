@@ -139,10 +139,10 @@ class ParserState {
   var objects = [];
   ParseStateObject? object;
 
-  var vertices = [];
-  var normals = [];
-  var colors = [];
-  var uvs = [];
+  List<double> vertices = [];
+  List<double> normals = [];
+  List<double> colors = [];
+  List<double> uvs = [];
 
   var materials = {};
   var materialLibraries = [];
@@ -475,8 +475,8 @@ class OBJLoader extends Loader {
               ]);
             } else {
               // if no colors are defined, add placeholders so color and vertex indices match
-
-              state.colors.addAll([null, null, null]);
+              // can we fill 0.0 placeholders ??
+              state.colors.addAll([0.0, 0.0, 0.0]);
             }
 
             break;
@@ -634,22 +634,22 @@ class OBJLoader extends Loader {
         var buffergeometry = new BufferGeometry();
 
         buffergeometry.setAttribute(
-            'position', new Float32BufferAttribute(geometry["vertices"], 3));
+            'position', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["vertices"]) ), 3));
 
         if (geometry["normals"].length > 0) {
           buffergeometry.setAttribute(
-              'normal', new Float32BufferAttribute(geometry["normals"], 3));
+              'normal', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["normals"]) ), 3));
         }
 
         if (geometry["colors"].length > 0) {
           hasVertexColors = true;
           buffergeometry.setAttribute(
-              'color', new Float32BufferAttribute(geometry["colors"], 3));
+              'color', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["colors"])), 3));
         }
 
         if (geometry["hasUVIndices"] == true) {
           buffergeometry.setAttribute(
-              'uv', new Float32BufferAttribute(geometry["uvs"], 2));
+              'uv', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["uvs"])), 2));
         }
 
         // Create materials
@@ -673,14 +673,14 @@ class OBJLoader extends Loader {
               var materialLine = new LineBasicMaterial({});
               materialLine.copy(material);
               // Material.prototype.copy.call( materialLine, material );
-              materialLine.color!.copy(material.color);
+              materialLine.color.copy(material.color);
               material = materialLine;
             } else if (isPoints && material && !(material is PointsMaterial)) {
               var materialPoints =
                   new PointsMaterial({"size": 10, "sizeAttenuation": false});
               // Material.prototype.copy.call( materialPoints, material );
               materialPoints.copy(material);
-              materialPoints.color!.copy(material.color);
+              materialPoints.color.copy(material.color);
               materialPoints.map = material.map;
               material = materialPoints;
             }
@@ -714,7 +714,7 @@ class OBJLoader extends Loader {
             var sourceMaterial = materials[mi];
             buffergeometry.addGroup(sourceMaterial.groupStart.toInt(),
                 sourceMaterial.groupCount.toInt(),
-                materialIndex: mi);
+                mi);
           }
 
           if (isLine) {
@@ -748,11 +748,11 @@ class OBJLoader extends Loader {
         var buffergeometry = new BufferGeometry();
 
         buffergeometry.setAttribute(
-            'position', new Float32BufferAttribute(state.vertices, 3));
+            'position', new Float32BufferAttribute(Float32Array.fromList(state.vertices), 3));
 
         if (state.colors.length > 0 && state.colors[0] != null) {
           buffergeometry.setAttribute(
-              'color', new Float32BufferAttribute(state.colors, 3));
+              'color', new Float32BufferAttribute(Float32Array.fromList(state.colors), 3));
           material.vertexColors = true;
         }
 

@@ -97,6 +97,6 @@ class RoomEnvironment extends Scene {
 
 Function createAreaLightMaterial = (intensity) {
   var material = new MeshBasicMaterial();
-  material.color?.setScalar(intensity);
+  material.color.setScalar(intensity);
   return material;
 };

@@ -10,9 +10,9 @@ class EffectComposer {
 
   bool renderToScreen = true;
 
-  num _pixelRatio = 1.0;
-  late num _width;
-  late num _height;
+  double _pixelRatio = 1.0;
+  late double _width;
+  late double _height;
 
   List<Pass> passes = [];
 
@@ -32,12 +32,12 @@ class EffectComposer {
 
       var size = renderer.getSize(new Vector2(null, null));
       this._pixelRatio = renderer.getPixelRatio();
-      this._width = size.width;
-      this._height = size.height;
+      this._width = size.width.toDouble();
+      this._height = size.height.toDouble();
 
       renderTarget = new WebGLRenderTarget(
-          (this._width * this._pixelRatio).toInt(),
-          (this._height * this._pixelRatio).toInt(),
+          (this._width * this._pixelRatio),
+          (this._height * this._pixelRatio),
           WebGLRenderTargetOptions(parameters));
     } else {
       this._pixelRatio = 1;
@@ -167,8 +167,8 @@ class EffectComposer {
     if (renderTarget == null) {
       var size = this.renderer.getSize(new Vector2(null, null));
       this._pixelRatio = this.renderer.getPixelRatio();
-      this._width = size.width;
-      this._height = size.height;
+      this._width = size.width.toDouble();
+      this._height = size.height.toDouble();
 
       renderTarget = this.renderTarget1.clone();
       renderTarget.setSize(

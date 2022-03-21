@@ -183,7 +183,7 @@ class TransformControlsGizmo extends Object3D {
 
     var lineGeometry = new BufferGeometry();
     lineGeometry.setAttribute(
-        'position', new Float32BufferAttribute([0, 0, 0, 1, 0, 0], 3));
+        'position', new Float32BufferAttribute(Float32Array.from([0.0, 0.0, 0.0, 1.0, 0.0, 0.0]), 3));
 
     var lineGeometry2 = new CylinderGeometry(0.0075, 0.0075, 0.5, 3);
     lineGeometry2.translate(0, 0.25, 0);
@@ -202,7 +202,7 @@ class TransformControlsGizmo extends Object3D {
       var geometry = new BufferGeometry();
 
       geometry.setAttribute(
-          'position', new Float32BufferAttribute([0, 0, 0, 1, 1, 1], 3));
+          'position', new Float32BufferAttribute(Float32Array.fromList([0.0, 0.0, 0.0, 1.0, 1.0, 1.0]), 3));
 
       return geometry;
     };

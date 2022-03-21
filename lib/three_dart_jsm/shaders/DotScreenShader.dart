@@ -6,7 +6,7 @@ import 'package:three_dart/three3d/math/index.dart';
  * https://github.com/evanw/glfx.js
  */
 
-var DotScreenShader = {
+Map<String, dynamic> DotScreenShader = {
   "uniforms": {
     'tDiffuse': {},
     'tSize': {"value": new Vector2(256, 256)},

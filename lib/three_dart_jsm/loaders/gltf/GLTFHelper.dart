@@ -77,17 +77,17 @@ class GLTypeData {
 
   static createBufferAttribute(array, itemSize, normalized) {
     if (array is Int8List) {
-      return Int8BufferAttribute(array, itemSize, normalized);
+      return Int8BufferAttribute(Int8Array.fromList(array), itemSize, normalized);
     } else if (array is Uint8List) {
-      return Uint8BufferAttribute(array, itemSize, normalized);
+      return Uint8BufferAttribute(Uint8Array.fromList(array), itemSize, normalized);
     } else if (array is Int16List) {
-      return Int16BufferAttribute(array, itemSize, normalized);
+      return Int16BufferAttribute(Int16Array.fromList(array), itemSize, normalized);
     } else if (array is Uint16List) {
-      return Uint16BufferAttribute(array, itemSize, normalized);
+      return Uint16BufferAttribute(Uint16Array.fromList(array), itemSize, normalized);
     } else if (array is Uint32List) {
-      return Uint32BufferAttribute(array, itemSize, normalized);
+      return Uint32BufferAttribute(Uint32Array.fromList(array), itemSize, normalized);
     } else if (array is Float32List) {
-      return Float32BufferAttribute(array, itemSize, normalized);
+      return Float32BufferAttribute(Float32Array.fromList(array), itemSize, normalized);
     } else {
       throw ("GLTFHelper createBufferAttribute  array.runtimeType : ${array.runtimeType} is not support yet");
     }

@@ -7,7 +7,6 @@ import 'package:three_dart/three3d/materials/index.dart';
 import 'package:three_dart/three3d/math/index.dart';
 import 'package:three_dart/extra/console.dart';
 import 'package:three_dart/extra/performance.dart';
-import 'package:three_dart/three3d/renderers/webgpu/index.dart';
 
 part './core/constants.dart';
 

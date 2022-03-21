@@ -1,18 +1,5 @@
 part of jsm_lines;
 
-// import {
-// 	InstancedInterleavedBuffer,
-// 	InterleavedBufferAttribute,
-// 	Line3,
-// 	MathUtils,
-// 	Matrix4,
-// 	Mesh,
-// 	Vector3,
-// 	Vector4
-// } from '../../../build/three.module.js';
-// import { LineSegmentsGeometry } from '../lines/LineSegmentsGeometry.js';
-// import { LineMaterial } from '../lines/LineMaterial.js';
-
 class LineSegments2 extends Mesh {
   String type = "LineSegments2";
   bool isLineSegments2 = true;
@@ -58,7 +45,7 @@ class LineSegments2 extends Mesh {
     return this;
   }
 
-  raycast(raycaster, intersects) {
+  raycast(Raycaster raycaster, intersects) {
     var start = new Vector4.init();
     var end = new Vector4.init();
 

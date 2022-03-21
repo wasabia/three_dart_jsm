@@ -59,8 +59,8 @@ class UnrealBloomPass extends Pass {
     this.renderTargetsHorizontal = [];
     this.renderTargetsVertical = [];
     this.nMips = 5;
-    var resx = Math.round(this.resolution.x / 2).toInt();
-    var resy = Math.round(this.resolution.y / 2).toInt();
+    var resx = Math.round(this.resolution.x / 2).toDouble();
+    var resy = Math.round(this.resolution.y / 2).toDouble();
 
     this.renderTargetBright = new WebGLRenderTarget(resx, resy, pars);
     this.renderTargetBright.texture.name = 'UnrealBloomPass.bright';
@@ -81,9 +81,9 @@ class UnrealBloomPass extends Pass {
 
       this.renderTargetsVertical.add(renderTargetVertical);
 
-      resx = Math.round(resx / 2).toInt();
+      resx = Math.round(resx / 2).toDouble();
 
-      resy = Math.round(resy / 2).toInt();
+      resy = Math.round(resy / 2).toDouble();
     }
 
     // luminosity high pass material
@@ -108,8 +108,8 @@ class UnrealBloomPass extends Pass {
     // Gaussian Blur Materials
     this.separableBlurMaterials = [];
     var kernelSizeArray = [3, 5, 7, 9, 11];
-    resx = Math.round(this.resolution.x / 2);
-    resy = Math.round(this.resolution.y / 2);
+    resx = Math.round(this.resolution.x / 2).toDouble();
+    resy = Math.round(this.resolution.y / 2).toDouble();
 
     for (var i = 0; i < this.nMips; i++) {
       this
@@ -119,9 +119,9 @@ class UnrealBloomPass extends Pass {
       this.separableBlurMaterials[i].uniforms['texSize']["value"] =
           new Vector2(resx.toDouble(), resy.toDouble());
 
-      resx = Math.round(resx / 2);
+      resx = Math.round(resx / 2).toDouble();
 
-      resy = Math.round(resy / 2);
+      resy = Math.round(resy / 2).toDouble();
     }
 
     // Composite material
@@ -196,8 +196,8 @@ class UnrealBloomPass extends Pass {
   }
 
   setSize(width, height) {
-    var resx = Math.round(width / 2);
-    var resy = Math.round(height / 2);
+    var resx = Math.round(width / 2).toDouble();
+    var resy = Math.round(height / 2).toDouble();
 
     this.renderTargetBright.setSize(resx, resy);
 
@@ -208,8 +208,8 @@ class UnrealBloomPass extends Pass {
       this.separableBlurMaterials[i].uniforms['texSize']["value"] =
           new Vector2(resx.toDouble(), resy.toDouble());
 
-      resx = Math.round(resx / 2);
-      resy = Math.round(resy / 2);
+      resx = Math.round(resx / 2).toDouble();
+      resy = Math.round(resy / 2).toDouble();
     }
   }
 

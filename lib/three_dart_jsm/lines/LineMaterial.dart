@@ -23,7 +23,7 @@ final UniformsLib_line = {
   "opacity": {"value": 1}
 };
 
-final ShaderLib_line = {
+Map<String, dynamic> ShaderLib_line = {
   "uniforms": UniformsUtils.merge(
       [UniformsLib["common"], UniformsLib["fog"], UniformsLib_line]),
   "vertexShader": """

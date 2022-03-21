@@ -52,7 +52,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
         'uv', new Float32BufferAttribute(Float32Array.from(uvs), 2, false));
   }
 
-  applyMatrix4(matrix) {
+  LineSegmentsGeometry applyMatrix4(matrix) {
     var start = this.attributes["instanceStart"];
     var end = this.attributes["instanceEnd"];
 
@@ -81,7 +81,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
     if (array is Float32Array) {
       lineSegments = array;
     } else if (array is List) {
-      lineSegments = Float32Array.from(array);
+      lineSegments = Float32Array.from(List<double>.from(array));
     }
 
     var instanceBuffer =
@@ -106,7 +106,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
     if (array is Float32Array) {
       colors = array;
     } else if (array is List) {
-      colors = Float32Array.from(array);
+      colors = Float32Array.from(List<double>.from(array));
     }
 
     var instanceColorBuffer =

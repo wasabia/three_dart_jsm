@@ -18,9 +18,9 @@
  * http://creativecommons.org/licenses/by/3.0/
  */
 
-var FilmShader = {
+Map<String, dynamic> FilmShader = {
   "uniforms": {
-    'tDiffuse': {"value": null},
+    'tDiffuse': {},
     'time': {"value": 0.0},
     'nIntensity': {"value": 0.5},
     'sIntensity': {"value": 0.05},

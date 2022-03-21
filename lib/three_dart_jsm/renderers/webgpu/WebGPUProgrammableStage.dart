@@ -17,8 +17,8 @@ class WebGPUProgrammableStage {
     this.type = type;
     this.usedTimes = 0;
 
-    print("WebGPUProgrammableStage type: ${type} ");
-    print(code);
+    // print("WebGPUProgrammableStage type: ${type} ");
+    // print(code);
 
     var module =
         device.createShaderModule(GPUShaderModuleDescriptor(code: code));

@@ -7,7 +7,7 @@ class FilmPass extends Pass {
 
     var shader = FilmShader;
 
-    this.uniforms = UniformsUtils.clone(shader["uniforms"]);
+    this.uniforms = UniformsUtils.clone(Map<String, dynamic>.from(shader["uniforms"]));
 
     this.material = new ShaderMaterial({
       "uniforms": this.uniforms,

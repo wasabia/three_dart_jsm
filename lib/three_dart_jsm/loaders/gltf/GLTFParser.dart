@@ -425,7 +425,7 @@ class GLTFParser {
         ? json["bufferViews"][accessorDef["bufferView"]]["byteStride"]
         : null;
     var normalized = accessorDef["normalized"] == true;
-    TypedData array;
+    List<double> array;
     var bufferAttribute;
 
     // The buffer is not interleaved if the stride is the item size in bytes.
@@ -443,7 +443,7 @@ class GLTFParser {
             accessorDef["count"] * byteStride / elementBytes);
 
         // Integer parameters to IB/IBA are in array elements, not bytes.
-        ib = new InterleavedBuffer(array, byteStride / elementBytes);
+        ib = new InterleavedBuffer(Float32Array.fromList(array), byteStride / elementBytes);
 
         parser.cache.add(ibCacheKey, ib);
       }
@@ -481,7 +481,7 @@ class GLTFParser {
 
       if (bufferView != null) {
         // Avoid modifying the original ArrayBuffer, if the bufferView wasn't initialized with zeroes.
-        bufferAttribute = BufferAttribute(bufferAttribute.array.clone(),
+        bufferAttribute = Float32BufferAttribute(bufferAttribute.array.clone(),
             bufferAttribute.itemSize, bufferAttribute.normalized);
       }
 
@@ -883,7 +883,7 @@ class GLTFParser {
       materialParams["opacity"] = 1.0;
 
       if (metallicRoughness["baseColorFactor"] is List) {
-        var array = metallicRoughness["baseColorFactor"];
+        var array = List<num>.from(metallicRoughness["baseColorFactor"]);
 
         materialParams["color"].fromArray(array);
         materialParams["opacity"] = array[3];
@@ -969,7 +969,7 @@ class GLTFParser {
     if (materialDef["emissiveFactor"] != null &&
         materialType != MeshBasicMaterial) {
       materialParams["emissive"] =
-          new Color(1, 1, 1).fromArray(materialDef["emissiveFactor"]);
+          new Color(1, 1, 1).fromArray(List<double>.from(materialDef["emissiveFactor"]));
     }
 
     if (materialDef["emissiveTexture"] != null &&
@@ -1595,7 +1595,7 @@ class GLTFParser {
           }
         }
 
-        mesh.bind(new Skeleton(bones: bones, boneInverses: boneInverses),
+        mesh.bind(new Skeleton(bones, boneInverses),
             mesh.matrixWorld);
       });
     }

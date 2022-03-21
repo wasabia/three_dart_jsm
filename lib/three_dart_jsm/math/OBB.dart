@@ -3,7 +3,7 @@ part of jsm_math;
 // module scope helper variables
 
 class OBBC {
-  Vector3? c;
+  late Vector3 c;
   late List<Vector3> u;
   late List e;
   OBBC(Map<String, dynamic> json) {
@@ -312,7 +312,7 @@ class OBB {
 
     // perform ray <-> AABB intersection test
 
-    if (localRay.intersectBox(aabb, result)) {
+    if (localRay.intersectBox(aabb, result) != null) {
       // transform the intersection point back to world space
 
       return result.applyMatrix4(obbmatrix);

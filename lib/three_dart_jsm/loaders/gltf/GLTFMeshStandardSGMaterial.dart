@@ -140,10 +140,13 @@ class GLTFMeshStandardSGMaterial extends MeshStandardMaterial {
 
   copy(source) {
     super.copy(source);
-    this.specularMap = source.specularMap;
-    this.specular!.copy(source.specular);
-    this.glossinessMap = source.glossinessMap;
-    this.glossiness = source.glossiness;
+
+    var _source = source as GLTFMeshStandardSGMaterial; 
+
+    this.specularMap = _source.specularMap;
+    this.specular!.copy(_source.specular!);
+    this.glossinessMap = _source.glossinessMap;
+    this.glossiness = _source.glossiness;
     // delete this.metalness;
     // delete this.roughness;
     // delete this.metalnessMap;
