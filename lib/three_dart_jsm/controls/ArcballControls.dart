@@ -1644,7 +1644,7 @@ class ArcballControls with EventDispatcher {
 	 * @param {Camera} camera
 	 * @returns {Number} The trackball radius
 	 */
-  calculateTbRadius(camera) {
+  calculateTbRadius(Camera camera) {
     var distance = camera.position.distanceTo(this._gizmos.position);
 
     if (camera.type == 'PerspectiveCamera') {
