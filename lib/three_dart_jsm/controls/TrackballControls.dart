@@ -192,9 +192,9 @@ class TrackballControls with EventDispatcher {
       factor = _touchZoomDistanceStart / _touchZoomDistanceEnd;
       _touchZoomDistanceStart = _touchZoomDistanceEnd;
 
-      if (scope.object.isPerspectiveCamera) {
+      if (scope.object is PerspectiveCamera) {
         _eye.multiplyScalar(factor);
-      } else if (scope.object.isOrthographicCamera) {
+      } else if (scope.object is OrthographicCamera) {
         scope.object.zoom /= factor;
         scope.object.updateProjectionMatrix();
       } else {
@@ -204,9 +204,9 @@ class TrackballControls with EventDispatcher {
       factor = 1.0 + (_zoomEnd.y - _zoomStart.y) * scope.zoomSpeed;
 
       if (factor != 1.0 && factor > 0.0) {
-        if (scope.object.isPerspectiveCamera) {
+        if (scope.object is PerspectiveCamera) {
           _eye.multiplyScalar(factor);
-        } else if (scope.object.isOrthographicCamera) {
+        } else if (scope.object is OrthographicCamera) {
           scope.object.zoom /= factor;
           scope.object.updateProjectionMatrix();
         } else {
@@ -230,7 +230,7 @@ class TrackballControls with EventDispatcher {
     mouseChange.copy(_panEnd).sub(_panStart);
 
     if (mouseChange.lengthSq() != 0) {
-      if (scope.object.isOrthographicCamera) {
+      if (scope.object is OrthographicCamera) {
         var scale_x = (scope.object.right - scope.object.left) /
             scope.object.zoom /
             scope.domElement.clientWidth;
@@ -293,7 +293,7 @@ class TrackballControls with EventDispatcher {
 
     scope.object.position.addVectors(scope.target, _eye);
 
-    if (scope.object.isPerspectiveCamera) {
+    if (scope.object is PerspectiveCamera) {
       scope.checkDistances();
 
       scope.object.lookAt(scope.target);
@@ -303,7 +303,7 @@ class TrackballControls with EventDispatcher {
 
         lastPosition.copy(scope.object.position);
       }
-    } else if (scope.object.isOrthographicCamera) {
+    } else if (scope.object is OrthographicCamera) {
       scope.object.lookAt(scope.target);
 
       if (lastPosition.distanceToSquared(scope.object.position) > EPS ||

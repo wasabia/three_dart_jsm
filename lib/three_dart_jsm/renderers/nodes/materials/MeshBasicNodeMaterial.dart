@@ -20,16 +20,14 @@ class MeshBasicNodeMaterial extends MeshBasicMaterial {
     this.positionNode = null;
   }
 
-  copy(source) {
-    this.colorNode = source.colorNode;
-    this.opacityNode = source.opacityNode;
-
-    this.alphaTestNode = source.alphaTestNode;
-
-    this.lightNode = source.lightNode;
-
-    this.positionNode = source.positionNode;
-
+  MeshBasicMaterial copy(Material source) {
+    if (source is MeshBasicNodeMaterial) {
+      this.colorNode = source.colorNode;
+      this.opacityNode = source.opacityNode;
+      this.alphaTestNode = source.alphaTestNode;
+      this.lightNode = source.lightNode;
+      this.positionNode = source.positionNode;
+    }
     return super.copy(source);
   }
 }
