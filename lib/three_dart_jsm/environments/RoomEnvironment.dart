@@ -58,19 +58,19 @@ class RoomEnvironment extends Scene {
     this.add(box6);
 
     // -x right
-    var light1 = new Mesh(geometry, createAreaLightMaterial(50));
+    var light1 = new Mesh(geometry, createAreaLightMaterial(50.0));
     light1.position.set(-16.116, 14.37, 8.208);
     light1.scale.set(0.1, 2.428, 2.739);
     this.add(light1);
 
     // -x left
-    var light2 = new Mesh(geometry, createAreaLightMaterial(50));
+    var light2 = new Mesh(geometry, createAreaLightMaterial(50.0));
     light2.position.set(-16.109, 18.021, -8.207);
     light2.scale.set(0.1, 2.425, 2.751);
     this.add(light2);
 
     // +x
-    var light3 = new Mesh(geometry, createAreaLightMaterial(17));
+    var light3 = new Mesh(geometry, createAreaLightMaterial(17.0));
     light3.position.set(14.904, 12.198, -1.832);
     light3.scale.set(0.15, 4.265, 6.331);
     this.add(light3);
@@ -95,8 +95,8 @@ class RoomEnvironment extends Scene {
   }
 }
 
-Function createAreaLightMaterial = (intensity) {
+Function createAreaLightMaterial = (num intensity) {
   var material = new MeshBasicMaterial();
-  material.color.setScalar(intensity);
+  material.color.setScalar(intensity.toDouble());
   return material;
 };

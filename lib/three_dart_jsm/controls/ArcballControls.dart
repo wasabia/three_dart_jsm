@@ -1644,10 +1644,10 @@ class ArcballControls with EventDispatcher {
 	 * @param {Camera} camera
 	 * @returns {Number} The trackball radius
 	 */
-  calculateTbRadius(camera) {
+  calculateTbRadius(Camera camera) {
     var distance = camera.position.distanceTo(this._gizmos.position);
 
-    if (camera.type == 'PerspectiveCamera') {
+    if (camera is PerspectiveCamera) {
       var halfFovV =
           MathUtils.DEG2RAD * camera.fov * 0.5; //vertical fov/2 in radians
       var halfFovH = Math.atan(
@@ -1655,7 +1655,7 @@ class ArcballControls with EventDispatcher {
       return Math.tan(Math.min(halfFovV, halfFovH)) *
           distance *
           this.radiusFactor;
-    } else if (camera.type == 'OrthographicCamera') {
+    } else if (camera is OrthographicCamera) {
       return Math.min(camera.top, camera.right) * this.radiusFactor;
     }
   }

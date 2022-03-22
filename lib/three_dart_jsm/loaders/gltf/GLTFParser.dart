@@ -453,15 +453,14 @@ class GLTFParser {
     } else {
       if (bufferView == null) {
         array = typedArray.createList(accessorDef["count"] * itemSize);
-      } else {
-        array = typedArray.view(
-            bufferView, byteOffset, accessorDef["count"] * itemSize);
-      }
-
-      // bufferAttribute = BufferAttribute( array, itemSize, normalized );
-      //
-      bufferAttribute =
+        bufferAttribute =
           GLTypeData.createBufferAttribute(array, itemSize, normalized);
+      } else {
+        var _array = typedArray.view(
+            bufferView, byteOffset, accessorDef["count"] * itemSize);
+        bufferAttribute =
+          GLTypeData.createBufferAttribute(_array, itemSize, normalized);
+      }
     }
 
     // https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#sparse-accessors
@@ -883,7 +882,7 @@ class GLTFParser {
       materialParams["opacity"] = 1.0;
 
       if (metallicRoughness["baseColorFactor"] is List) {
-        var array = List<num>.from(metallicRoughness["baseColorFactor"]);
+        List<double> array = List<double>.from(metallicRoughness["baseColorFactor"].map((e) => e.toDouble()));
 
         materialParams["color"].fromArray(array);
         materialParams["opacity"] = array[3];
@@ -969,7 +968,7 @@ class GLTFParser {
     if (materialDef["emissiveFactor"] != null &&
         materialType != MeshBasicMaterial) {
       materialParams["emissive"] =
-          new Color(1, 1, 1).fromArray(List<double>.from(materialDef["emissiveFactor"]));
+          new Color(1, 1, 1).fromArray(List<double>.from(materialDef["emissiveFactor"].map((e) => e.toDouble())));
     }
 
     if (materialDef["emissiveTexture"] != null &&
@@ -1522,19 +1521,19 @@ class GLTFParser {
 
     if (nodeDef["matrix"] != null) {
       var matrix = new Matrix4();
-      matrix.fromArray(List<num?>.from(nodeDef["matrix"]));
+      matrix.fromArray(List<num>.from(nodeDef["matrix"]));
       node.applyMatrix4(matrix);
     } else {
       if (nodeDef["translation"] != null) {
-        node.position.fromArray(List<num?>.from(nodeDef["translation"]));
+        node.position.fromArray(List<num>.from(nodeDef["translation"]));
       }
 
       if (nodeDef["rotation"] != null) {
-        node.quaternion.fromArray(List<num?>.from(nodeDef["rotation"]));
+        node.quaternion.fromArray(List<num>.from(nodeDef["rotation"]));
       }
 
       if (nodeDef["scale"] != null) {
-        node.scale.fromArray(List<num?>.from(nodeDef["scale"]));
+        node.scale.fromArray(List<num>.from(nodeDef["scale"]));
       }
     }
 
