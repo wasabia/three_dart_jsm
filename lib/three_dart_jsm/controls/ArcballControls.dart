@@ -527,14 +527,14 @@ class ArcballControls with EventDispatcher {
             if (this.cursorZoom && this.enablePan) {
               var scalePoint;
 
-              if (this.camera.isOrthographicCamera) {
+              if (this.camera is OrthographicCamera) {
                 scalePoint = this
                     .unprojectOnTbPlane(this.camera, event.clientX,
                         event.clientY, this.domElement)
                     .applyQuaternion(this.camera.quaternion)
                     .multiplyScalar(1 / this.camera.zoom)
                     .add(this._gizmos.position);
-              } else if (this.camera.isPerspectiveCamera) {
+              } else if (this.camera is PerspectiveCamera) {
                 scalePoint = this
                     .unprojectOnTbPlane(this.camera, event.clientX,
                         event.clientY, this.domElement)
@@ -561,7 +561,7 @@ class ArcballControls with EventDispatcher {
             break;
 
           case 'FOV':
-            if (this.camera.isPerspectiveCamera) {
+            if (this.camera is PerspectiveCamera) {
               this.updateTbState(STATE2.FOV, true);
 
               //Vertigo effect
@@ -693,7 +693,7 @@ class ArcballControls with EventDispatcher {
           break;
 
         case 'FOV':
-          if (!this.camera.isPerspectiveCamera || !this.enableZoom) {
+          if (this.camera is! PerspectiveCamera || !this.enableZoom) {
             return;
           }
 
@@ -875,7 +875,7 @@ class ArcballControls with EventDispatcher {
           break;
 
         case STATE2.FOV:
-          if (this.enableZoom && this.camera.isPerspectiveCamera) {
+          if (this.enableZoom && this.camera is PerspectiveCamera) {
             if (restart) {
               //switch to fov operation
 
@@ -1173,14 +1173,14 @@ class ArcballControls with EventDispatcher {
       if (!this.enablePan) {
         scalePoint = this._gizmos.position;
       } else {
-        if (this.camera.isOrthographicCamera) {
+        if (this.camera is OrthographicCamera) {
           scalePoint = this
               .unprojectOnTbPlane(
                   this.camera, _center.x, _center.y, this.domElement)
               .applyQuaternion(this.camera.quaternion)
               .multiplyScalar(1 / this.camera.zoom)
               .add(this._gizmos.position);
-        } else if (this.camera.isPerspectiveCamera) {
+        } else if (this.camera is PerspectiveCamera) {
           scalePoint = this
               .unprojectOnTbPlane(
                   this.camera, _center.x, _center.y, this.domElement)
@@ -1699,7 +1699,7 @@ class ArcballControls with EventDispatcher {
       var multiplier = 3;
       var size, divisions, maxLength, tick;
 
-      if (this.camera.isOrthographicCamera) {
+      if (this.camera is OrthographicCamera) {
         var width = this.camera.right - this.camera.left;
         var height = this.camera.bottom - this.camera.top;
 
@@ -1708,7 +1708,7 @@ class ArcballControls with EventDispatcher {
 
         size = maxLength / this.camera.zoom * multiplier;
         divisions = size / tick * this.camera.zoom;
-      } else if (this.camera.isPerspectiveCamera) {
+      } else if (this.camera is PerspectiveCamera) {
         var distance = this.camera.position.distanceTo(this._gizmos.position);
         var halfFovV = MathUtils.DEG2RAD * this.camera.fov * 0.5;
         var halfFovH = Math.atan((this.camera.aspect) * Math.tan(halfFovV));
@@ -2077,10 +2077,10 @@ class ArcballControls with EventDispatcher {
   pan(p0, p1, [adjust = false]) {
     var movement = p0.clone().sub(p1);
 
-    if (this.camera.isOrthographicCamera) {
+    if (this.camera is OrthographicCamera) {
       //adjust movement amount
       movement.multiplyScalar(1 / this.camera.zoom);
-    } else if (this.camera.isPerspectiveCamera && adjust) {
+    } else if (this.camera is PerspectiveCamera && adjust) {
       //adjust movement amount
       this._v3_1.setFromMatrixPosition(
           this._cameraMatrixState0); //camera's initial position
@@ -2108,7 +2108,7 @@ class ArcballControls with EventDispatcher {
   reset() {
     this.camera.zoom = this._zoom0;
 
-    if (this.camera.isPerspectiveCamera) {
+    if (this.camera is PerspectiveCamera) {
       this.camera.fov = this._fov0;
     }
 
@@ -2160,7 +2160,7 @@ class ArcballControls with EventDispatcher {
 
   copyState() {
     // var state;
-    // if ( this.camera.isOrthographicCamera ) {
+    // if ( this.camera is OrthographicCamera ) {
 
     // 	state = JSON.stringify( { 'arcballState': {
 
@@ -2173,7 +2173,7 @@ class ArcballControls with EventDispatcher {
 
     // 	} } );
 
-    // } else if ( this.camera.isPerspectiveCamera ) {
+    // } else if ( this.camera is PerspectiveCamera ) {
 
     // 	state = JSON.stringify( { 'arcballState': {
     // 		'cameraFar': this.camera.far,
@@ -2211,7 +2211,7 @@ class ArcballControls with EventDispatcher {
     this._zoom0 = this.camera.zoom;
     this._up0.copy(this.camera.up);
 
-    if (this.camera.isPerspectiveCamera) {
+    if (this.camera is PerspectiveCamera) {
       this._fov0 = this.camera.fov;
     }
   }
@@ -2227,7 +2227,7 @@ class ArcballControls with EventDispatcher {
     _scalePointTemp.copy(point);
     var sizeInverse = 1 / size;
 
-    if (this.camera.isOrthographicCamera) {
+    if (this.camera is OrthographicCamera) {
       //camera zoom
       this.camera.zoom = this._zoomState;
       this.camera.zoom *= size;
@@ -2271,7 +2271,7 @@ class ArcballControls with EventDispatcher {
 
       this.setTransformationMatrices(this._m4_1, this._m4_2);
       return _transformation;
-    } else if (this.camera.isPerspectiveCamera) {
+    } else if (this.camera is PerspectiveCamera) {
       this._v3_1.setFromMatrixPosition(this._cameraMatrixState);
       this._v3_2.setFromMatrixPosition(this._gizmoMatrixState);
 
@@ -2335,7 +2335,7 @@ class ArcballControls with EventDispatcher {
 	 * @param {Number} value fov to be setted
 	 */
   setFov(value) {
-    if (this.camera.isPerspectiveCamera) {
+    if (this.camera is PerspectiveCamera) {
       this.camera.fov = MathUtils.clamp(value, this.minFov, this.maxFov);
       this.camera.updateProjectionMatrix();
     }
@@ -2623,11 +2623,11 @@ class ArcballControls with EventDispatcher {
     this._cameraMatrixState.copy(this.camera.matrix);
     this._gizmoMatrixState.copy(this._gizmos.matrix);
 
-    if (this.camera.isOrthographicCamera) {
+    if (this.camera is OrthographicCamera) {
       this._cameraProjectionState.copy(this.camera.projectionMatrix);
       this.camera.updateProjectionMatrix();
       this._zoomState = this.camera.zoom;
-    } else if (this.camera.isPerspectiveCamera) {
+    } else if (this.camera is PerspectiveCamera) {
       this._fovState = this.camera.fov;
     }
   }
@@ -2655,7 +2655,7 @@ class ArcballControls with EventDispatcher {
     }
 
     //check min/max parameters
-    if (this.camera.isOrthographicCamera) {
+    if (this.camera is OrthographicCamera) {
       //check zoom
       if (this.camera.zoom > this.maxZoom || this.camera.zoom < this.minZoom) {
         var newZoom =
@@ -2663,7 +2663,7 @@ class ArcballControls with EventDispatcher {
         this.applyTransformMatrix(this
             .scale(newZoom / this.camera.zoom, this._gizmos.position, true));
       }
-    } else if (this.camera.isPerspectiveCamera) {
+    } else if (this.camera is PerspectiveCamera) {
       //check distance
       var distance = this.camera.position.distanceTo(this._gizmos.position);
 
@@ -2721,7 +2721,7 @@ class ArcballControls with EventDispatcher {
 
     // 	this.camera.zoom = state.arcballState.cameraZoom;
 
-    // 	if ( this.camera.isPerspectiveCamera ) {
+    // 	if ( this.camera is PerspectiveCamera ) {
 
     // 		this.camera.fov = state.arcballState.cameraFov;
 

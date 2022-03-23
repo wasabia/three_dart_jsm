@@ -48,9 +48,10 @@ class VertexNormalsHelper extends LineSegments {
 
     var objGeometry = this.object.geometry;
 
-    if (objGeometry != null && objGeometry.isGeometry) {
-      throw ('THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.');
-    } else if (objGeometry != null && objGeometry.isBufferGeometry) {
+    // if (objGeometry != null && objGeometry.isGeometry) {
+    //   throw ('THREE.VertexNormalsHelper no longer supports Geometry. Use BufferGeometry instead.');
+    // } else
+    if (objGeometry != null && objGeometry is BufferGeometry) {
       var objPos = objGeometry.attributes["position"];
 
       var objNorm = objGeometry.attributes["normal"];

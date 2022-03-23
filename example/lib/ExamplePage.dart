@@ -1,5 +1,5 @@
-import 'package:example/misc_controls_orbit.dart';
-import 'package:example/webgpu_rtt.dart';
+import './misc_controls_orbit.dart';
+import './webgpu_rtt.dart';
 
 import 'package:flutter/material.dart';
 
