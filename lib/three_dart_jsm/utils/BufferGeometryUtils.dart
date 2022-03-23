@@ -224,7 +224,7 @@ class BufferGeometryUtils {
 
 // 		const attribute = attributes[ i ];
 
-// 		if ( attribute.isInterleavedBufferAttribute ) {
+// 		if ( attribute is InterleavedBufferAttribute   ) {
 
 // 			console.error( 'THREE.BufferGeometryUtils: .mergeBufferAttributes() failed. InterleavedBufferAttributes are not supported.' );
 // 			return null;
