@@ -134,7 +134,7 @@ class _MyAppState extends State<webgpu_rtt> {
 
     var pars = THREE.WebGLRenderTargetOptions({"format": THREE.RGBAFormat});
     renderTarget = THREE.WebGLMultisampleRenderTarget(
-        (width * dpr).toInt(), (height * dpr).toInt(), pars);
+        (width * dpr), (height * dpr), pars);
     renderTarget.samples = 4;
     renderer!.setRenderTarget(renderTarget);
     // sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget);

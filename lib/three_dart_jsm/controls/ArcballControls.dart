@@ -693,7 +693,7 @@ class ArcballControls with EventDispatcher {
           break;
 
         case 'FOV':
-          if (!(this.camera is PerspectiveCamera) || !this.enableZoom) {
+          if (this.camera is! PerspectiveCamera || !this.enableZoom) {
             return;
           }
 
