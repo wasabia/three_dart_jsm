@@ -432,7 +432,7 @@ class SkeletonUtils {
     });
 
     clone.traverse((node) {
-      if (!node.isSkinnedMesh) return;
+      if (!node.runtimeType.toString().contains("SkinnedMesh")) return;
 
       var clonedMesh = node;
       var sourceMesh = sourceLookup[node];

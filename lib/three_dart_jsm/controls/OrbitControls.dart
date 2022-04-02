@@ -415,7 +415,7 @@ class OrbitControls with EventDispatcher {
   pan(deltaX, deltaY) {
     var element = scope.domElement;
 
-    if (scope.object.isPerspectiveCamera) {
+    if (scope.object is PerspectiveCamera) {
       // perspective
       var position = scope.object.position;
       offset.copy(position).sub(scope.target);
@@ -429,7 +429,7 @@ class OrbitControls with EventDispatcher {
           scope.object.matrix);
       panUp(2 * deltaY * targetDistance / element.clientHeight,
           scope.object.matrix);
-    } else if (scope.object.isOrthographicCamera) {
+    } else if (scope.object is OrthographicCamera) {
       // orthographic
       panLeft(
           deltaX *
@@ -452,9 +452,9 @@ class OrbitControls with EventDispatcher {
   }
 
   dollyOut(dollyScale) {
-    if (scope.object.isPerspectiveCamera) {
+    if (scope.object is PerspectiveCamera) {
       scale /= dollyScale;
-    } else if (scope.object.isOrthographicCamera) {
+    } else if (scope.object is OrthographicCamera) {
       scope.object.zoom = Math.max(scope.minZoom,
           Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
       scope.object.updateProjectionMatrix();
@@ -467,9 +467,9 @@ class OrbitControls with EventDispatcher {
   }
 
   dollyIn(dollyScale) {
-    if (scope.object.isPerspectiveCamera) {
+    if (scope.object is PerspectiveCamera) {
       scale *= dollyScale;
-    } else if (scope.object.isOrthographicCamera) {
+    } else if (scope.object is OrthographicCamera) {
       scope.object.zoom = Math.max(scope.minZoom,
           Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
       scope.object.updateProjectionMatrix();
@@ -685,7 +685,7 @@ class OrbitControls with EventDispatcher {
 
     dollyEnd.set(0, distance);
 
-    dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed));
+    dollyDelta.set(0, Math.pow(dollyEnd.y / dollyStart.y, scope.zoomSpeed).toDouble());
 
     dollyOut(dollyDelta.y);
 

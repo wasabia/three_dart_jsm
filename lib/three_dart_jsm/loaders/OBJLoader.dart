@@ -265,10 +265,10 @@ class ParserState {
     var src = this.colors;
     var dst = this.object!.geometry["colors"];
 
-    if (src[a] != null) dst.addAll([src[a + 0], src[a + 1], src[a + 2]]);
-    if (b != null && src[b] != null)
+    if (src.length > a && src[a] != null) dst.addAll([src[a + 0], src[a + 1], src[a + 2]]);
+    if (b != null && src.length > b && src[b] != null)
       dst.addAll([src[b + 0], src[b + 1], src[b + 2]]);
-    if (c != null && src[c] != null)
+    if (c != null && src.length > c && src[c] != null)
       dst.addAll([src[c + 0], src[c + 1], src[c + 2]]);
   }
 
@@ -475,8 +475,7 @@ class OBJLoader extends Loader {
               ]);
             } else {
               // if no colors are defined, add placeholders so color and vertex indices match
-              // can we fill 0.0 placeholders ??
-              state.colors.addAll([0.0, 0.0, 0.0]);
+              state.colors.addAll([]);
             }
 
             break;

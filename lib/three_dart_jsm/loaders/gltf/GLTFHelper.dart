@@ -401,8 +401,8 @@ Function computeBounds =
     // glTF requires 'min' and 'max', but VRM (which extends glTF) currently ignores that requirement.
 
     if (min != null && max != null) {
-      box.set(new Vector3(min[0], min[1], min[2]),
-          new Vector3(max[0], max[1], max[2]));
+      box.set(new Vector3(min[0].toDouble(), min[1].toDouble(), min[2].toDouble()),
+          new Vector3(max[0].toDouble(), max[1].toDouble(), max[2].toDouble()));
 
       // todo normalized is bool ? int ?
       if (accessor["normalized"] != null &&
@@ -441,9 +441,9 @@ Function computeBounds =
 
         if (min != null && max != null) {
           // we need to get max of absolute components because target weight is [-1,1]
-          vector.setX(Math.max(Math.abs(min[0]), Math.abs(max[0])));
-          vector.setY(Math.max(Math.abs(min[1]), Math.abs(max[1])));
-          vector.setZ(Math.max(Math.abs(min[2]), Math.abs(max[2])));
+          vector.setX(Math.max(Math.abs(min[0]).toDouble(), Math.abs(max[0])).toDouble());
+          vector.setY(Math.max(Math.abs(min[1]).toDouble(), Math.abs(max[1])).toDouble());
+          vector.setZ(Math.max(Math.abs(min[2]).toDouble(), Math.abs(max[2])).toDouble());
 
           if (accessor["normalized"] == true) {
             var boxScale = getNormalizedComponentScale(

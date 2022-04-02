@@ -561,6 +561,8 @@ class GLTFParser {
       return this.textureCache[cacheKey];
     }
 
+
+    loader.flipY = false;
     var texture = await this.loadImageSource(sourceIndex, loader);
 
     texture.flipY = false;
@@ -677,6 +679,8 @@ class GLTFParser {
     var sourceURI = sourceDef["uri"] ?? '';
     var isObjectURL = false;
 
+    print("loader: ${loader} ");
+
     if (sourceDef["bufferView"] != null) {
       // Load binary image data from bufferView, if provided.
 
@@ -757,7 +761,7 @@ class GLTFParser {
     bool useVertexColors = geometry.attributes["color"] != null;
     bool useFlatShading = geometry.attributes["normal"] == null;
 
-    if (mesh.isPoints) {
+    if (mesh is Points) {
       var cacheKey = 'PointsMaterial:' + material.uuid;
 
       var pointsMaterial = this.cache.get(cacheKey);
@@ -774,7 +778,7 @@ class GLTFParser {
       }
 
       material = pointsMaterial;
-    } else if (mesh.isLine) {
+    } else if (mesh is Line) {
       var cacheKey = 'LineBasicMaterial:' + material.uuid;
 
       var lineMaterial = this.cache.get(cacheKey);
@@ -1147,8 +1151,8 @@ class GLTFParser {
             ? new SkinnedMesh(geometry, material)
             : new Mesh(geometry, material);
 
-        if (mesh.isSkinnedMesh == true &&
-            !mesh.geometry.attributes["skinWeight"].normalized) {
+        if (mesh is SkinnedMesh &&
+            !mesh.geometry!.attributes["skinWeight"].normalized) {
           // we normalize floating point skin weight array to fix malformed assets (see #15319)
           // it's important to skip this for non-float32 data since normalizeSkinWeights assumes non-normalized inputs
           mesh.normalizeSkinWeights();
@@ -1548,7 +1552,7 @@ class GLTFParser {
    * @return {Promise<Group>}
    */
 
-  buildNodeHierachy(nodeId, parentObject, json, parser) async {
+  buildNodeHierarchy(nodeId, parentObject, json, parser) async {
     Map<String, dynamic> nodeDef = json["nodes"][nodeId];
 
     var node = await parser.getDependency('node', nodeId);
@@ -1570,7 +1574,7 @@ class GLTFParser {
       }
 
       node.traverse((mesh) {
-        if (!mesh.isMesh) return;
+        if (!mesh.runtimeType.toString().contains('Mesh')) return;
 
         List<Bone> bones = [];
         List<Matrix4> boneInverses = [];
@@ -1594,6 +1598,7 @@ class GLTFParser {
           }
         }
 
+        // how this work? bind 
         mesh.bind(new Skeleton(bones, boneInverses),
             mesh.matrixWorld);
       });
@@ -1608,7 +1613,7 @@ class GLTFParser {
 
       for (var i = 0, il = children.length; i < il; i++) {
         var child = children[i];
-        await buildNodeHierachy(child, node, json, parser);
+        await buildNodeHierarchy(child, node, json, parser);
       }
     }
   }
@@ -1633,7 +1638,7 @@ class GLTFParser {
     var nodeIds = sceneDef["nodes"] ?? [];
 
     for (var i = 0, il = nodeIds.length; i < il; i++) {
-      await buildNodeHierachy(nodeIds[i], scene, json, parser);
+      await buildNodeHierarchy(nodeIds[i], scene, json, parser);
     }
 
     return scene;

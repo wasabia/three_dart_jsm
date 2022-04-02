@@ -343,7 +343,7 @@ class RGBELoader extends DataTextureLoader {
       Uint8List image_rgba_data =
           RGBE_ReadPixels_RLE(byteArray.sublist(byteArrayPos), w, h)
               as Uint8List;
-
+      
       if (RGBE_RETURN_FAILURE != image_rgba_data) {
         var data, format, type;
         int numElements;
