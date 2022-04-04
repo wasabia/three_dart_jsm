@@ -713,7 +713,7 @@ class GLTFParser {
    * @param {Object} mapDef
    * @return {Promise}
    */
-  assignTexture(materialParams, mapName, Map<String, dynamic> mapDef) async {
+  assignTexture(materialParams, mapName, Map<String, dynamic> mapDef, [encoding]) async {
     var parser = this;
 
     var texture = await this.getDependency('texture', mapDef["index"]);
@@ -738,6 +738,13 @@ class GLTFParser {
             .extendTexture(texture, transform);
         parser.associations[texture] = gltfReference;
       }
+    }
+
+
+    if ( encoding != null ) {
+
+      texture.encoding = encoding;
+
     }
 
     materialParams[mapName] = texture;
@@ -894,7 +901,7 @@ class GLTFParser {
 
       if (metallicRoughness["baseColorTexture"] != null) {
         pending.add(await parser.assignTexture(
-            materialParams, 'map', metallicRoughness["baseColorTexture"]));
+            materialParams, 'map', metallicRoughness["baseColorTexture"], sRGBEncoding));
       }
 
       materialParams["metalness"] = metallicRoughness["metallicFactor"] != null
@@ -978,7 +985,7 @@ class GLTFParser {
     if (materialDef["emissiveTexture"] != null &&
         materialType != MeshBasicMaterial) {
       pending.add(await parser.assignTexture(
-          materialParams, 'emissiveMap', materialDef["emissiveTexture"]));
+          materialParams, 'emissiveMap', materialDef["emissiveTexture"], sRGBEncoding));
     }
 
     // await Future.wait(pending);
@@ -993,15 +1000,6 @@ class GLTFParser {
     }
 
     if (materialDef["name"] != null) material.name = materialDef["name"];
-
-    // baseColorTexture, emissiveTexture, and specularGlossinessTexture use sRGB encoding.
-
-    if (kIsWeb) {
-      // https://github.com/wasabia/three_dart/issues/11
-      if (material.map != null) material.map.encoding = sRGBEncoding;
-      if (material.emissiveMap != null)
-        material.emissiveMap.encoding = sRGBEncoding;
-    }
 
     assignExtrasToUserData(material, materialDef);
 
@@ -1574,33 +1572,32 @@ class GLTFParser {
       }
 
       node.traverse((mesh) {
-        if (!mesh.runtimeType.toString().contains('Mesh')) return;
+        if(mesh is SkinnedMesh) {
+          List<Bone> bones = [];
+          List<Matrix4> boneInverses = [];
 
-        List<Bone> bones = [];
-        List<Matrix4> boneInverses = [];
+          for (var j = 0, jl = jointNodes.length; j < jl; j++) {
+            var jointNode = jointNodes[j];
 
-        for (var j = 0, jl = jointNodes.length; j < jl; j++) {
-          var jointNode = jointNodes[j];
+            if (jointNode != null) {
+              bones.add(jointNode);
 
-          if (jointNode != null) {
-            bones.add(jointNode);
+              var mat = new Matrix4();
 
-            var mat = new Matrix4();
+              if (skinEntry["inverseBindMatrices"] != null) {
+                mat.fromArray(skinEntry["inverseBindMatrices"].array, j * 16);
+              }
 
-            if (skinEntry["inverseBindMatrices"] != null) {
-              mat.fromArray(skinEntry["inverseBindMatrices"].array, j * 16);
+              boneInverses.add(mat);
+            } else {
+              print(
+                  'THREE.GLTFLoader: Joint "%s" could not be found. ${skinEntry["joints"][j]}');
             }
-
-            boneInverses.add(mat);
-          } else {
-            print(
-                'THREE.GLTFLoader: Joint "%s" could not be found. ${skinEntry["joints"][j]}');
           }
-        }
 
-        // how this work? bind 
-        mesh.bind(new Skeleton(bones, boneInverses),
-            mesh.matrixWorld);
+          mesh.bind(new Skeleton(bones, boneInverses),
+              mesh.matrixWorld);
+        }
       });
     }
 
