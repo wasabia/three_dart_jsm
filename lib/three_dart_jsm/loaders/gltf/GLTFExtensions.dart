@@ -88,9 +88,7 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
 
       if (extension.specularColorTexture != null) {
         var texture = await parser.assignTexture(
-            materialParams, 'specularColorMap', extension.specularColorTexture);
-        texture.encoding = sRGBEncoding;
-
+            materialParams, 'specularColorMap', extension.specularColorTexture, sRGBEncoding);
         pending.add(texture);
       }
 
@@ -415,7 +413,7 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
 
       if (extension["sheenColorTexture"] != null) {
         pending.add(parser.assignTexture(
-            materialParams, 'sheenColorMap', extension["sheenColorTexture"]));
+            materialParams, 'sheenColorMap', extension["sheenColorTexture"], sRGBEncoding));
       }
 
       if (extension["sheenRoughnessTexture"] != null) {
@@ -929,7 +927,6 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
     'alphaMap',
     'envMap',
     'envMapIntensity',
-    'refractionRatio',
   ];
 
   GLTFMaterialsPbrSpecularGlossinessExtension() {
@@ -955,7 +952,7 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
 
     if (pbrSpecularGlossiness.diffuseTexture != null) {
       pending.add(parser.assignTexture(
-          materialParams, 'map', pbrSpecularGlossiness.diffuseTexture));
+          materialParams, 'map', pbrSpecularGlossiness.diffuseTexture, sRGBEncoding));
     }
 
     materialParams.emissive = new Color(0.0, 0.0, 0.0);
@@ -973,7 +970,7 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
       pending.add(parser.assignTexture(
           materialParams, 'glossinessMap', specGlossMapDef));
       pending.add(
-          parser.assignTexture(materialParams, 'specularMap', specGlossMapDef));
+          parser.assignTexture(materialParams, 'specularMap', specGlossMapDef, sRGBEncoding));
     }
 
     return Future.wait(pending);
@@ -1027,8 +1024,6 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
     material.envMap =
         materialParams.envMap == null ? null : materialParams.envMap;
     material.envMapIntensity = 1.0;
-
-    material.refractionRatio = 0.98;
 
     return material;
   }

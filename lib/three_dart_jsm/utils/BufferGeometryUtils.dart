@@ -1,10 +1,8 @@
 part of jsm_utils;
 
 class BufferGeometryUtils {
-  static computeTangents(geometry) {
-    geometry.computeTangents();
-    print(
-        'THREE.BufferGeometryUtils: .computeTangents() has been removed. Use BufferGeometry.computeTangents() instead.');
+  static computeTangents(geometry, [bool negateSign = true]) {
+    throw(" computeTangents   TODO "); 
   }
 }
 
