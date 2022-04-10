@@ -6,6 +6,10 @@ class Node {
   late NodeUpdateType updateType;
   late dynamic inputType;
 
+  dynamic xyz;
+  dynamic w;
+
+
   late bool constant;
 
   late int generateLength;
@@ -83,40 +87,12 @@ class Node {
     return snippet;
   }
 
-  @override
-  dynamic noSuchMethod(Invocation invocation) {
-    String name = invocation.memberName.toString();
-
-    name = name.replaceFirst(RegExp(r'^Symbol\("'), "");
-    name = name.replaceFirst(RegExp(r'"\)$'), "");
-
-    String prop = name;
-
-    // handler get
-    if (prop is String && this.getProperty(prop) == undefined) {
-      if (RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch(prop) == true) {
-        // accessing properties ( swizzle )
-
-        prop = prop
-          ..replaceAll(RegExp(r"r|s"), 'x')
-              .replaceAll(RegExp(r"g|t"), 'y')
-              .replaceAll(RegExp(r"b|p"), 'z')
-              .replaceAll(RegExp(r"a|q"), 'w');
-
-        return ShaderNodeObject(new SplitNode(this, prop));
-      } else if (RegExp(r"^\d+$").hasMatch(prop) == true) {
-        // accessing array
-
-        return ShaderNodeObject(new ArrayElementNode(
-            this, new FloatNode(num.parse(prop)).setConst(true)));
-      }
-    }
-
-    return this.getProperty(prop);
-  }
-
   getProperty(String name) {
-    print("Node ${this} getProperty name: ${name} is not support  ");
-    return null;
+    if(name == "xyz") {
+      return xyz;
+    } else {
+      throw("Node ${this} getProperty name: ${name} is not support  ");
+    }
+    
   }
 }

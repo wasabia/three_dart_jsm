@@ -3,6 +3,8 @@ part of renderer_nodes;
 class ExpressionNode extends TempNode {
   late String snipped;
 
+  String? name;
+
   ExpressionNode([snipped = '', nodeType = 'void']) : super(nodeType) {
     generateLength = 1;
 
@@ -17,15 +19,6 @@ class ExpressionNode extends TempNode {
       builder.addFlowCode(snipped);
     } else {
       return "( ${snipped} )";
-    }
-  }
-
-  @override
-  getProperty(String name) {
-    if (name == "name") {
-      return null;
-    } else {
-      return super.getProperty(name);
     }
   }
 }

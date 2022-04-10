@@ -72,10 +72,10 @@ class WebGPUNodeBuilder extends NodeBuilder {
 
     // parse inputs
 
-    if (material.isMeshStandardMaterial ||
-        material.isMeshBasicMaterial ||
-        material.isPointsMaterial ||
-        material.isLineBasicMaterial) {
+    if (material is MeshStandardMaterial ||
+        material is MeshBasicMaterial ||
+        material is PointsMaterial ||
+        material is LineBasicMaterial) {
       var lightNode = material.lightNode;
 
       // VERTEX STAGE
@@ -95,7 +95,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
         vertex = new BypassNode(vertex, assignPositionNode);
       }
 
-      if (object.isSkinnedMesh == true) {
+      if (object is SkinnedMesh) {
         vertex = new BypassNode(vertex, new SkinningNode(object));
       }
 
@@ -154,12 +154,12 @@ class WebGPUNodeBuilder extends NodeBuilder {
                 'if ( DiffuseColor.a <= AlphaTest ) { discard; }'));
       }
 
-      if (material.isMeshStandardMaterial) {
+      if (material is MeshStandardMaterial) {
         // METALNESS
 
         var metalnessNode = null;
 
-        if (material.metalnessNode && material.metalnessNode.isNode) {
+        if (material.metalnessNode != null && material.metalnessNode.isNode) {
           metalnessNode = material.metalnessNode;
         } else {
           metalnessNode = new MaterialNode(MaterialNode.METALNESS);
@@ -223,18 +223,22 @@ class WebGPUNodeBuilder extends NodeBuilder {
             'fragment', new VarNode(lightContextNode, 'Light', 'vec3'));
       }
 
-      // RESULT
+      // OUTGOING LIGHT
 
-      var outputNodeObj = nodeObject(outputNode);
+			var outgoingLightNode = nodeObject( outputNode ).xyz;
 
-      outputNode = join([
-        outputNodeObj.x,
-        outputNodeObj.y,
-        outputNodeObj.z,
-        nodeObject(diffuseColorNode).w
-      ]);
 
-      //
+      /// EMISSIVE
+
+			var emissiveNode = material.emissiveNode;
+
+			if ( emissiveNode != null && emissiveNode.isNode ) {
+
+				outgoingLightNode = add( emissiveNode, outgoingLightNode );
+
+			}
+
+			outputNode = join( [outgoingLightNode.xyz, nodeObject( diffuseColorNode ).w] );
 
       var outputEncoding = this.renderer.outputEncoding;
 
@@ -518,7 +522,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
 
   buildCode() {
     var shadersData = {"fragment": {}, "vertex": {}};
-
+    
     for (var shaderStage in shadersData.keys) {
       var flow = '// code\n';
       flow += "\t${this.flowCode[shaderStage]}";

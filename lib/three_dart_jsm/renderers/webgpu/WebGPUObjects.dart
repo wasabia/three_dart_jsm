@@ -17,7 +17,7 @@ class WebGPUObjects {
     var updateMap = this.updateMap;
     var frame = this.info.render["frame"];
 
-    if (geometry.isBufferGeometry != true) {
+    if (geometry is! BufferGeometry) {
       throw ('THREE.WebGPURenderer: This renderer only supports THREE.BufferGeometry for geometries.');
     }
 

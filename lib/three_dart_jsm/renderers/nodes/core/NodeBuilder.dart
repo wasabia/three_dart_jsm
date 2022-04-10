@@ -354,7 +354,7 @@ class NodeBuilder {
     return flowData;
   }
 
-  flowChildNode(node, [output = null]) {
+  flowChildNode(node, [output]) {
     var previousFlow = this.flow;
 
     var flow = {
@@ -365,13 +365,15 @@ class NodeBuilder {
 
     flow["result"] = node.build(this, output);
 
+    // print("NodeBuilder.flowChildNode node: ${node} output: ${output} result ${flow["result"]}  ");
+
     this.flow = previousFlow;
 
     return flow;
   }
 
   flowNodeFromShaderStage(shaderStage, node,
-      [output = null, propertyName = null]) {
+      [output, propertyName]) {
     var previousShaderStage = this.shaderStage;
 
     this.setShaderStage(shaderStage);

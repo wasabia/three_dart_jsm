@@ -110,10 +110,9 @@ class WebGPUBindings {
 
         if (needsBufferWrite == true) {
           if (buffer is Float32Array) {
-            print("WebGPUBindings TODO 优化 内存复制   ");
-            this.device.queue.writeBuffer(bufferGPU, 0, buffer.toDartList(), 0);
+            this.device.queue.writeBuffer(bufferGPU, 0, buffer.toDartList(), buffer.lengthInBytes);
           } else {
-            this.device.queue.writeBuffer(bufferGPU, 0, buffer, 0);
+            this.device.queue.writeBuffer(bufferGPU, 0, buffer, buffer.lengthInBytes);
           }
         }
       } else if (binding.isStorageBuffer) {
@@ -164,11 +163,11 @@ class WebGPUBindings {
       if (binding is WebGPUUniformBuffer) {
         if (binding.bufferGPU == null) {
           var byteLength = binding.getByteLength();
-
           binding.bufferGPU = this.device.createBuffer(
               GPUBufferDescriptor(size: byteLength, usage: binding.usage));
         }
 
+  
         entries.add(GPUBindGroupEntry(
             binding: bindingPoint, buffer: binding.bufferGPU));
       } else if (binding is WebGPUStorageBuffer) {
@@ -216,12 +215,8 @@ class WebGPUBindings {
       bindingPoint++;
     }
 
-    print("WebGPUBindings createBindGroup entries: ${entries.length}  ");
-
     var _bindGroup = this.device.createBindGroup(GPUBindGroupDescriptor(
         layout: layout, entries: entries, entryCount: entries.length));
-
-    print(entries.map((e) => e.pointer.ref.size).toList());
 
     return _bindGroup;
   }

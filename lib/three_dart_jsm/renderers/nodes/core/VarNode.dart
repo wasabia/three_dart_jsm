@@ -39,6 +39,13 @@ class VarNode extends Node {
   }
 
   getProperty(String name) {
-    return super.getProperty(name);
+    if(name == "xyz") {
+      return this.xyz;
+    } else if (name == "w") {
+      return w;
+    } else {
+      return super.getProperty(name);
+    }
+    
   }
 }
