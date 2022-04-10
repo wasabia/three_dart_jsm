@@ -150,7 +150,7 @@ fn main( [[ location( 0 ) ]] vTex : vec2<f32> ) -> [[ location( 0 ) ]] vec4<f32>
       passEncoder.setPipeline(pipeline);
       passEncoder.setBindGroup(0, bindGroup);
       passEncoder.draw(4, 1, 0, 0);
-      passEncoder.endPass();
+      passEncoder.end();
 
       srcView = dstView;
     }

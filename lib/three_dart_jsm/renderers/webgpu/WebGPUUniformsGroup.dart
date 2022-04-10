@@ -31,7 +31,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     if (buffer == null) {
       var byteLength = this.getByteLength();
 
-      buffer = new Float32Array(byteLength);
+      buffer = new Float32Array(byteLength ~/ 4);
 
       this.buffer = buffer;
     }
@@ -104,7 +104,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     var offset = uniform.offset;
 
     if (a[offset] != v) {
-      a[offset] = v;
+      a[offset] = v.toDouble();
       updated = true;
     }
 
@@ -218,15 +218,23 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     return updated;
   }
 
-  updateMatrix4(uniform) {
+  updateMatrix4(Matrix4Uniform uniform) {
+
     var updated = false;
 
     var a = this.buffer;
     var e = uniform.getValue().elements;
     var offset = uniform.offset;
 
+
     if (arraysEqual(a, e, offset) == false) {
-      a.set(e, offset);
+
+      if(e is NativeArray) {
+        a.set(e.toDartList(), offset);
+      } else {
+        a.set(e, offset);
+      }
+
       updated = true;
     }
 

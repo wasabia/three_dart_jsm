@@ -17,7 +17,8 @@ class WebGPUProgrammableStage {
     this.type = type;
     this.usedTimes = 0;
 
-    // print("WebGPUProgrammableStage type: ${type} ");
+
+    // print("WebGPUProgrammableStage type: ${type} ${type.runtimeType} ===============================");
     // print(code);
 
     var module =

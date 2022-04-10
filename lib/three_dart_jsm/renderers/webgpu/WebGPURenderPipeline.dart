@@ -42,11 +42,9 @@ class WebGPURenderPipeline {
       var name = attribute["name"];
       var geometryAttribute = geometry.getAttribute(name);
       var stepMode = (geometryAttribute != undefined &&
-              geometryAttribute.isInstancedBufferAttribute)
+              geometryAttribute is InstancedBufferAttribute)
           ? GPUInputStepMode.Instance
           : GPUInputStepMode.Vertex;
-
-      print("WebGPURenderPipeline init attribute: ${attribute} ");
 
       vertexBuffers.add(GPUVertexBufferLayout(
           arrayStride: attribute["arrayStride"],
@@ -131,16 +129,17 @@ class WebGPURenderPipeline {
         ._device
         .createBindGroupLayout(GPUBindGroupLayoutDescriptor(entries: [
           GPUBindGroupLayoutEntry(
-              binding: 0,
-              visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
-              buffer:
-                  GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform)),
+            binding: 0,
+            visibility: GPUShaderStage.Vertex,
+            buffer: GPUBufferBindingLayout(
+              type: GPUBufferBindingType.Uniform
+            )
+          ),
           GPUBindGroupLayoutEntry(
               binding: 1,
-              visibility: GPUShaderStage.Vertex | GPUShaderStage.Fragment,
-              buffer:
-                  GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform))
-        ], entryCount: 2));
+              visibility: GPUShaderStage.Fragment,
+              buffer: GPUBufferBindingLayout(type: GPUBufferBindingType.Uniform))
+        ]));
 
     var pipelineLayout = this._device.createPipelineLayout(
         GPUPipelineLayoutDescriptor(
@@ -152,7 +151,8 @@ class WebGPURenderPipeline {
         fragment: _fragmentState,
         primitive: primitiveState,
         depthStencil: _depthStencilState,
-        multisample: GPUMultisampleState(count: this._sampleCount));
+        multisample: GPUMultisampleState(count: this._sampleCount)
+      );
 
     this.pipeline =
         this._device.createRenderPipeline(_renderPipelineDescriptor);
@@ -400,7 +400,7 @@ class WebGPURenderPipeline {
         : GPUColorWriteFlags.None;
   }
 
-  _getDepthCompare(material) {
+  _getDepthCompare(Material material) {
     var depthCompare;
 
     if (material.depthTest == false) {
@@ -446,8 +446,10 @@ class WebGPURenderPipeline {
               'THREE.WebGPURenderer: Invalid depth function.', depthFunc);
       }
     }
+    // return depthCompare;
 
-    return depthCompare;
+    // TODO 与WebGPU 相反 ？？？
+    return GPUCompareFunction.GreaterEqual;
   }
 
   _getPrimitiveState(object, material) {
@@ -455,7 +457,7 @@ class WebGPURenderPipeline {
 
     descriptor["topology"] = this._getPrimitiveTopology(object);
 
-    if (object.isLine == true && object.isLineSegments != true) {
+    if (object is Line == true && (object is LineSegments) != true) {
       var geometry = object.geometry;
       var count = (geometry.index)
           ? geometry.index.count
@@ -498,13 +500,13 @@ class WebGPURenderPipeline {
   }
 
   _getPrimitiveTopology(object) {
-    if (object.isMesh)
+    if (object is Mesh)
       return GPUPrimitiveTopology.TriangleList;
-    else if (object.isPoints)
+    else if (object is Points)
       return GPUPrimitiveTopology.PointList;
-    else if (object.isLineSegments)
+    else if (object is LineSegments)
       return GPUPrimitiveTopology.LineList;
-    else if (object.isLine) return GPUPrimitiveTopology.LineStrip;
+    else if (object is Line) return GPUPrimitiveTopology.LineStrip;
   }
 
   _getStencilCompare(material) {

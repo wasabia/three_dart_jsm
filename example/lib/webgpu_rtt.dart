@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -30,6 +30,8 @@ class _MyAppState extends State<webgpu_rtt> {
 
   num dpr = 1.0;
 
+  ui.Image? img;
+
 
   bool verbose = true;
   bool disposed = false;
@@ -40,7 +42,7 @@ class _MyAppState extends State<webgpu_rtt> {
 
   late THREE.Texture texture;
 
-  late THREE.WebGLMultisampleRenderTarget renderTarget;
+  late THREE.WebGLRenderTarget renderTarget;
 
   @override
   void initState() {
@@ -49,8 +51,11 @@ class _MyAppState extends State<webgpu_rtt> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    width = screenSize!.width;
-    height = screenSize!.height;
+    // width = screenSize!.width / 10;
+    // height = width;
+
+    width = 256.0;
+    height = 256.0;
 
     init();
   }
@@ -96,9 +101,10 @@ class _MyAppState extends State<webgpu_rtt> {
           child: Stack(
             children: [
               Container(
-                  width: width,
-                  height: height,
-                  color: Colors.black,
+                color: Colors.black,
+                width: width.toDouble(),
+                height: height.toDouble(),
+                child: RawImage(image: img),
               )
             ],
           ),
@@ -108,34 +114,40 @@ class _MyAppState extends State<webgpu_rtt> {
   }
 
   init() {
-    camera = new THREE.PerspectiveCamera( 70, width / height, 0.1, 10 );
-    camera.position.z = 4;
+    camera = new THREE.PerspectiveCamera( 70, width / height, 0.1, 100 );
+    camera.position.z = 40;
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x222222 );
+    scene.background = new THREE.Color( 0x0000ff );
 
     // textured mesh
 
-    var geometryBox = new THREE.BoxGeometry();
+    var geometryBox = new THREE.BoxGeometry(10, 10, 10);
     var materialBox = new THREE_JSM.MeshBasicNodeMaterial(null);
-    materialBox.colorNode = new THREE_JSM.ColorNode( new THREE.Color(1.0, 1.0, 0.5) );
+    materialBox.colorNode = new THREE_JSM.ColorNode( new THREE.Color(1.0, 1.0, 0.0) );
 
     box = new THREE.Mesh( geometryBox, materialBox );
+
+    box.rotation.set(0.1, 0.5, 1.2);
+
     scene.add( box );
 
+    camera.lookAt(scene.position);
+
     renderer = new THREE_JSM.WebGPURenderer({
-      "width": 300,
-      "height": 300,
-      "antialias": true
+      "width": width.toInt(),
+      "height": height.toInt(),
+      "antialias": false,
+      "sampleCount": 4
     });
+    dpr = 1.0;
     renderer!.setPixelRatio( dpr );
     renderer!.setSize( width.toInt(), height.toInt() );
     renderer!.init();
 
-    var pars = THREE.WebGLRenderTargetOptions({"format": THREE.RGBAFormat});
-    renderTarget = THREE.WebGLMultisampleRenderTarget(
+    var pars = THREE.WebGLRenderTargetOptions({"format": THREE.RGBAFormat, "samples": 4});
+    renderTarget = THREE.WebGLRenderTarget(
         (width * dpr), (height * dpr), pars);
-    renderTarget.samples = 4;
     renderer!.setRenderTarget(renderTarget);
     // sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget);
   }
@@ -143,19 +155,34 @@ class _MyAppState extends State<webgpu_rtt> {
   animate() {
     box.rotation.x += 0.01;
     box.rotation.y += 0.02;
+    box.rotation.z += 0.04;
 
     renderer!.render( scene, camera );
 
-    Future.delayed(const Duration(milliseconds: 33), () {
-      animate();
-    });
+    var pixels = renderer!.getPixels();
+
+    var target = THREE.Vector2();
+    renderer!.getSize(target);
+
+    // print(" -----------target: ${target.x} ${target.y}----------- pixels: ${pixels} ");
+
+    if (pixels != null) {
+      ui.decodeImageFromPixels(pixels!, target.x.toInt(), target.y.toInt(), ui.PixelFormat.rgba8888,
+          (image) {
+        setState(() {
+          img = image;
+        });
+      });
+    }
+
+    // Future.delayed(const Duration(milliseconds: 33), () {
+    //   animate();
+    // });
   }
 
   clickRender() {
-    box.rotation.x += 0.01;
-    box.rotation.y += 0.02;
-
-    renderer!.render( scene, camera );
+    print(" click render .... ");
+    animate();
   }
 
   @override

@@ -8,6 +8,7 @@ class MeshBasicNodeMaterial extends MeshBasicMaterial {
   dynamic alphaTestNode;
   dynamic lightNode;
   dynamic positionNode;
+  dynamic emissiveNode;
 
   MeshBasicNodeMaterial(parameters) : super(parameters) {
     this.colorNode = null;

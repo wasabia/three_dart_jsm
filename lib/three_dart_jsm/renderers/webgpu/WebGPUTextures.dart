@@ -155,8 +155,8 @@ class WebGPUTextures {
     if (renderTargetProperties["initialized"] == undefined) {
       var device = this.device;
 
-      var width = renderTarget.width;
-      var height = renderTarget.height;
+      int width = renderTarget.width.toInt();
+      int height = renderTarget.height.toInt();
       var colorTextureFormat = this._getFormat(renderTarget.texture);
 
       var colorTextureGPU = device.createTexture(GPUTextureDescriptor(
@@ -164,7 +164,7 @@ class WebGPUTextures {
               GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
           format: colorTextureFormat,
           usage: GPUTextureUsage.RenderAttachment |
-              GPUTextureUsage.TextureBinding));
+              GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
 
       this.info.memory["textures"]++;
 

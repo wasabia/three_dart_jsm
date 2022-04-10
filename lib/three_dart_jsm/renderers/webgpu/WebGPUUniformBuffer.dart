@@ -3,17 +3,15 @@ part of three_webgpu;
 class WebGPUUniformBuffer extends WebGPUBinding {
   late int bytesPerElement;
   late int usage;
-  late dynamic buffer;
+  dynamic buffer;
   GPUBuffer? bufferGPU;
 
-  WebGPUUniformBuffer(name, [buffer = null]) : super(name) {
+  WebGPUUniformBuffer(name, [buffer]) : super(name) {
     this.bytesPerElement = Float32List.bytesPerElement;
     this.type = GPUBindingType.UniformBuffer;
     this.visibility = GPUShaderStage.Vertex | GPUShaderStage.Fragment;
 
-    this.usage = GPUBufferUsage.Uniform |
-        GPUBufferUsage.Storage |
-        GPUBufferUsage.CopyDst;
+    this.usage = GPUBufferUsage.Uniform | GPUBufferUsage.Storage | GPUBufferUsage.CopyDst;
 
     this.buffer = buffer;
     this.bufferGPU = null; // set by the renderer

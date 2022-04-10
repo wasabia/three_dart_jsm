@@ -1,13 +1,13 @@
 part of renderer_nodes;
 
-Proxy(target) {
-  return _Proxy(target);
+Proxy(target, handler) {
+  return _Proxy(target, handler);
 }
 
 class _Proxy {
   late dynamic target;
   late dynamic handler;
-  _Proxy(this.target) {}
+  _Proxy(this.target, this.handler) {}
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
@@ -16,8 +16,17 @@ class _Proxy {
     name = name.replaceFirst(RegExp(r'^Symbol\("'), "");
     name = name.replaceFirst(RegExp(r'"\)$'), "");
 
+
     String prop = name;
     var node = target;
+
+    if(prop == 'build') {
+
+      var params = invocation.typeArguments;
+      var positional = invocation.positionalArguments;
+
+      return node.build(positional[0], positional[1]);
+    }
 
     // handler get
     if (prop is String && node.getProperty(prop) == undefined) {
@@ -43,43 +52,43 @@ class _Proxy {
   }
 }
 
-// class NodeHandler {
+class NodeHandler {
 
-// 	// factory NodeHandler( Function nodeClosure, params ) {
-// 	// 	var inputs = params.shift();
-// 	// 	return nodeClosure( ShaderNodeObjects( inputs ), params );
-// 	// }
+	// factory NodeHandler( Function nodeClosure, params ) {
+	// 	var inputs = params.shift();
+	// 	return nodeClosure( ShaderNodeObjects( inputs ), params );
+	// }
 
-// 	get ( node, prop ) {
+	get ( node, prop ) {
 
-// 		if ( prop is String && node[ prop ] == undefined ) {
+		if ( prop is String && node[ prop ] == undefined ) {
 
-// 			if ( RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch( prop ) == true ) {
+			if ( RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch( prop ) == true ) {
 
-// 				// accessing properties ( swizzle )
+				// accessing properties ( swizzle )
 
-// 				prop = prop..replaceAll( RegExp(r"r|s"), 'x' )
-// 					.replaceAll( RegExp(r"g|t"), 'y' )
-// 					.replaceAll( RegExp(r"b|p"), 'z' )
-// 					.replaceAll( RegExp(r"a|q"), 'w' );
+				prop = prop..replaceAll( RegExp(r"r|s"), 'x' )
+					.replaceAll( RegExp(r"g|t"), 'y' )
+					.replaceAll( RegExp(r"b|p"), 'z' )
+					.replaceAll( RegExp(r"a|q"), 'w' );
 
-// 				return ShaderNodeObject( new SplitNode( node, prop ) );
+				return ShaderNodeObject( new SplitNode( node, prop ) );
 
-// 			} else if ( RegExp(r"^\d+$").hasMatch( prop ) == true ) {
+			} else if ( RegExp(r"^\d+$").hasMatch( prop ) == true ) {
 
-// 				// accessing array
+				// accessing array
 
-// 				return ShaderNodeObject( new ArrayElementNode( node, new FloatNode( num.parse( prop ) ).setConst( true ) ) );
+				return ShaderNodeObject( new ArrayElementNode( node, new FloatNode( num.parse( prop ) ).setConst( true ) ) );
 
-// 			}
+			}
 
-// 		}
+		}
 
-// 		return node[ prop ];
+		return node[ prop ];
 
-// 	}
+	}
 
-// }
+}
 
 var nodeObjects = new WeakMap();
 
@@ -87,19 +96,17 @@ ShaderNodeObject(obj) {
   if (obj is num) {
     return ShaderNodeObject(new FloatNode(obj).setConst(true));
 
-    // } else if ( type == 'object' ) {
-  } else if (obj is Object) {
-    if (obj is Node) {
-      var nodeObject = nodeObjects.get(obj);
+  } else if (obj is Node) {
+   
+    var nodeObject = nodeObjects.get(obj);
 
-      if (nodeObject == undefined) {
-        // nodeObject = Proxy( obj );
-        nodeObject = obj;
-        nodeObjects.set(obj, nodeObject);
-      }
-
-      return nodeObject;
+    if (nodeObject == undefined) {
+      nodeObject = Proxy( obj, NodeHandler );
+      nodeObjects.set(obj, nodeObject);
     }
+
+    return nodeObject;
+  
   }
 
   return obj;

@@ -27,7 +27,7 @@ class WebGPUAttributes {
     }
   }
 
-  update(attribute, [isIndex = false, usage = null]) {
+  update(attribute, [isIndex = false, usage]) {
     if (attribute is InterleavedBufferAttribute) attribute = attribute.data;
 
     var data = this.buffers.get(attribute);
@@ -66,13 +66,14 @@ class WebGPUAttributes {
         mappedAtCreation: true));
 
     if (array is Float32Array) {
-      Pointer<Float> p = buffer.getMappedRange().cast();
+      var pointer = buffer.getMappedRange(size: array.lengthInBytes);
+      Float32List _list = (pointer.cast<Float>()).asTypedList(array.length);
 
-      for (var i = 0; i < array.len; i++) {
-        p[i] = array[i];
+      for (var i = 0; i < array.length; i++) {
+        _list[i] = array[i];
       }
     } else if (array is Uint16Array) {
-      Pointer<Int16> p = buffer.getMappedRange().cast();
+      Pointer<Int16> p = buffer.getMappedRange(size: array.lengthInBytes).cast();
 
       for (var i = 0; i < array.len; i++) {
         p[i] = array[i];
