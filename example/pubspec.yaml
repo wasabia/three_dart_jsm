@@ -35,7 +35,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   
-  three_dart: ^0.0.7
+  three_dart: ^0.0.10
   three_dart_jsm:
     path: ../
   
@@ -45,11 +45,11 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-dependency_overrides:
-  three_dart:
-    path: ../../../three_dart
-  flutter_gl:
-    path: ../../../flutter_gl/flutter_gl
+# dependency_overrides:
+#   three_dart:
+#     path: ../../../three_dart
+#   flutter_gl:
+#     path: ../../../flutter_gl/flutter_gl
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

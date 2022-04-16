@@ -148,7 +148,7 @@ class WebGPUTextures {
     textureProperties.samplerGPU = samplerGPU;
   }
 
-  initRenderTarget(renderTarget) {
+  initRenderTarget(WebGLRenderTarget renderTarget) {
     var properties = this.properties;
     var renderTargetProperties = properties.get(renderTarget);
 
@@ -163,6 +163,7 @@ class WebGPUTextures {
           size:
               GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
           format: colorTextureFormat,
+          sampleCount: renderTarget.samples,
           usage: GPUTextureUsage.RenderAttachment |
               GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
 
@@ -170,6 +171,19 @@ class WebGPUTextures {
 
       renderTargetProperties["colorTextureGPU"] = colorTextureGPU;
       renderTargetProperties["colorTextureFormat"] = colorTextureFormat;
+
+
+      print("renderTarget.samples: ${renderTarget.samples} ");
+
+      // 多重采样 抗锯齿
+      var colorTextureGPUWithSamples = device.createTexture(GPUTextureDescriptor(
+          size: GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
+          format: colorTextureFormat,
+          sampleCount: renderTarget.samples,
+          usage: GPUTextureUsage.RenderAttachment |
+              GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
+
+      renderTargetProperties["colorTextureGPUWithSamples"] = colorTextureGPUWithSamples;
 
       // When the ".texture" or ".depthTexture" property of a render target is used as a map,
       // the renderer has to find the respective GPUTexture objects to setup the bind groups.

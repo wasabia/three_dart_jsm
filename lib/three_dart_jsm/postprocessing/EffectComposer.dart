@@ -11,8 +11,8 @@ class EffectComposer {
   bool renderToScreen = true;
 
   double _pixelRatio = 1.0;
-  late double _width;
-  late double _height;
+  late int _width;
+  late int _height;
 
   List<Pass> passes = [];
 
@@ -32,12 +32,12 @@ class EffectComposer {
 
       var size = renderer.getSize(new Vector2(null, null));
       this._pixelRatio = renderer.getPixelRatio();
-      this._width = size.width.toDouble();
-      this._height = size.height.toDouble();
+      this._width = size.width.toInt();
+      this._height = size.height.toInt();
 
       renderTarget = new WebGLRenderTarget(
-          (this._width * this._pixelRatio),
-          (this._height * this._pixelRatio),
+          (this._width * this._pixelRatio).toInt(),
+          (this._height * this._pixelRatio).toInt(),
           WebGLRenderTargetOptions(parameters));
     } else {
       this._pixelRatio = 1;
@@ -167,8 +167,8 @@ class EffectComposer {
     if (renderTarget == null) {
       var size = this.renderer.getSize(new Vector2(null, null));
       this._pixelRatio = this.renderer.getPixelRatio();
-      this._width = size.width.toDouble();
-      this._height = size.height.toDouble();
+      this._width = size.width.toInt();
+      this._height = size.height.toInt();
 
       renderTarget = this.renderTarget1.clone();
       renderTarget.setSize(
@@ -184,12 +184,12 @@ class EffectComposer {
     this.readBuffer = this.renderTarget2;
   }
 
-  setSize(width, height) {
+  setSize(int width, int height) {
     this._width = width;
     this._height = height;
 
-    var effectiveWidth = this._width * this._pixelRatio;
-    var effectiveHeight = this._height * this._pixelRatio;
+    int effectiveWidth = (this._width * this._pixelRatio).toInt();
+    int effectiveHeight = (this._height * this._pixelRatio).toInt();
 
     this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
     this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
@@ -199,7 +199,7 @@ class EffectComposer {
     }
   }
 
-  setPixelRatio(pixelRatio) {
+  setPixelRatio(double pixelRatio) {
     this._pixelRatio = pixelRatio;
 
     this.setSize(this._width, this._height);

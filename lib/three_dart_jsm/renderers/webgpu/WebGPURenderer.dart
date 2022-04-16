@@ -119,9 +119,7 @@ class WebGPURenderer {
     this._parameters["antialias"] = (parameters["antialias"] == true);
 
     if (this._parameters["antialias"] == true) {
-      this._parameters["sampleCount"] = (parameters["sampleCount"] == undefined)
-          ? 4
-          : parameters["sampleCount"];
+      this._parameters["sampleCount"] = parameters["sampleCount"] ?? 4;
     } else {
       this._parameters["sampleCount"] = 1;
     }
@@ -250,7 +248,9 @@ class WebGPURenderer {
       GPUTexture colorTextureGPU = renderTargetProperties["colorTextureGPU"];
 
       if (this._parameters["antialias"] == true) {
-        colorAttachment.view = this._colorBuffer!.createView();
+        GPUTexture colorTextureGPUWithSamples = renderTargetProperties["colorTextureGPUWithSamples"];
+
+        colorAttachment.view = colorTextureGPUWithSamples.createView();
         colorAttachment.resolveTarget = colorTextureGPU.createView();
       } else {
         colorAttachment.view = colorTextureGPU.createView();
