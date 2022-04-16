@@ -138,14 +138,14 @@ class _MyAppState extends State<webgpu_rtt> {
       "width": width.toInt(),
       "height": height.toInt(),
       "antialias": false,
-      "sampleCount": 4
+      "sampleCount": 1
     });
     dpr = 1.0;
     renderer!.setPixelRatio( dpr );
     renderer!.setSize( width.toInt(), height.toInt() );
     renderer!.init();
 
-    var pars = THREE.WebGLRenderTargetOptions({"format": THREE.RGBAFormat, "samples": 4});
+    var pars = THREE.WebGLRenderTargetOptions({"format": THREE.RGBAFormat, "samples": 1});
     renderTarget = THREE.WebGLRenderTarget(
         (width * dpr), (height * dpr), pars);
     renderer!.setRenderTarget(renderTarget);

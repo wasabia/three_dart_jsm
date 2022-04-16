@@ -154,6 +154,8 @@ class WebGPURenderPipeline {
         multisample: GPUMultisampleState(count: this._sampleCount)
       );
 
+    print(" GPURenderPipelineDescriptor _sampleCount: ${_sampleCount} ");
+
     this.pipeline =
         this._device.createRenderPipeline(_renderPipelineDescriptor);
   }

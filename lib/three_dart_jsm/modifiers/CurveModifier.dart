@@ -2,8 +2,8 @@ part of jsm_modifiers;
 
 // Original src: https://github.com/zz85/threejs-path-flow
 var CHANNELS = 4;
-double TEXTURE_WIDTH = 1024;
-double TEXTURE_HEIGHT = 4;
+int TEXTURE_WIDTH = 1024;
+int TEXTURE_HEIGHT = 4;
 
 /**
  * Make a new DataTexture to store the descriptions of the curves.

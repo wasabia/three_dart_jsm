@@ -27,7 +27,7 @@ class Pass {
     this.uniforms[key] = {"value": newValue};
   }
 
-  setSize(width, height) {}
+  setSize(int width, int height) {}
 
   render(renderer, writeBuffer, readBuffer,
       {num? deltaTime, bool? maskActive}) {
