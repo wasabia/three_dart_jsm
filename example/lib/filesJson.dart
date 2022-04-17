@@ -3,5 +3,6 @@ var filesJson = [
   "misc_controls_trackball",
   "misc_controls_arcball",
   "misc_controls_map",
-  "webgpu_rtt"
+  // "webgpu_rtt",
+  "webgl_loader_fbx"
 ];

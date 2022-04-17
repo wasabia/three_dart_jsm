@@ -16,14 +16,15 @@ dependencies:
   opentype_dart: ^0.0.1
   universal_html: ^2.0.8
   image: ^3.1.1
+  archive: ^3.3.0
   # flutter_webgpu:
   #   path: ../../flutter_webgpu
 
-# dependency_overrides:
-#   flutter_gl:
-#     path: ../../flutter_gl/flutter_gl
-#   three_dart:
-#     path: ../../three_dart
+dependency_overrides:
+  flutter_gl:
+    path: ../../flutter_gl/flutter_gl
+  three_dart:
+    path: ../../three_dart
 
 
 
