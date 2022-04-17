@@ -1,5 +1,7 @@
+import 'package:example/webgl_loader_fbx.dart';
+
 import './misc_controls_orbit.dart';
-import './webgpu_rtt.dart';
+// import './webgpu_rtt.dart';
 
 import 'package:flutter/material.dart';
 
@@ -34,9 +36,11 @@ class _MyAppState extends State<ExamplePage> {
       page = misc_controls_arcball(fileName: fileName);
     } else if (fileName == "misc_controls_map") {
       page = misc_controls_map(fileName: fileName);
-    } else if (fileName == "webgpu_rtt") {
-      page = webgpu_rtt(fileName: fileName);
+    // } else if (fileName == "webgpu_rtt") {
+    //   page = webgpu_rtt(fileName: fileName);
 
+    } else if (fileName == "webgl_loader_fbx") {
+      page = webgl_loader_fbx(fileName: fileName);
       
     } else {
       throw ("ExamplePage fileName ${fileName} is not support yet ");
