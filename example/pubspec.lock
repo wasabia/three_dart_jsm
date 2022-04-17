@@ -91,11 +91,11 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_gl:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "../../../flutter_gl/flutter_gl"
-      relative: true
-    source: path
+      name: flutter_gl
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "0.0.15"
   flutter_gl_macos:
     dependency: transitive
@@ -126,7 +126,7 @@ packages:
     source: hosted
     version: "0.0.3"
   flutter_lints:
-    dependency: "direct overridden"
+    dependency: "direct dev"
     description:
       name: flutter_lints
       url: "https://pub.flutter-io.cn"
@@ -283,9 +283,9 @@ packages:
   three_dart:
     dependency: "direct main"
     description:
-      path: "../../../three_dart"
-      relative: true
-    source: path
+      name: three_dart
+      url: "https://pub.flutter-io.cn"
+    source: hosted
     version: "0.0.10"
   three_dart_jsm:
     dependency: "direct main"
