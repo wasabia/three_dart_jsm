@@ -26,17 +26,21 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   dynamic pointerLockElement;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
   }
+  
+  void removeAllListeners() {
+    _listeners.clear();
+  }
 
-  addEventListener(String name, Function callback, [bool flag = false]) {
+  void addEventListener(String name, Function callback, [bool flag = false]) {
     var _cls = _listeners[name] ?? [];
     _cls.add(callback);
     _listeners[name] = _cls;
   }
 
-  removeEventListener(String name, Function callback, [bool flag = false]) {
+  void removeEventListener(String name, Function callback, [bool flag = false]) {
     var _cls = _listeners[name] ?? [];
     _cls.remove(callback);
     _listeners[name] = _cls;
@@ -74,37 +78,37 @@ class DomLikeListenableState extends State<DomLikeListenable> {
     );
   }
 
-  _onWheel(BuildContext context, PointerScrollEvent event) {
+  void _onWheel(BuildContext context, PointerScrollEvent event) {
     var wpe = WebPointerEvent.fromPointerScrollEvent(context, event);
 
     emit("wheel", wpe);
   }
 
-  _onPointerDown(BuildContext context, PointerDownEvent event) {
+  void _onPointerDown(BuildContext context, PointerDownEvent event) {
     var wpe = WebPointerEvent.fromPointerDownEvent(context, event);
 
     emit("touchstart", wpe);
     emit("pointerdown", wpe);
   }
 
-  _onPointerMove(BuildContext context, PointerMoveEvent event) {
+  void _onPointerMove(BuildContext context, PointerMoveEvent event) {
     var wpe = WebPointerEvent.fromPointerMoveEvent(context, event);
 
     emit("touchmove", wpe);
     emit("pointermove", wpe);
   }
 
-  _onPointerUp(BuildContext context, PointerUpEvent event) {
+  void _onPointerUp(BuildContext context, PointerUpEvent event) {
     var wpe = WebPointerEvent.fromPointerUpEvent(context, event);
     emit("touchend", wpe);
     emit("pointerup", wpe);
   }
 
-  _onPointerCancel(BuildContext context, PointerCancelEvent event) {
+  void _onPointerCancel(BuildContext context, PointerCancelEvent event) {
     // emit("pointercancel", event);
   }
 
-  emit(String name, event) {
+  void emit(String name, event) {
     var _callbacks = _listeners[name];
     if (_callbacks != null && _callbacks.length > 0) {
       var _len = _callbacks.length;
@@ -115,19 +119,19 @@ class DomLikeListenableState extends State<DomLikeListenable> {
     }
   }
 
-  setPointerCapture(int pointerId) {
+  void setPointerCapture(int pointerId) {
     // TODO
   }
 
-  releasePointerCapture(int pointerId) {
+  void releasePointerCapture(int pointerId) {
     // TODO
   }
 
-  requestPointerLock() {
+  void requestPointerLock() {
     // TODO
   }
 
-  exitPointerLock() {
+  void exitPointerLock() {
     // TODO
   }
 }
