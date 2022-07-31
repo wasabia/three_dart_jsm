@@ -96,7 +96,11 @@ packages:
       name: flutter_gl
       url: "https://pub.flutter-io.cn"
     source: hosted
+<<<<<<< HEAD
     version: "0.0.18"
+=======
+    version: "0.0.15"
+>>>>>>> 59dafa83e6db46ba743ccdc6756a3da4ddeba9c0
   flutter_gl_macos:
     dependency: transitive
     description:
@@ -286,7 +290,11 @@ packages:
       name: three_dart
       url: "https://pub.flutter-io.cn"
     source: hosted
+<<<<<<< HEAD
     version: "0.0.11"
+=======
+    version: "0.0.10"
+>>>>>>> 59dafa83e6db46ba743ccdc6756a3da4ddeba9c0
   three_dart_jsm:
     dependency: "direct main"
     description:

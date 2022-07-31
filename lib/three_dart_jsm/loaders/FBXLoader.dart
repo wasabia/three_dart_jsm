@@ -389,8 +389,6 @@ class FBXTreeParser {
 
 			fileName = images[ children[ 0 ]["ID"] ];
 
-      print("fileName: ${fileName} path ${textureLoader.path} currentPath: ${currentPath} ");
- 
 			if ( fileName.indexOf( 'blob:' ) == 0 || fileName.indexOf( 'data:' ) == 0 ) {
 
 				this.textureLoader.setPath( null );
@@ -510,8 +508,6 @@ class FBXTreeParser {
 	// Also parse the texture map and return any textures associated with the material
 	parseParameters(Map materialNode, textureMap, ID ) {
 
-    print("parseParameters textureMap: ${textureMap.keys} ");
-
 		Map<String, dynamic> parameters = {};
 
 		if ( materialNode["BumpFactor"] != null ) {
@@ -591,8 +587,6 @@ class FBXTreeParser {
 
 		var scope = this;
 
-    print("connections ${connections.keys} ");
-
     final connection = connections[ ID ];
 
 		if(connection["children"] != null) {
@@ -600,9 +594,6 @@ class FBXTreeParser {
         var type = child["relationship"];
 
         var childID = child["ID"];
-
-        print(" childID: ${childID} ${childID.runtimeType} type ${type}  ");
-        
 
         switch ( type ) {
 
