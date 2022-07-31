@@ -252,7 +252,7 @@ class InstancedFlow extends Flow {
 	 */
   factory InstancedFlow(count, curveCount, geometry, material) {
     var mesh = new InstancedMesh(geometry, material, count);
-    mesh.instanceMatrix.setUsage(DynamicDrawUsage);
+    mesh.instanceMatrix!.setUsage(DynamicDrawUsage);
     var instancedFlow = InstancedFlow.create(mesh, curveCount);
 
     instancedFlow.offsets = new List.filled(count, 0);
@@ -274,7 +274,7 @@ class InstancedFlow extends Flow {
     var _object3D = this.object3D as InstancedMesh;
 
     _object3D.setMatrixAt(index, matrix);
-    _object3D.instanceMatrix.needsUpdate = true;
+    _object3D.instanceMatrix?.needsUpdate = true;
   }
 
   /**

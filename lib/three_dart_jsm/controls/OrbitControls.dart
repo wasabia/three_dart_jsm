@@ -678,6 +678,9 @@ class OrbitControls with EventDispatcher {
   handleTouchMoveDolly(event) {
     var position = getSecondPointerPosition(event);
 
+    print("handleTouchMoveDolly event.pageX: ${event.pageX} position.x: ${position.x} ");
+    print("handleTouchMoveDolly event.pageY: ${event.pageY} position.y: ${position.y} ");
+
     var dx = event.pageX - position.x;
     var dy = event.pageY - position.y;
 

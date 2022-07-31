@@ -4,7 +4,7 @@ import 'dart:ffi';
 import 'dart:typed_data';
 
 import 'package:flutter_gl/native-array/index.dart';
-// import 'package:flutter_webgpu/flutter_webgpu.dart';
+import 'package:flutter_webgpu/flutter_webgpu.dart';
 import 'package:three_dart/extra/console.dart';
 import 'package:three_dart/three_dart.dart';
 

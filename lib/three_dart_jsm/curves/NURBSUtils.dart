@@ -458,7 +458,7 @@ calcSurfacePoint( p, q, U, V, P, u, v, target ) {
 
 	}
 
-	var Sw = new Vector4( 0, 0, 0, 0 );
+	Vector4 Sw = Vector4( 0, 0, 0, 0 );
 	for ( var l = 0; l <= q; ++ l ) {
 
 		Sw.add( temp[ l ].multiplyScalar( Nv[ l ] ) );

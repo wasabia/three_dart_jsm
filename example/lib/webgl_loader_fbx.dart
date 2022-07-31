@@ -164,7 +164,7 @@ class _MyAppState extends State<webgl_loader_fbx> {
 
     var delta = clock.getDelta();
 
-    mixer!.update(10);
+    mixer!.update(delta);
 
     renderer!.render(scene, camera);
 
@@ -201,7 +201,7 @@ class _MyAppState extends State<webgl_loader_fbx> {
     renderer = THREE.WebGLRenderer(_options);
     renderer!.setPixelRatio(dpr);
     renderer!.setSize(width, height, false);
-    renderer!.shadowMap.enabled = false;
+    renderer!.shadowMap.enabled = true;
 
     if (!kIsWeb) {
       var pars = THREE.WebGLRenderTargetOptions({
@@ -259,50 +259,34 @@ class _MyAppState extends State<webgl_loader_fbx> {
     scene.add( hemiLight );
 
     var dirLight = new THREE.DirectionalLight( 0xffffff );
-    dirLight.position.set( 0, 200, 100 );
+    dirLight.position.set( 0, 0, 0 );
     dirLight.castShadow = true;
     dirLight.shadow!.camera!.top = 180;
     dirLight.shadow!.camera!.bottom = - 100;
     dirLight.shadow!.camera!.left = - 120;
     dirLight.shadow!.camera!.right = 120;
-    scene.add( dirLight );
+    camera.add( dirLight );
 
-    // scene.add( new THREE.CameraHelper( dirLight.shadow.camera ) );
+    // scene.add( new THREE.CameraHelper( dirLight.shadow!.camera ) );
 
     // ground
-    var mesh = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { "color": 0x999999, "depthWrite": false } ) );
-    mesh.rotation.x = - THREE.Math.PI / 2;
-    mesh.receiveShadow = true;
-    scene.add( mesh );
+    // var ground = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { "color": 0xFF9999, "depthWrite": false } ) );
+    // ground.rotation.x = - THREE.Math.PI / 2;
+    // ground.receiveShadow = true;
+    // scene.add( ground );
 
-    var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
-    grid.material.opacity = 0.2;
-    grid.material.transparent = true;
-    scene.add( grid );
+    // var grid = new THREE.GridHelper( 2000, 20, 0x000000, 0x000000 );
+    // grid.material.opacity = 0.2;
+    // grid.material.transparent = true;
+    // scene.add( grid );
 
     // model
     var loader = THREE_JSM.FBXLoader(null, width.toInt(), height.toInt());
-    var object = await loader.loadAsync( 'assets/models/fbx/Samba Dancing.fbx');
+    // var object = await loader.loadAsync( 'assets/models/fbx/Samba Dancing.fbx');
+    loader.setPath('assets/models/fbx/');
+    var object = await loader.loadAsync( 'model.fbx' );
     mixer = new THREE.AnimationMixer( object );
 
-    print("object.animations  : ${object} ");
-    print(object.animations[1].name);
-    print(object.animations[1].tracks.length);
-    print(object.animations[1].duration);
-
-    var action = mixer!.clipAction( object.animations[ 1 ] );
-    action!.play();
-
-    object.traverse( ( child ) {
-
-      if ( child is THREE.Mesh ) {
-
-        child.castShadow = true;
-        child.receiveShadow = true;
-
-      }
-
-    } );
 
     scene.add( object );
 

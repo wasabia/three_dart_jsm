@@ -44,7 +44,7 @@ class DomLikeListenableState extends State<DomLikeListenable> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance?.addPostFrameCallback((t) {
+    WidgetsBinding.instance.addPostFrameCallback((t) {
       if (_clientWidth == null || _clientHeight == null) {
         RenderBox getBox = context.findRenderObject() as RenderBox;
         _clientWidth = getBox.size.width;

@@ -389,34 +389,27 @@ class WebGPUNodeBuilder extends NodeBuilder {
   }
 
   getAttributes(shaderStage) {
-    var snippet = '';
+    var snippets = [];
 
     if (shaderStage == 'vertex') {
       var attributes = this.attributes;
       var length = attributes.length;
-
-      snippet += '\n';
 
       for (var index = 0; index < length; index++) {
         var attribute = attributes[index];
         var name = attribute.name;
         var type = this.getType(attribute.type);
 
-        snippet += "\t[[ location( ${index} ) ]] ${name} : ${type}";
+        snippets.add( "@location( ${index} ) ${ name } : ${ type }" );
 
-        if (index + 1 < length) {
-          snippet += ',\n';
-        }
       }
-
-      snippet += '\n';
     }
 
-    return snippet;
+    return snippets.join( ',\n\t' );;
   }
 
   getVars(shaderStage) {
-    var snippet = '';
+    var snippets = [];
 
     var vars = this.vars[shaderStage];
 
@@ -426,98 +419,96 @@ class WebGPUNodeBuilder extends NodeBuilder {
       var name = variable.name;
       var type = this.getType(variable.type);
 
-      snippet += "var ${name} : ${type}; ";
+      snippets.add( "\tvar ${name} : ${type};" );
     }
 
-    return snippet;
+    return "\n${ snippets.join( '\n' ) }\n";
   }
 
   @override
   getVarys(shaderStage) {
-    var snippet = '';
+    var snippets = [];
 
     if (shaderStage == 'vertex') {
-      snippet += '\t[[ builtin( position ) ]] Vertex: vec4<f32>;\n';
+      snippets.add( '@builtin( position ) Vertex: vec4<f32>' );
 
       var varys = this.varys;
 
       for (var index = 0; index < varys.length; index++) {
         var vary = varys[index];
 
-        snippet +=
-            "\t[[ location( ${index} ) ]] ${vary.name} : ${this.getType(vary.type)};\n";
+        snippets.add( " @location( ${index} ) ${ vary.name } : ${ this.getType( vary.type ) }" );
       }
-
-      snippet = this._getWGSLStruct('NodeVarysStruct', snippet);
     } else if (shaderStage == 'fragment') {
       var varys = this.varys;
 
-      snippet += '\n';
-
       for (var index = 0; index < varys.length; index++) {
         var vary = varys[index];
 
-        snippet +=
-            "\t[[ location( ${index} ) ]] ${vary.name} : ${this.getType(vary.type)}";
-
-        if (index + 1 < varys.length) {
-          snippet += ',\n';
-        }
+        snippets.add( "@location( ${index} ) ${ vary.name } : ${ this.getType( vary.type ) }" );
       }
-
-      snippet += '\n';
     }
 
-    return snippet;
+    var code = snippets.join( ',\n\t' );
+
+		return shaderStage == 'vertex' ? this._getWGSLStruct( 'NodeVarysStruct', code ) : code;
   }
 
   @override
   getUniforms(shaderStage) {
     var uniforms = this.uniforms[shaderStage];
 
-    var snippet = '';
-    var groupSnippet = '';
+    var bindingSnippets = [];
+		var bufferSnippets = [];
+		var groupSnippets = [];
 
     var index = this.bindingsOffset[shaderStage];
 
     for (var uniform in uniforms) {
       if (uniform.type == 'texture') {
         if (shaderStage == 'fragment') {
-          snippet +=
-              "[[ group( 0 ), binding( ${index++} ) ]] var ${uniform.name}_sampler : sampler; ";
+          bindingSnippets.add( "@group( 0 ) @binding( ${index ++} ) var ${uniform.name}_sampler : sampler;" );
         }
 
-        snippet +=
-            "[[ group( 0 ), binding( ${index++} ) ]] var ${uniform.name} : texture_2d<f32>; ";
+        bindingSnippets.add( "@group( 0 ) @binding( ${index ++} ) var ${uniform.name} : texture_2d<f32>;" );
+      } else if ( uniform.type == 'cubeTexture' ) {
+
+				if ( shaderStage == 'fragment' ) {
+
+					bindingSnippets.add( "@group( 0 ) @binding( ${index ++} ) var ${uniform.name}_sampler : sampler;" );
+
+				}
+
+				bindingSnippets.add( "@group( 0 ) @binding( ${index ++} ) var ${uniform.name} : texture_cube<f32>;" );
       } else if (uniform.type == 'buffer') {
         var bufferNode = uniform.node;
         var bufferType = this.getType(bufferNode.bufferType);
         var bufferCount = bufferNode.bufferCount;
 
-        var bufferSnippet =
-            "\t${uniform.name} : array< ${bufferType}, ${bufferCount} >;\n";
+        var bufferSnippet = "\t${uniform.name} : array< ${bufferType}, ${bufferCount} >\n";
 
-        snippet += this._getWGSLUniforms('NodeBuffer', bufferSnippet, index++) +
-            '\n\n';
+        bufferSnippets.add( this._getWGSLUniforms( 'NodeBuffer', bufferSnippet, index ++ ) );
       } else {
         var vectorType = this.getType(this.getVectorType(uniform.type));
 
         if (uniform.value is List) {
           var length = uniform.value.length;
 
-          groupSnippet +=
-              "uniform ${vectorType}[ ${length} ] ${uniform.name}; ";
+          groupSnippets.add( "uniform ${vectorType}[ ${length} ] ${uniform.name}" );
         } else {
-          groupSnippet += "\t${uniform.name} : ${vectorType};\n";
+          groupSnippets.add( "\t${uniform.name} : ${ vectorType}" );
         }
       }
     }
 
-    if (groupSnippet != null) {
-      snippet += this._getWGSLUniforms('NodeUniforms', groupSnippet, index++);
+    var code = bindingSnippets.join( '\n' );
+		code += bufferSnippets.join( ',\n' );
+
+    if (groupSnippets.length > 0) {
+      code += this._getWGSLUniforms( 'NodeUniforms', groupSnippets.join( ',\n' ), index ++ );
     }
 
-    return snippet;
+    return code;
   }
 
   buildCode() {
@@ -657,7 +648,7 @@ fn main( ${shaderData["varys"]} ) -> [[ location( 0 ) ]] vec4<f32> {
   _getWGSLStruct(name, vars) {
     return """
 struct ${name} {
-\n${vars}
+${vars}
 };""";
   }
 

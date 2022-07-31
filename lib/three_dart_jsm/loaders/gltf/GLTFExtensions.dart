@@ -598,9 +598,9 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
     }
 
     var extension = textureDef["extensions"][this.name];
-    var loader = parser.options.ktx2Loader;
+    var loader = parser.options["ktx2Loader"];
 
-    if (!loader) {
+    if (loader == null) {
       if (json["extensionsRequired"] != null &&
           json["extensionsRequired"].indexOf(this.name) >= 0) {
         throw ('THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures');

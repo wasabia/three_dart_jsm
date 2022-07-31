@@ -176,7 +176,7 @@ class SkeletonUtils {
         boneDatas = [];
     var positionOffset, bone, boneTo, boneData, name;
 
-    mixer.clipAction(clip)!.play();
+    mixer.clipAction(clip)?.play();
     mixer.update(0);
 
     source.updateMatrixWorld();
