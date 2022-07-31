@@ -282,9 +282,9 @@ class _MyAppState extends State<webgl_loader_fbx> {
 
     // model
     var loader = THREE_JSM.FBXLoader(null, width.toInt(), height.toInt());
-    // var object = await loader.loadAsync( 'assets/models/fbx/Samba Dancing.fbx');
-    loader.setPath('assets/models/fbx/');
-    var object = await loader.loadAsync( 'model.fbx' );
+    var object = await loader.loadAsync( 'assets/models/fbx/Samba Dancing.fbx');
+    // loader.setPath('assets/models/fbx/');
+    // var object = await loader.loadAsync( 'model.fbx' );
     mixer = new THREE.AnimationMixer( object );
 
 
