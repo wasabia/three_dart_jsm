@@ -5,6 +5,7 @@ import './misc_controls_orbit.dart';
 
 import 'package:flutter/material.dart';
 
+import 'games_fps.dart';
 import 'misc_controls_arcball.dart';
 import 'misc_controls_map.dart';
 import 'misc_controls_trackball.dart';
@@ -28,7 +29,10 @@ class _MyAppState extends State<ExamplePage> {
 
     String fileName = widget.id!;
 
-    if (fileName == "misc_controls_orbit") {
+    if (fileName == "games_fps") {
+      page = TestGame(fileName: fileName);
+    } 
+    else if (fileName == "misc_controls_orbit") {
       page = misc_controls_orbit(fileName: fileName);
     } else if (fileName == "misc_controls_trackball") {
       page = misc_controls_trackball(fileName: fileName);
