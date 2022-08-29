@@ -518,7 +518,15 @@ class OBJLoader extends Loader {
           var v3 = faceVertices[j + 1];
 
           state.addFace(
-              v1[0], v2[0], v3[0], v1[1], v2[1], v3[1], v1[2], v2[2], v3[2]);
+              v1[0],
+              v2[0],
+              v3[0],
+              v1.length > 1 ? v1[1] : null,
+              v2.length > 1 ? v2[1] : null,
+              v3.length > 1 ? v3[1] : null,
+              v1.length > 2 ? v1[2] : null,
+              v2.length > 2 ? v2[2] : null,
+              v3.length > 2 ? v3[2] : null);
         }
       } else if (lineFirstChar == 'l') {
         var lineParts = line.substring(1).trim().split(' ');
