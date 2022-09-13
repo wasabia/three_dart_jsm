@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart' hide Matrix4, Material;
 import 'package:three_dart/three_dart.dart';
 import 'projector.dart';
 import 'svgEdgeFinder.dart';
@@ -156,7 +155,7 @@ class SVGRenderer {
   double overdraw = 0;
   SVGRendererInfo info = SVGRendererInfo();
 
-  Size get size => Size(width,height);
+  Vector2 get size => Vector2(width,height);
 
   void setQuality(SVGQuality quality) {
     this.quality = quality;
