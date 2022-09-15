@@ -5,3 +5,4 @@ import 'package:three_dart/three_dart.dart';
 
 part './VertexNormalsHelper.dart';
 part './VertexTangentsHelper.dart';
+part './RectAreaLightHelper.dart';

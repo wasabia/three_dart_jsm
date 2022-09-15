@@ -213,18 +213,18 @@ class TransformControlsGizmo extends Object3D {
       "X": [
         [
           new Mesh(arrowGeometry, matRed),
-          [0.5, 0, 0],
-          [0, 0, -Math.PI / 2]
+          [0.5, 0.0, 0.0],
+          [0.0, 0.0, -Math.PI / 2]
         ],
         [
           new Mesh(arrowGeometry, matRed),
-          [-0.5, 0, 0],
-          [0, 0, Math.PI / 2]
+          [-0.5, 0.0, 0.0],
+          [0.0, 0.0, Math.PI / 2]
         ],
         [
           new Mesh(lineGeometry2, matRed),
-          [0, 0, 0],
-          [0, 0, -Math.PI / 2]
+          [0.0, 0.0, 0.0],
+          [0.0, 0.0, -Math.PI / 2]
         ]
       ],
       "Y": [
@@ -663,17 +663,17 @@ class TransformControlsGizmo extends Object3D {
             object = _gi[0].clone();
           }
 
-          dynamic position = null;
+          List<num>? position;
           if (_gi.length > 1) {
             position = _gi[1];
           }
 
-          dynamic rotation = null;
+          List<num>? rotation;
           if (_gi.length > 2) {
             rotation = _gi[2];
           }
 
-          dynamic scale = null;
+          List<num>? scale;
           if (_gi.length > 3) {
             scale = _gi[3];
           }
@@ -688,15 +688,15 @@ class TransformControlsGizmo extends Object3D {
           object.tag = tag;
 
           if (position != null) {
-            object.position.set(position[0], position[1], position[2]);
+            object.position.set(position[0].toDouble(), position[1].toDouble(), position[2].toDouble());
           }
 
           if (rotation != null) {
-            object.rotation.set(rotation[0], rotation[1], rotation[2]);
+            object.rotation.set(rotation[0].toDouble(), rotation[1].toDouble(), rotation[2].toDouble());
           }
 
           if (scale != null) {
-            object.scale.set(scale[0], scale[1], scale[2]);
+            object.scale.set(scale[0].toDouble(), scale[1].toDouble(), scale[2].toDouble());
           }
 
           object.updateMatrix();
@@ -706,9 +706,9 @@ class TransformControlsGizmo extends Object3D {
           object.geometry = tempGeometry;
           object.renderOrder = Math.Infinity;
 
-          object.position.set(0, 0, 0);
-          object.rotation.set(0, 0, 0);
-          object.scale.set(1, 1, 1);
+          object.position.set(0.0, 0.0, 0.0);
+          object.rotation.set(0.0, 0.0, 0.0);
+          object.scale.set(1.0, 1.0, 1.0);
 
           gizmo.add(object);
         }
@@ -781,7 +781,7 @@ class TransformControlsGizmo extends Object3D {
       // hide aligned to camera
 
       handle.visible = true;
-      handle.rotation.set(0, 0, 0);
+      handle.rotation.set(0.0, 0.0, 0.0);
       handle.position.copy(this.worldPosition);
 
       var factor;
@@ -797,7 +797,7 @@ class TransformControlsGizmo extends Object3D {
                 7);
       }
 
-      handle.scale.set(1, 1, 1).multiplyScalar(factor * this.size / 4);
+      handle.scale.set(1.0, 1.0, 1.0).multiplyScalar(factor * this.size / 4);
 
       // TODO: simplify helpers and consider decoupling from gizmo
 
@@ -1050,9 +1050,6 @@ class TransformControlsGizmo extends Object3D {
           handle.material.opacity = 1.0;
         }
       }
-
-      // print(" i: ${i} handle: ${handle} name: ${handle.name} tag: ${handle.tag} visible: ${handle.visible}   ");
-
     }
 
     super.updateMatrixWorld(force);

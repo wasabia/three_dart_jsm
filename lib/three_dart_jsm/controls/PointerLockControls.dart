@@ -27,6 +27,7 @@ class PointerLockControls with EventDispatcher {
   }
 
   onMouseMove(event) {
+    print("onMouseMove event: ${event} isLocked ${scope.isLocked} ");
     if (scope.isLocked == false) return;
 
     var movementX =
@@ -65,6 +66,7 @@ class PointerLockControls with EventDispatcher {
 
   connect() {
     scope.domElement.addEventListener('mousemove', onMouseMove);
+    scope.domElement.addEventListener('touchmove', onMouseMove);
     scope.domElement.addEventListener('pointerlockchange', onPointerlockChange);
     scope.domElement.addEventListener('pointerlockerror', onPointerlockError);
   }
@@ -111,6 +113,7 @@ class PointerLockControls with EventDispatcher {
   }
 
   lock() {
+    this.isLocked = true;
     this.domElement.requestPointerLock();
   }
 

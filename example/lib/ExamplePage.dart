@@ -1,3 +1,4 @@
+import 'package:example/misc_controls_pointerlock.dart';
 import 'package:example/webgl_loader_fbx.dart';
 
 import './misc_controls_orbit.dart';
@@ -38,7 +39,8 @@ class _MyAppState extends State<ExamplePage> {
       page = misc_controls_map(fileName: fileName);
     // } else if (fileName == "webgpu_rtt") {
     //   page = webgpu_rtt(fileName: fileName);
-
+    } else if (fileName == "misc_controls_pointerlock") {
+      page = misc_controls_pointerlock(fileName: fileName);
     } else if (fileName == "webgl_loader_fbx") {
       page = webgl_loader_fbx(fileName: fileName);
       

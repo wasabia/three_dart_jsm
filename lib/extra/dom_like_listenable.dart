@@ -145,6 +145,9 @@ class WebPointerEvent {
   late double pageX;
   late double pageY;
 
+  late double movementX;
+  late double movementY;
+
   bool ctrlKey = false;
   bool metaKey = false;
   bool shiftKey = false;
@@ -154,6 +157,9 @@ class WebPointerEvent {
   double deltaY = 0.0;
   double deltaX = 0.0;
 
+  List<EventTouch> touches = [];
+  List<EventTouch> changedTouches = [];
+
   WebPointerEvent() {}
 
   static String getPointerType(event) {
@@ -161,15 +167,16 @@ class WebPointerEvent {
   }
 
   static int getButton(event) {
-    if (event.kind == PointerDeviceKind.touch) {
-      return event.buttons == 0x01 ? 1 : 0;
-    } else {
-      return event.buttons == 2
-          ? 2
-          : event.buttons == 0x01
-              ? 0
-              : 1;
-    }
+    // if (event.kind == PointerDeviceKind.touch) {
+    //   return event.buttons == 0x01 ? 1 : 0;
+    // } else {
+    //   return event.buttons == 2
+    //       ? 2
+    //       : event.buttons == 0x01
+    //           ? 0
+    //           : 1;
+    // }
+    return event.buttons;
   }
 
   static WebPointerEvent convertEvent(context, event) {
@@ -190,6 +197,22 @@ class WebPointerEvent {
       wpe.deltaX = event.scrollDelta.dx;
       wpe.deltaY = event.scrollDelta.dy;
     }
+
+    if(event is PointerMoveEvent) {
+      wpe.movementX = event.delta.dx;
+      wpe.movementY = event.delta.dy;
+    }
+
+
+    final EventTouch _touch = EventTouch();
+    _touch.pointer = event.pointer;
+    _touch.pageX = event.position.dx;
+    _touch.pageY = event.position.dy;
+    _touch.clientX = local.dx;
+    _touch.clientY = local.dy;
+
+    wpe.touches.add( _touch );
+    wpe.changedTouches = [_touch];
 
     return wpe;
   }
@@ -221,4 +244,15 @@ class WebPointerEvent {
   String toString() {
     return "pointerId: ${pointerId} button: ${button} pointerType: ${pointerType} clientX: ${clientX} clientY: ${clientY} pageX: ${pageX} pageY: ${pageY} ";
   }
+}
+
+class EventTouch {
+  late int pointer;
+  num? pageX;
+  num? pageY;
+
+  num? clientX;
+  num? clientY;
+
+  
 }

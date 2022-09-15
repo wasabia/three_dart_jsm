@@ -521,10 +521,10 @@ class TransformControls extends Object3D {
     super.updateMatrixWorld(force);
   }
 
-  pointerHover(pointer) {
+  pointerHover(Pointer pointer) {
     if (this.object == null || this.dragging == true) return;
 
-    _raycaster.setFromCamera(pointer, this.camera);
+    _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
     var intersect = intersectObjectWithRay(
         this._gizmo.picker[this.mode], _raycaster, false);
@@ -536,14 +536,15 @@ class TransformControls extends Object3D {
     }
   }
 
-  pointerDown(pointer) {
+  pointerDown(Pointer pointer) {
     _pointer0 = pointer;
+
 
     if (this.object == null || this.dragging == true || pointer.button != 1)
       return;
 
     if (this.axis != null) {
-      _raycaster.setFromCamera(pointer, this.camera);
+      _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
       var planeIntersect =
           intersectObjectWithRay(this._plane, _raycaster, true);
@@ -568,7 +569,7 @@ class TransformControls extends Object3D {
     }
   }
 
-  pointerMove(pointer) {
+  pointerMove(Pointer pointer) {
     // TODO if not when change axis will cause object position change. why???
     if (pointer.x == _pointer0?.x &&
         pointer.y == _pointer0?.y &&
@@ -593,7 +594,7 @@ class TransformControls extends Object3D {
         this.dragging == false ||
         pointer.button != 1) return;
 
-    _raycaster.setFromCamera(pointer, this.camera);
+    _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
     var planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true);
 
@@ -802,7 +803,7 @@ class TransformControls extends Object3D {
     this.dispatchEvent(_objectChangeEvent);
   }
 
-  pointerUp(pointer) {
+  pointerUp(Pointer pointer) {
     if (pointer.button != 0) return;
 
     if (this.dragging && (this.axis != null)) {
@@ -969,10 +970,10 @@ class TransformControls extends Object3D {
 }
 
 class Pointer {
-  late num x;
-  late num y;
+  late double x;
+  late double y;
   late int button;
-  Pointer(x, y, button) {
+  Pointer(double x, double y, int button) {
     this.x = x;
     this.y = y;
     this.button = button;
