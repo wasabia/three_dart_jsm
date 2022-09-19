@@ -71,6 +71,194 @@ class RectAreaLightHelper extends Line {
 
 	}
 
+  var _meshinverseMatrix = Matrix4();
+  var _meshray = Ray(null, null);
+  var _meshsphere = Sphere(null, null);
+
+  @override
+  void raycast(Raycaster raycaster, List<Intersection> intersects) {
+
+    print("==== raycast ${this}  1 ");
+
+    var geometry = this.geometry!;
+    var material = this.material;
+    var matrixWorld = this.matrixWorld;
+
+    if (material == null) return;
+
+    // Checking boundingSphere distance to ray
+
+    if (geometry.boundingSphere == null) geometry.computeBoundingSphere();
+
+    _meshsphere.copy(geometry.boundingSphere!);
+    _meshsphere.applyMatrix4(matrixWorld);
+
+    if (raycaster.ray.intersectsSphere(_meshsphere) == false) return;
+
+    _meshinverseMatrix.copy(matrixWorld).invert();
+    _meshray.copy(raycaster.ray).applyMatrix4(_meshinverseMatrix);
+
+    // Check boundingBox before continuing
+
+    if (geometry.boundingBox != null) {
+      if (_meshray.intersectsBox(geometry.boundingBox!) == false) return;
+    }
+
+    Intersection? intersection;
+    var index = geometry.index;
+    var position = geometry.attributes["position"];
+    var morphPosition = geometry.morphAttributes["position"];
+    var morphTargetsRelative = geometry.morphTargetsRelative;
+    var uv = geometry.attributes["uv"];
+    var uv2 = geometry.attributes["uv2"];
+    var groups = geometry.groups;
+    var drawRange = geometry.drawRange;
+
+    print("==== raycast ${this}  index: ${index}  ");
+
+    if (index != null) {
+      // indexed buffer geometry
+
+      if (material is List) {
+        for (var i = 0, il = groups.length; i < il; i++) {
+          var group = groups[i];
+          var groupMaterial = material[group["materialIndex"]];
+
+          var start = Math.max<int>(group["start"], drawRange["start"]!);
+          var end = Math.min<int>((group["start"] + group["count"]),
+              (drawRange["start"]! + drawRange["count"]!));
+
+          for (var j = start, jl = end; j < jl; j += 3) {
+            int a = index.getX(j)!.toInt();
+            int b = index.getX(j + 1)!.toInt();
+            int c = index.getX(j + 2)!.toInt();
+
+            intersection = checkBufferGeometryIntersection(
+                this,
+                groupMaterial,
+                raycaster,
+                _meshray,
+                position,
+                morphPosition,
+                morphTargetsRelative,
+                uv,
+                uv2,
+                a,
+                b,
+                c);
+
+            if (intersection != null) {
+              intersection.faceIndex = Math.floor(j / 3);
+              // triangle number in indexed buffer semantics
+              intersection.face?.materialIndex = group["materialIndex"];
+              intersects.add(intersection);
+            }
+          }
+        }
+      } else {
+        var start = Math.max(0, drawRange["start"]!);
+        var end =
+            Math.min(index.count, (drawRange["start"]! + drawRange["count"]!));
+
+        for (var i = start, il = end; i < il; i += 3) {
+          int a = index.getX(i)!.toInt();
+          int b = index.getX(i + 1)!.toInt();
+          int c = index.getX(i + 2)!.toInt();
+
+          intersection = checkBufferGeometryIntersection(
+              this,
+              material,
+              raycaster,
+              _meshray,
+              position,
+              morphPosition,
+              morphTargetsRelative,
+              uv,
+              uv2,
+              a,
+              b,
+              c);
+
+          if (intersection != null) {
+            intersection.faceIndex = Math.floor(i / 3);
+            // triangle number in indexed buffer semantics
+            intersects.add(intersection);
+          }
+        }
+      }
+    } else if (position != null) {
+      // non-indexed buffer geometry
+
+      if (material is List) {
+        for (var i = 0, il = groups.length; i < il; i++) {
+          var group = groups[i];
+          var groupMaterial = material[group["materialIndex"]];
+
+          var start = Math.max<int>(group["start"], drawRange["start"]!);
+          var end = Math.min<int>((group["start"] + group["count"]),
+              (drawRange["start"]! + drawRange["count"]!));
+
+          for (var j = start, jl = end; j < jl; j += 3) {
+            var a = j;
+            var b = j + 1;
+            var c = j + 2;
+
+            intersection = checkBufferGeometryIntersection(
+                this,
+                groupMaterial,
+                raycaster,
+                _meshray,
+                position,
+                morphPosition,
+                morphTargetsRelative,
+                uv,
+                uv2,
+                a,
+                b,
+                c);
+
+            if (intersection != null) {
+              intersection.faceIndex = Math.floor(j / 3);
+              // triangle number in non-indexed buffer semantics
+              intersection.face?.materialIndex = group["materialIndex"];
+              intersects.add(intersection);
+            }
+          }
+        }
+      } else {
+        var start = Math.max(0, drawRange["start"]!);
+        var end = Math.min<int>(
+            position.count, (drawRange["start"]! + drawRange["count"]!));
+
+        for (var i = start, il = end; i < il; i += 3) {
+          var a = i;
+          var b = i + 1;
+          var c = i + 2;
+
+          intersection = checkBufferGeometryIntersection(
+              this,
+              material,
+              raycaster,
+              _meshray,
+              position,
+              morphPosition,
+              morphTargetsRelative,
+              uv,
+              uv2,
+              a,
+              b,
+              c);
+
+          if (intersection != null) {
+            intersection.faceIndex = Math.floor(
+                i / 3); // triangle number in non-indexed buffer semantics
+            intersects.add(intersection);
+          }
+        }
+      }
+    }
+  }
+
 	dispose() {
 
 		this.geometry?.dispose();

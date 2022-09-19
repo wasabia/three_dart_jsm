@@ -268,25 +268,25 @@ class GLTFMaterialsUnlitExtension extends GLTFExtension {
     };
   }
 
-  extendParams(materialParams, materialDef, parser) async {
+  extendParams(Map<String, dynamic> materialParams, Map<String, dynamic> materialDef, parser) async {
     List<Future> pending = [];
 
-    materialParams.color = new Color(1.0, 1.0, 1.0);
-    materialParams.opacity = 1.0;
+    materialParams["color"] = new Color(1.0, 1.0, 1.0);
+    materialParams["opacity"] = 1.0;
 
-    var metallicRoughness = materialDef.pbrMetallicRoughness;
+    Map<String, dynamic> metallicRoughness = materialDef["pbrMetallicRoughness"];
 
-    if (metallicRoughness) {
-      if (metallicRoughness.baseColorFactor is List) {
-        var array = metallicRoughness.baseColorFactor;
+    if (metallicRoughness != null) {
+      if (metallicRoughness["baseColorFactor"] is List) {
+        List<double> array = List<double>.from(metallicRoughness["baseColorFactor"].map((e) => e.toDouble()).toList());
 
-        materialParams.color.fromArray(array);
-        materialParams.opacity = array[3];
+        materialParams["color"].fromArray(array);
+        materialParams["opacity"] = array[3];
       }
 
-      if (metallicRoughness.baseColorTexture != null) {
+      if (metallicRoughness["baseColorTexture"] != null) {
         pending.add(parser.assignTexture(
-            materialParams, 'map', metallicRoughness.baseColorTexture));
+            materialParams, 'map', metallicRoughness["baseColorTexture"]));
       }
     }
 
