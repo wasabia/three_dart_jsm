@@ -210,9 +210,9 @@ Function addUnknownExtensionsToUserData =
   if (objectDef["extensions"] != null) {
     objectDef["extensions"].forEach((name, _value) {
       if (knownExtensions[name] == null) {
-        object.userData["gltfExtensions"] =
-            object.userData["gltfExtensions"] ?? {};
-        object.userData["gltfExtensions"][name] = objectDef["extensions"][name];
+        object["userData"]["gltfExtensions"] =
+            object["userData"]["gltfExtensions"] ?? {};
+        object["userData"]["gltfExtensions"][name] = objectDef["extensions"][name];
       }
     });
   }

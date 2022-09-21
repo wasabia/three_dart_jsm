@@ -302,6 +302,7 @@ class ArcballControls with EventDispatcher {
       }
 
       this._mouseOp = this.getOpFromAction(event.button, modifier);
+
       if (this._mouseOp != null) {
         domElement.addEventListener('pointermove', this.onPointerMove);
         domElement.addEventListener('pointerup', this.onPointerUp);
@@ -1803,7 +1804,7 @@ class ArcballControls with EventDispatcher {
   getCursorNDC(cursorX, cursorY, canvas) {
     // var canvasRect = canvas.getBoundingClientRect();
 
-    var box = canvas.currentContext.findRenderObject() as RenderBox;
+    var box = listenableKey.currentContext!.findRenderObject() as RenderBox;
     var canvasRect = box.size;
     var local = box.globalToLocal(Offset(0, 0));
 

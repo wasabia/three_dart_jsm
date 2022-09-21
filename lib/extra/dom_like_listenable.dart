@@ -176,6 +176,11 @@ class WebPointerEvent {
     //           ? 0
     //           : 1;
     // }
+
+    if(event is PointerDownEvent) {
+      return 0;
+    }
+
     return event.buttons;
   }
 
