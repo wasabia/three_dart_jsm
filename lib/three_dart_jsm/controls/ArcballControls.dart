@@ -257,8 +257,6 @@ class ArcballControls with EventDispatcher {
       this._downValid = false;
     }
 
-    print(' onPointerDown: ${event} isPrimary ${event.isPrimary} ');
-
     if (event.pointerType == 'touch' && this._input != INPUT.CURSOR) {
       this._touchStart.add(event);
       this._touchCurrent.add(event);
@@ -304,8 +302,6 @@ class ArcballControls with EventDispatcher {
       }
 
       this._mouseOp = this.getOpFromAction(event.button, modifier);
-
-      print(" _mouseOp: ${_mouseOp} ");
 
       if (this._mouseOp != null) {
         domElement.addEventListener('pointermove', this.onPointerMove);
@@ -375,9 +371,6 @@ class ArcballControls with EventDispatcher {
       }
 
       var mouseOpState = this.getOpStateFromAction(this._button, modifier);
-
-      print("onPointerMove event: ${event} mouseOpState: ${mouseOpState} ");
-
 
       if (mouseOpState != null) {
         this.onSinglePanMove(event, mouseOpState);
@@ -744,9 +737,6 @@ class ArcballControls with EventDispatcher {
   }
 
   onSinglePanMove(event, opState) {
-
-    print("onSinglePanMove: enabled ${this.enabled}  opState: ${opState}");
-
     if (this.enabled) {
       var restart = opState != this._state;
       this.setCenter(event.clientX, event.clientY);
@@ -1450,8 +1440,6 @@ class ArcballControls with EventDispatcher {
 	 */
   getOpFromAction(mouse, key) {
     var action;
-
-    print(' mouseActions: ${mouseActions}  ');
 
     for (var i = 0; i < this.mouseActions.length; i++) {
       action = this.mouseActions[i];
