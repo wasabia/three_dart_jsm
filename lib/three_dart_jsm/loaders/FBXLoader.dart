@@ -982,14 +982,16 @@ class FBXTreeParser {
 						bone.name = name != null ? PropertyBinding.sanitizeNodeName( name ) : '';
 						bone.id = id;
 
-            if( skeleton["bones"].length == i ) {
-              skeleton["bones"].add( bone );
-            } else {
-              skeleton["bones"][ i ] = bone;
+            if( skeleton["bones"].length <= i ) {
+
+              final boneList = List<Bone>.filled((i + 1) - skeleton["bones"].length, Bone());
+
+              skeleton["bones"].addAll( boneList );
             }
 
-						
+            skeleton["bones"][ i ] = bone;
 
+					
 						// In cases where a bone is shared between multiple meshes
 						// duplicate the bone here and and it as a child of the first bone
 						if ( subBone != null ) {
