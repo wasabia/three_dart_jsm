@@ -2498,8 +2498,8 @@ class AnimationParser {
 
                 // if the animated model is pre rotated, we'll have to apply the pre rotations to every
                 // animation value as well
-                if ( rawModel.keys.contains('PreRotation') ) node["preRotation"] = rawModel.PreRotation.value;
-                if ( rawModel.keys.contains('PostRotation') ) node["postRotation"] = rawModel.PostRotation.value;
+                if ( rawModel.keys.contains('PreRotation') ) node["preRotation"] = rawModel["PreRotation"]["value"];
+                if ( rawModel.keys.contains('PostRotation') ) node["postRotation"] = rawModel["PostRotation"]["value"];
 
                 layerCurveNodes.add( node );
 
@@ -2617,7 +2617,7 @@ class AnimationParser {
 
 		var initialPosition = initialPositionVector3.toArray();
 		var initialRotation = new Euler().setFromQuaternion( initialRotationQuaternion, rawTracks["eulerOrder"] ).toArray();
-		var initialScale = initialScaleVector3.toArray();
+    var initialScale = initialScaleVector3.toArray();
 
 		if ( rawTracks["T"] != null && rawTracks["T"]["curves"].keys.length > 0 ) {
 
@@ -2686,13 +2686,19 @@ class AnimationParser {
 		var times = this.getTimesForAllAxes( curves );
 		var values = this.getKeyframeTrackValues( times, curves, initialValue );
 
+    Quaternion? preRotationQuaternion;
+
 		if ( preRotation != null ) {
 
 			preRotation = preRotation.map( (v) => MathUtils.degToRad(v).toDouble() ).toList();
 			preRotation.add( eulerOrder );
 
-			preRotation = new Euler().fromArray( preRotation );
-			preRotation = new Quaternion().setFromEuler( preRotation );
+      if(preRotation.length == 4 && Euler.RotationOrders.indexOf(preRotation[3]) >= 0) {
+        preRotation[3] = Euler.RotationOrders.indexOf(preRotation[3]).toDouble();
+      }
+
+			var preRotationEuler = new Euler().fromArray( List<double>.from(preRotation) );
+			preRotationQuaternion = new Quaternion().setFromEuler( preRotationEuler );
 
 		}
 
@@ -2717,7 +2723,7 @@ class AnimationParser {
 
 			quaternion.setFromEuler( euler );
 
-			if ( preRotation != null ) quaternion.premultiply( preRotation );
+			if ( preRotationQuaternion != null ) quaternion.premultiply( preRotationQuaternion );
 			if ( postRotation != null ) quaternion.multiply( postRotation );
 
 			quaternion.toArray( quaternionValues, (( i / 3 ) * 4).toInt() );
@@ -3963,24 +3969,24 @@ generateTransform( Map transformData ) {
 
 	if ( transformData["preRotation"] != null ) {
 
-		var array = transformData["preRotation"].map( MathUtils.degToRad ).toList();
-		array.add( transformData["eulerOrder"] );
+		List<double> array = List<double>.from(transformData["preRotation"].map( (e) => MathUtils.degToRad(e).toDouble() ).toList());
+		array.add( THREE.Euler.RotationOrders.indexOf( transformData["eulerOrder"] ).toDouble() );
 		lPreRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
 
 	if ( transformData["rotation"] != null ) {
 
-		var array = transformData["rotation"].map( MathUtils.degToRad ).toList();
-		array.add( transformData["eulerOrder"] );
+		List<double> array = List<double>.from( transformData["rotation"].map( (e) => MathUtils.degToRad(e).toDouble() ).toList() );
+		array.add( THREE.Euler.RotationOrders.indexOf( transformData["eulerOrder"] ).toDouble() );
 		lRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 
 	}
 
 	if ( transformData["postRotation"] != null ) {
 
-		var array = transformData["postRotation"].map( MathUtils.degToRad ).toList();
-		array.add( transformData["eulerOrder"] );
+		List<double> array = List<double>.from( transformData["postRotation"].map( (e) => MathUtils.degToRad ).toList() );
+		array.add( THREE.Euler.RotationOrders.indexOf( transformData["eulerOrder"] ).toDouble() );
 		lPostRotationM.makeRotationFromEuler( tempEuler.fromArray( array ) );
 		lPostRotationM.invert();
 
