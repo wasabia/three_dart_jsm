@@ -29,7 +29,7 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   void initState() {
     super.initState();
   }
-  
+
   void removeAllListeners() {
     _listeners.clear();
   }
@@ -167,21 +167,23 @@ class WebPointerEvent {
   }
 
   static int getButton(event) {
-    // if (event.kind == PointerDeviceKind.touch) {
-    //   return event.buttons == 0x01 ? 1 : 0;
-    // } else {
-    //   return event.buttons == 2
-    //       ? 2
-    //       : event.buttons == 0x01
-    //           ? 0
-    //           : 1;
-    // }
+    if (event.kind == PointerDeviceKind.touch && event is PointerDownEvent) {
+      return 0;
+    } else {
+      final leftButtonPressed = event.buttons & 1 > 0;
+      final rightButtonPressed = event.buttons & 2 > 0;
+      final middleButtonPressed = event.buttons & 4 > 0;
 
-    if(event is PointerDownEvent) {
+      // Left button takes precedence over other
+      if (leftButtonPressed) return 0;
+      // 2nd priority is the right button
+      if (rightButtonPressed) return 2;
+      // Lastly the middle button
+      if (middleButtonPressed) return 1;
+
+      // Other buttons pressed? Just return the default (left)
       return 0;
     }
-
-    return event.buttons;
   }
 
   static WebPointerEvent convertEvent(context, event) {
@@ -259,5 +261,5 @@ class EventTouch {
   num? clientX;
   num? clientY;
 
-  
+
 }
