@@ -11,20 +11,14 @@ class SkeletonUtils {
 
     options = options ?? {};
 
-    options.preserveMatrix =
-        options.preserveMatrix != null ? options.preserveMatrix : true;
-    options.preservePosition =
-        options.preservePosition != null ? options.preservePosition : true;
-    options.preserveHipPosition = options.preserveHipPosition != null
-        ? options.preserveHipPosition
-        : false;
-    options.useTargetMatrix =
-        options.useTargetMatrix != null ? options.useTargetMatrix : false;
+    options.preserveMatrix = options.preserveMatrix != null ? options.preserveMatrix : true;
+    options.preservePosition = options.preservePosition != null ? options.preservePosition : true;
+    options.preserveHipPosition = options.preserveHipPosition != null ? options.preserveHipPosition : false;
+    options.useTargetMatrix = options.useTargetMatrix != null ? options.useTargetMatrix : false;
     options.hip = options.hip != null ? options.hip : 'hip';
     options.names = options.names ?? {};
 
-    var sourceBones =
-            source.isObject3D ? source.skeleton.bones : getBones(source),
+    var sourceBones = source.isObject3D ? source.skeleton.bones : getBones(source),
         bones = target.isObject3D ? target.skeleton.bones : getBones(target);
 
     var bindBones, bone, name, boneTo, bonesPosition;
@@ -104,16 +98,13 @@ class SkeletonUtils {
 
         // apply to global matrix
 
-        globalMatrix.makeRotationFromQuaternion(
-            quat.setFromRotationMatrix(relativeMatrix));
+        globalMatrix.makeRotationFromQuaternion(quat.setFromRotationMatrix(relativeMatrix));
 
         if (target.isObject3D) {
           var boneIndex = bones.indexOf(bone),
               wBindMatrix = bindBones
                   ? bindBones[boneIndex]
-                  : bindBoneMatrix
-                      .copy(target.skeleton.boneInverses[boneIndex])
-                      .invert();
+                  : bindBoneMatrix.copy(target.skeleton.boneInverses[boneIndex]).invert();
 
           globalMatrix.multiply(wBindMatrix);
         }
@@ -158,9 +149,7 @@ class SkeletonUtils {
   static retargetClip(target, source, clip, [options]) {
     options = options ?? {};
 
-    options.useFirstFramePosition = options.useFirstFramePosition != null
-        ? options.useFirstFramePosition
-        : false;
+    options.useFirstFramePosition = options.useFirstFramePosition != null ? options.useFirstFramePosition : false;
     options.fps = options.fps != null ? options.fps : 30;
     options.names = options.names ?? [];
 
@@ -170,7 +159,7 @@ class SkeletonUtils {
 
     var numFrames = Math.round(clip.duration * (options.fps / 1000) * 1000),
         delta = 1 / options.fps,
-        convertedTracks = [],
+        convertedTracks = <KeyframeTrack>[],
         mixer = new AnimationMixer(source),
         bones = getBones(target.skeleton),
         boneDatas = [];
@@ -197,10 +186,7 @@ class SkeletonUtils {
 
           if (options.hip == name) {
             if (!boneData.pos) {
-              boneData.pos = {
-                "times": new Float32Array(numFrames),
-                "values": new Float32Array(numFrames * 3)
-              };
+              boneData.pos = {"times": new Float32Array(numFrames), "values": new Float32Array(numFrames * 3)};
             }
 
             if (options.useFirstFramePosition) {
@@ -217,10 +203,7 @@ class SkeletonUtils {
           }
 
           if (!boneData.quat) {
-            boneData.quat = {
-              "times": new Float32Array(numFrames),
-              "values": new Float32Array(numFrames * 4)
-            };
+            boneData.quat = {"times": new Float32Array(numFrames), "values": new Float32Array(numFrames * 4)};
           }
 
           boneData.quat.times[i] = time;
@@ -240,17 +223,11 @@ class SkeletonUtils {
       if (boneData) {
         if (boneData.pos) {
           convertedTracks.add(new VectorKeyframeTrack(
-              '.bones[' + boneData.bone.name + '].position',
-              boneData.pos.times,
-              boneData.pos.values,
-              null));
+              '.bones[' + boneData.bone.name + '].position', boneData.pos.times, boneData.pos.values, null));
         }
 
         convertedTracks.add(new QuaternionKeyframeTrack(
-            '.bones[' + boneData.bone.name + '].quaternion',
-            boneData.quat.times,
-            boneData.quat.values,
-            null));
+            '.bones[' + boneData.bone.name + '].quaternion', boneData.quat.times, boneData.quat.values, null));
       }
     }
 
@@ -285,8 +262,7 @@ class SkeletonUtils {
 
     var nameKeys = options.names.keys,
         nameValues = options.names.values,
-        sourceBones =
-            source.isObject3D ? source.skeleton.bones : getBones(source),
+        sourceBones = source.isObject3D ? source.skeleton.bones : getBones(source),
         bones = target.isObject3D ? target.skeleton.bones : getBones(target),
         offsets = [];
 
@@ -314,19 +290,16 @@ class SkeletonUtils {
         sourcePos.setFromMatrixPosition(boneTo.matrixWorld);
 
         targetDir
-            .subVectors(new Vector2(targetPos.x, targetPos.y),
-                new Vector2(targetParentPos.x, targetParentPos.y))
+            .subVectors(new Vector2(targetPos.x, targetPos.y), new Vector2(targetParentPos.x, targetParentPos.y))
             .normalize();
 
         sourceDir
-            .subVectors(new Vector2(sourcePos.x, sourcePos.y),
-                new Vector2(sourceParentPos.x, sourceParentPos.y))
+            .subVectors(new Vector2(sourcePos.x, sourcePos.y), new Vector2(sourceParentPos.x, sourceParentPos.y))
             .normalize();
 
         var laterialAngle = targetDir.angle() - sourceDir.angle();
 
-        var offset =
-            new Matrix4().makeRotationFromEuler(new Euler(0, 0, laterialAngle));
+        var offset = new Matrix4().makeRotationFromEuler(new Euler(0, 0, laterialAngle));
 
         bone.matrix.multiply(offset);
 
@@ -397,9 +370,7 @@ class SkeletonUtils {
   }
 
   static getEqualsBonesNames(skeleton, targetSkeleton) {
-    var sourceBones = getBones(skeleton),
-        targetBones = getBones(targetSkeleton),
-        bones = [];
+    var sourceBones = getBones(skeleton), targetBones = getBones(targetSkeleton), bones = [];
 
     search:
     for (var i = 0; i < sourceBones.length; i++) {
