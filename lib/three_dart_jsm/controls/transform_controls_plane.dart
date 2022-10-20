@@ -2,12 +2,11 @@ part of jsm_controls;
 
 class TransformControlsPlane extends Mesh {
   bool isTransformControlsPlane = true;
-  String type = "TransformControlsPlane";
 
   Camera? camera;
-  var object = null;
+  var object;
   bool enabled = true;
-  String? axis = null;
+  String? axis;
   var mode = "translate";
   var space = "world";
   var size = 1;
@@ -86,7 +85,9 @@ class TransformControlsPlane extends Mesh {
 
   late TransformControls controls;
 
-  TransformControlsPlane.create(geometry, material) : super(geometry, material) {}
+  TransformControlsPlane.create(geometry, material) : super(geometry, material) {
+    type = "TransformControlsPlane";
+  }
 
   factory TransformControlsPlane(controls) {
     var geometry = PlaneGeometry(100000, 100000, 2, 2);
@@ -106,35 +107,36 @@ class TransformControlsPlane extends Mesh {
     return tcp;
   }
 
+  @override
   updateMatrixWorld([bool force = false]) {
     var space = this.space;
 
-    this.position.copy(this.worldPosition);
+    position.copy(worldPosition);
 
-    if (this.mode == 'scale') space = 'local'; // scale always oriented to local rotation
+    if (mode == 'scale') space = 'local'; // scale always oriented to local rotation
 
-    _v1.copy(_unitX).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
-    _v2.copy(_unitY).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
-    _v3.copy(_unitZ).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
+    _v1.copy(_unitX).applyQuaternion(space == 'local' ? worldQuaternion : _identityQuaternion);
+    _v2.copy(_unitY).applyQuaternion(space == 'local' ? worldQuaternion : _identityQuaternion);
+    _v3.copy(_unitZ).applyQuaternion(space == 'local' ? worldQuaternion : _identityQuaternion);
 
     // Align the plane for current transform mode, axis and space.
 
     _alignVector.copy(_v2);
 
-    switch (this.mode) {
+    switch (mode) {
       case 'translate':
       case 'scale':
-        switch (this.axis) {
+        switch (axis) {
           case 'X':
-            _alignVector.copy(this.eye).cross(_v1);
+            _alignVector.copy(eye).cross(_v1);
             _dirVector.copy(_v1).cross(_alignVector);
             break;
           case 'Y':
-            _alignVector.copy(this.eye).cross(_v2);
+            _alignVector.copy(eye).cross(_v2);
             _dirVector.copy(_v2).cross(_alignVector);
             break;
           case 'Z':
-            _alignVector.copy(this.eye).cross(_v3);
+            _alignVector.copy(eye).cross(_v3);
             _dirVector.copy(_v3).cross(_alignVector);
             break;
           case 'XY':
@@ -162,11 +164,11 @@ class TransformControlsPlane extends Mesh {
 
     if (_dirVector.length() == 0) {
       // If in rotate mode, make the plane parallel to camera
-      this.quaternion.copy(this.cameraQuaternion);
+      quaternion.copy(cameraQuaternion);
     } else {
       _tempMatrix.lookAt(_tempVector.set(0, 0, 0), _dirVector, _alignVector);
 
-      this.quaternion.setFromRotationMatrix(_tempMatrix);
+      quaternion.setFromRotationMatrix(_tempMatrix);
     }
 
     super.updateMatrixWorld(force);

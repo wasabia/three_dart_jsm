@@ -7,25 +7,25 @@ part of jsm_controls;
 //    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
 //    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
 
-class STATE {
-  static const int NONE = -1;
-  static const int ROTATE = 0;
-  static const int DOLLY = 1;
-  static const int ZOOM = 1;
-  static const int PAN = 2;
-  static const int TOUCH_ROTATE = 3;
-  static const int TOUCH_PAN = 4;
-  static const int TOUCH_ZOOM_PAN = 4;
-  static const int TOUCH_DOLLY_PAN = 5;
-  static const int TOUCH_DOLLY_ROTATE = 6;
+class State {
+  static const int none = -1;
+  static const int rotate = 0;
+  static const int dolly = 1;
+  static const int zoom = 1;
+  static const int pan = 2;
+  static const int touchRotate = 3;
+  static const int touchPan = 4;
+  static const int touchZoomPan = 4;
+  static const int touchDollyPan = 5;
+  static const int touchDollyRotate = 6;
 }
 
 // The four arrow keys
-class keys {
-  static const String LEFT = 'ArrowLeft';
-  static const String UP = 'ArrowUp';
-  static const String RIGHT = 'ArrowRight';
-  static const String BOTTOM = 'ArrowDown';
+class Keys {
+  static const String left = 'ArrowLeft';
+  static const String up = 'ArrowUp';
+  static const String right = 'ArrowRight';
+  static const String bottom = 'ArrowDown';
 }
 
 class OrbitControls with EventDispatcher {
@@ -80,9 +80,9 @@ class OrbitControls with EventDispatcher {
   var startEvent = Event({"type": 'start'});
   var endEvent = Event({"type": 'end'});
 
-  var state = STATE.NONE;
+  var state = State.none;
 
-  var EPS = 0.000001;
+  var eps = 0.000001;
 
   // current position in spherical coordinates
   var spherical = Spherical();
@@ -117,73 +117,71 @@ class OrbitControls with EventDispatcher {
   late Quaternion quat;
   late Quaternion quatInverse;
 
-  OrbitControls(Camera object, GlobalKey<DomLikeListenableState> listenableKey) : super() {
+  OrbitControls(this.object, this.listenableKey) : super() {
     scope = this;
 
-    this.object = object;
-    this.listenableKey = listenableKey;
     // this.domElement = domElement;
     // this.domElement.style.touchAction = 'none'; // disable touch scroll
 
     // Set to false to disable this control
-    this.enabled = true;
+    enabled = true;
 
     // "target" sets the location of focus, where the object orbits around
-    this.target = Vector3();
+    target = Vector3();
 
     // How far you can dolly in and out ( PerspectiveCamera only )
-    this.minDistance = 0;
-    this.maxDistance = infinity;
+    minDistance = 0;
+    maxDistance = infinity;
 
     // How far you can zoom in and out ( OrthographicCamera only )
-    this.minZoom = 0;
-    this.maxZoom = infinity;
+    minZoom = 0;
+    maxZoom = infinity;
 
     // How far you can orbit vertically, upper and lower limits.
     // Range is 0 to Math.pi radians.
-    this.minPolarAngle = 0; // radians
-    this.maxPolarAngle = Math.pi; // radians
+    minPolarAngle = 0; // radians
+    maxPolarAngle = Math.pi; // radians
 
     // How far you can orbit horizontally, upper and lower limits.
     // If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
-    this.minAzimuthAngle = -infinity; // radians
-    this.maxAzimuthAngle = infinity; // radians
+    minAzimuthAngle = -infinity; // radians
+    maxAzimuthAngle = infinity; // radians
 
     // Set to true to enable damping (inertia)
     // If damping is enabled, you must call controls.update() in your animation loop
-    this.enableDamping = false;
-    this.dampingFactor = 0.05;
+    enableDamping = false;
+    dampingFactor = 0.05;
 
     // This option actually enables dollying in and out; left as "zoom" for backwards compatibility.
     // Set to false to disable zooming
-    this.enableZoom = true;
-    this.zoomSpeed = 1.0;
+    enableZoom = true;
+    zoomSpeed = 1.0;
 
     // Set to false to disable rotating
-    this.enableRotate = true;
-    this.rotateSpeed = 1.0;
+    enableRotate = true;
+    rotateSpeed = 1.0;
 
     // Set to false to disable panning
-    this.enablePan = true;
-    this.panSpeed = 1.0;
-    this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
-    this.keyPanSpeed = 7.0; // pixels moved per arrow key push
+    enablePan = true;
+    panSpeed = 1.0;
+    screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
+    keyPanSpeed = 7.0; // pixels moved per arrow key push
 
     // Set to true to automatically rotate around the target
     // If auto-rotate is enabled, you must call controls.update() in your animation loop
-    this.autoRotate = false;
-    this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
+    autoRotate = false;
+    autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
 
     // Mouse buttons
-    this.mouseButtons = {'LEFT': MOUSE.ROTATE, 'MIDDLE': MOUSE.DOLLY, 'RIGHT': MOUSE.PAN};
+    mouseButtons = {'LEFT': MOUSE.ROTATE, 'MIDDLE': MOUSE.DOLLY, 'RIGHT': MOUSE.PAN};
 
     // Touch fingers
-    this.touches = {'ONE': TOUCH.ROTATE, 'TWO': TOUCH.DOLLY_PAN};
+    touches = {'ONE': TOUCH.ROTATE, 'TWO': TOUCH.DOLLY_PAN};
 
     // for reset
-    this.target0 = this.target.clone();
-    this.position0 = this.object.position.clone();
-    this.zoom0 = this.object.zoom;
+    target0 = target.clone();
+    position0 = object.position.clone();
+    zoom0 = object.zoom;
 
     // the target DOM element for key events
     // this._domElementKeyEvents = null;
@@ -200,7 +198,7 @@ class OrbitControls with EventDispatcher {
     quat = Quaternion().setFromUnitVectors(object.up, Vector3(0, 1, 0));
     quatInverse = quat.clone().invert();
 
-    this.update();
+    update();
   }
 
   getPolarAngle() {
@@ -212,7 +210,7 @@ class OrbitControls with EventDispatcher {
   }
 
   getDistance() {
-    return this.object.position.distanceTo(this.target);
+    return object.position.distanceTo(target);
   }
 
   listenToKeyEvents(domElement) {
@@ -236,7 +234,7 @@ class OrbitControls with EventDispatcher {
 
     scope.update();
 
-    state = STATE.NONE;
+    state = State.none;
   }
 
   // this method is exposed, but perhaps it would be better if we can make it private...
@@ -253,7 +251,7 @@ class OrbitControls with EventDispatcher {
     // angle from z-axis around y-axis
     spherical.setFromVector3(offset);
 
-    if (scope.autoRotate && state == STATE.NONE) {
+    if (scope.autoRotate && state == State.none) {
       rotateLeft(getAutoRotationAngle());
     }
 
@@ -271,13 +269,17 @@ class OrbitControls with EventDispatcher {
     var max = scope.maxAzimuthAngle;
 
     if (isFinite(min) && isFinite(max)) {
-      if (min < -Math.pi)
+      if (min < -Math.pi) {
         min += twoPI;
-      else if (min > Math.pi) min -= twoPI;
+      } else if (min > Math.pi) {
+        min -= twoPI;
+      }
 
-      if (max < -Math.pi)
+      if (max < -Math.pi) {
         max += twoPI;
-      else if (max > Math.pi) max -= twoPI;
+      } else if (max > Math.pi) {
+        max -= twoPI;
+      }
 
       if (min <= max) {
         spherical.theta = Math.max(min, Math.min(max, spherical.theta));
@@ -331,8 +333,8 @@ class OrbitControls with EventDispatcher {
     // using small-angle approximation cos(x/2) = 1 - x^2 / 8
 
     if (zoomChanged ||
-        lastPosition.distanceToSquared(scope.object.position) > EPS ||
-        8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > EPS) {
+        lastPosition.distanceToSquared(scope.object.position) > eps ||
+        8 * (1 - lastQuaternion.dot(scope.object.quaternion)) > eps) {
       scope.dispatchEvent(_changeEvent);
 
       lastPosition.copy(scope.object.position);
@@ -531,22 +533,22 @@ class OrbitControls with EventDispatcher {
     var needsUpdate = false;
 
     switch (event.code) {
-      case keys.UP:
+      case Keys.up:
         pan(0, scope.keyPanSpeed);
         needsUpdate = true;
         break;
 
-      case keys.BOTTOM:
+      case Keys.bottom:
         pan(0, -scope.keyPanSpeed);
         needsUpdate = true;
         break;
 
-      case keys.LEFT:
+      case Keys.left:
         pan(scope.keyPanSpeed, 0);
         needsUpdate = true;
         break;
 
-      case keys.RIGHT:
+      case Keys.right:
         pan(-scope.keyPanSpeed, 0);
         needsUpdate = true;
         break;
@@ -684,7 +686,7 @@ class OrbitControls with EventDispatcher {
   onPointerDown(event) {
     if (scope.enabled == false) return;
 
-    if (pointers.length == 0) {
+    if (pointers.isEmpty) {
       scope.domElement.setPointerCapture(event.pointerId);
 
       scope.domElement.addEventListener('pointermove', onPointerMove);
@@ -713,7 +715,7 @@ class OrbitControls with EventDispatcher {
   onPointerUp(event) {
     removePointer(event);
 
-    if (pointers.length == 0) {
+    if (pointers.isEmpty) {
       scope.domElement.releasePointerCapture(event.pointerId);
 
       scope.domElement.removeEventListener('pointermove', onPointerMove);
@@ -722,7 +724,7 @@ class OrbitControls with EventDispatcher {
 
     scope.dispatchEvent(_endEvent);
 
-    state = STATE.NONE;
+    state = State.none;
   }
 
   onPointerCancel(event) {
@@ -755,7 +757,7 @@ class OrbitControls with EventDispatcher {
 
         handleMouseDownDolly(event);
 
-        state = STATE.DOLLY;
+        state = State.dolly;
 
         break;
 
@@ -765,13 +767,13 @@ class OrbitControls with EventDispatcher {
 
           handleMouseDownPan(event);
 
-          state = STATE.PAN;
+          state = State.pan;
         } else {
           if (scope.enableRotate == false) return;
 
           handleMouseDownRotate(event);
 
-          state = STATE.ROTATE;
+          state = State.rotate;
         }
 
         break;
@@ -782,22 +784,22 @@ class OrbitControls with EventDispatcher {
 
           handleMouseDownRotate(event);
 
-          state = STATE.ROTATE;
+          state = State.rotate;
         } else {
           if (scope.enablePan == false) return;
 
           handleMouseDownPan(event);
 
-          state = STATE.PAN;
+          state = State.pan;
         }
 
         break;
 
       default:
-        state = STATE.NONE;
+        state = State.none;
     }
 
-    if (state != STATE.NONE) {
+    if (state != State.none) {
       scope.dispatchEvent(_startEvent);
     }
   }
@@ -806,21 +808,21 @@ class OrbitControls with EventDispatcher {
     if (scope.enabled == false) return;
 
     switch (state) {
-      case STATE.ROTATE:
+      case State.rotate:
         if (scope.enableRotate == false) return;
 
         handleMouseMoveRotate(event);
 
         break;
 
-      case STATE.DOLLY:
+      case State.dolly:
         if (scope.enableZoom == false) return;
 
         handleMouseMoveDolly(event);
 
         break;
 
-      case STATE.PAN:
+      case State.pan:
         if (scope.enablePan == false) return;
 
         handleMouseMovePan(event);
@@ -830,7 +832,7 @@ class OrbitControls with EventDispatcher {
   }
 
   onMouseWheel(event) {
-    if (scope.enabled == false || scope.enableZoom == false || state != STATE.NONE) return;
+    if (scope.enabled == false || scope.enableZoom == false || state != State.none) return;
 
     event.preventDefault();
 
@@ -858,7 +860,7 @@ class OrbitControls with EventDispatcher {
 
             handleTouchStartRotate();
 
-            state = STATE.TOUCH_ROTATE;
+            state = State.touchRotate;
 
             break;
 
@@ -867,12 +869,12 @@ class OrbitControls with EventDispatcher {
 
             handleTouchStartPan();
 
-            state = STATE.TOUCH_PAN;
+            state = State.touchPan;
 
             break;
 
           default:
-            state = STATE.NONE;
+            state = State.none;
         }
 
         break;
@@ -884,7 +886,7 @@ class OrbitControls with EventDispatcher {
 
             handleTouchStartDollyPan();
 
-            state = STATE.TOUCH_DOLLY_PAN;
+            state = State.touchDollyPan;
 
             break;
 
@@ -893,21 +895,21 @@ class OrbitControls with EventDispatcher {
 
             handleTouchStartDollyRotate();
 
-            state = STATE.TOUCH_DOLLY_ROTATE;
+            state = State.touchDollyRotate;
 
             break;
 
           default:
-            state = STATE.NONE;
+            state = State.none;
         }
 
         break;
 
       default:
-        state = STATE.NONE;
+        state = State.none;
     }
 
-    if (state != STATE.NONE) {
+    if (state != State.none) {
       scope.dispatchEvent(_startEvent);
     }
   }
@@ -916,7 +918,7 @@ class OrbitControls with EventDispatcher {
     trackPointer(event);
 
     switch (state) {
-      case STATE.TOUCH_ROTATE:
+      case State.touchRotate:
         if (scope.enableRotate == false) return;
 
         handleTouchMoveRotate(event);
@@ -925,7 +927,7 @@ class OrbitControls with EventDispatcher {
 
         break;
 
-      case STATE.TOUCH_PAN:
+      case State.touchPan:
         if (scope.enablePan == false) return;
 
         handleTouchMovePan(event);
@@ -934,7 +936,7 @@ class OrbitControls with EventDispatcher {
 
         break;
 
-      case STATE.TOUCH_DOLLY_PAN:
+      case State.touchDollyPan:
         if (scope.enableZoom == false && scope.enablePan == false) return;
 
         handleTouchMoveDollyPan(event);
@@ -943,7 +945,7 @@ class OrbitControls with EventDispatcher {
 
         break;
 
-      case STATE.TOUCH_DOLLY_ROTATE:
+      case State.touchDollyRotate:
         if (scope.enableZoom == false && scope.enableRotate == false) return;
 
         handleTouchMoveDollyRotate(event);
@@ -953,7 +955,7 @@ class OrbitControls with EventDispatcher {
         break;
 
       default:
-        state = STATE.NONE;
+        state = State.none;
     }
   }
 
@@ -1006,12 +1008,12 @@ class OrbitControls with EventDispatcher {
 
 class MapControls extends OrbitControls {
   MapControls(object, domElement) : super(object, domElement) {
-    this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
+    screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
 
-    this.mouseButtons['LEFT'] = MOUSE.PAN;
-    this.mouseButtons['RIGHT'] = MOUSE.ROTATE;
+    mouseButtons['LEFT'] = MOUSE.PAN;
+    mouseButtons['RIGHT'] = MOUSE.ROTATE;
 
-    this.touches['ONE'] = TOUCH.PAN;
-    this.touches['TWO'] = TOUCH.DOLLY_ROTATE;
+    touches['ONE'] = TOUCH.PAN;
+    touches['TWO'] = TOUCH.DOLLY_ROTATE;
   }
 }

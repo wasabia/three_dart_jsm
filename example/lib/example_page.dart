@@ -34,19 +34,19 @@ class _MyAppState extends State<ExamplePage> {
     if (fileName == "games_fps") {
       page = TestGame(fileName: fileName);
     } else if (fileName == "misc_controls_orbit") {
-      page = misc_controls_orbit(fileName: fileName);
+      page = MiscControlsOrbit(fileName: fileName);
     } else if (fileName == "misc_controls_trackball") {
-      page = misc_controls_trackball(fileName: fileName);
+      page = MiscControlsTrackball(fileName: fileName);
     } else if (fileName == "misc_controls_arcball") {
       page = MiscControlsArcball(fileName: fileName);
     } else if (fileName == "misc_controls_map") {
-      page = misc_controls_map(fileName: fileName);
+      page = MiscControlsMap(fileName: fileName);
       // } else if (fileName == "webgpu_rtt") {
       //   page = webgpu_rtt(fileName: fileName);
     } else if (fileName == "misc_controls_pointerlock") {
-      page = misc_controls_pointerlock(fileName: fileName);
+      page = MiscControlsPointerlock(fileName: fileName);
     } else if (fileName == "webgl_loader_fbx") {
-      page = webgl_loader_fbx(fileName: fileName);
+      page = WebglLoaderFbx(fileName: fileName);
     } else {
       throw ("ExamplePage fileName $fileName is not support yet ");
     }

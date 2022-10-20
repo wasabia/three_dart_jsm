@@ -33,15 +33,15 @@ class VertexTangentsHelper extends LineSegments {
   }
 
   update() {
-    this.object.updateMatrixWorld(true);
+    object.updateMatrixWorld(true);
 
-    var matrixWorld = this.object.matrixWorld;
+    var matrixWorld = object.matrixWorld;
 
-    var position = this.geometry!.attributes["position"];
+    var position = geometry!.attributes["position"];
 
     //
 
-    var objGeometry = this.object.geometry;
+    var objGeometry = object.geometry;
 
     var objPos = objGeometry!.attributes["position"];
 
@@ -56,7 +56,7 @@ class VertexTangentsHelper extends LineSegments {
 
       _v2.fromBufferAttribute(objTan, j);
 
-      _v2.transformDirection(matrixWorld).multiplyScalar(this.size).add(_v1);
+      _v2.transformDirection(matrixWorld).multiplyScalar(size).add(_v1);
 
       position.setXYZ(idx, _v1.x, _v1.y, _v1.z);
 

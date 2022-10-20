@@ -5,8 +5,9 @@ class DragControls with EventDispatcher {
 
   bool enabled = true;
   bool transformGroup = false;
-  List<Intersection> _intersections = [];
-  var _selected = null, _hovered = null;
+  final _intersections = <Intersection>[];
+  Object3D? _selected;
+  Object3D? _hovered;
 
   late Camera camera;
   late GlobalKey<DomLikeListenableState> listenableKey;
@@ -15,15 +16,8 @@ class DragControls with EventDispatcher {
   List<Object3D> get _objects => objects;
   Camera get _camera => camera;
 
-  DragControls(List<Object3D> objects, camera, listenableKey) : super() {
-    this.camera = camera;
-    this.listenableKey = listenableKey;
-    this.objects = objects;
-
-    // _domElement.style.touchAction = 'none'; // disable touch scroll
-
+  DragControls(this.objects, this.camera, this.listenableKey) : super() {
     scope = this;
-
     activate();
 
     // API
@@ -64,9 +58,9 @@ class DragControls with EventDispatcher {
 
     _raycaster.setFromCamera(_pointer, _camera);
 
-    if (_selected) {
+    if (_selected != null) {
       if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
-        _selected.position.copy(_intersection.sub(_offset).applyMatrix4(_inverseMatrix));
+        _selected!.position.copy(_intersection.sub(_offset).applyMatrix4(_inverseMatrix));
       }
 
       scope.dispatchEvent(Event({'type': 'drag', 'object': _selected}));
@@ -82,7 +76,7 @@ class DragControls with EventDispatcher {
       _raycaster.setFromCamera(_pointer, _camera);
       _raycaster.intersectObjects(_objects, true, _intersections);
 
-      if (_intersections.length > 0) {
+      if (_intersections.isNotEmpty) {
         var object = _intersections[0].object;
 
         _plane.setFromNormalAndCoplanarPoint(
@@ -122,15 +116,17 @@ class DragControls with EventDispatcher {
     _raycaster.setFromCamera(_pointer, _camera);
     _raycaster.intersectObjects(_objects, true, _intersections);
 
-    if (_intersections.length > 0) {
+    if (_intersections.isNotEmpty) {
       _selected = (scope.transformGroup == true) ? _objects[0] : _intersections[0].object;
 
-      _plane.setFromNormalAndCoplanarPoint(
-          _camera.getWorldDirection(_plane.normal), _worldPosition.setFromMatrixPosition(_selected.matrixWorld));
+      if (_selected != null) {
+        _plane.setFromNormalAndCoplanarPoint(
+            _camera.getWorldDirection(_plane.normal), _worldPosition.setFromMatrixPosition(_selected!.matrixWorld));
 
-      if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
-        _inverseMatrix.copy(_selected.parent.matrixWorld).invert();
-        _offset.copy(_intersection).sub(_worldPosition.setFromMatrixPosition(_selected.matrixWorld));
+        if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
+          _inverseMatrix.copy(_selected!.parent?.matrixWorld ?? Matrix4()).invert();
+          _offset.copy(_intersection).sub(_worldPosition.setFromMatrixPosition(_selected!.matrixWorld));
+        }
       }
 
       // _domElement.style.cursor = 'move';
@@ -142,7 +138,7 @@ class DragControls with EventDispatcher {
   onPointerCancel() {
     if (scope.enabled == false) return;
 
-    if (_selected) {
+    if (_selected != null) {
       scope.dispatchEvent(Event({'type': 'dragend', 'object': _selected}));
 
       _selected = null;

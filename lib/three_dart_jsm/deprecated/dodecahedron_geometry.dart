@@ -1,12 +1,12 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class DodecahedronGeometry extends Geometry {
-  String type = "DodecahedronGeometry";
-
   DodecahedronGeometry({radius = 0, detail = 0}) : super() {
-    this.parameters = {"radius": radius, "detail": detail};
+    type = "DodecahedronGeometry";
+    parameters = {"radius": radius, "detail": detail};
 
-    this.fromBufferGeometry(THREE.DodecahedronGeometry(radius, detail));
-    this.mergeVertices();
+    fromBufferGeometry(three.DodecahedronGeometry(radius, detail));
+    mergeVertices();
   }
 }

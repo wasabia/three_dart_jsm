@@ -34,17 +34,17 @@ class VertexNormalsHelper extends LineSegments {
   }
 
   update() {
-    this.object.updateMatrixWorld(true);
+    object.updateMatrixWorld(true);
 
-    _normalMatrix.getNormalMatrix(this.object.matrixWorld);
+    _normalMatrix.getNormalMatrix(object.matrixWorld);
 
-    var matrixWorld = this.object.matrixWorld;
+    var matrixWorld = object.matrixWorld;
 
-    var position = this.geometry!.attributes["position"];
+    var position = geometry!.attributes["position"];
 
-    BufferGeometry? objGeometry = this.object.geometry;
+    BufferGeometry? objGeometry = object.geometry;
 
-    if (objGeometry != null && objGeometry is BufferGeometry) {
+    if (objGeometry != null) {
       var objPos = objGeometry.attributes["position"];
 
       var objNorm = objGeometry.attributes["normal"];
@@ -58,7 +58,7 @@ class VertexNormalsHelper extends LineSegments {
 
         _v2.fromBufferAttribute(objNorm, j);
 
-        _v2.applyMatrix3(_normalMatrix).normalize().multiplyScalar(this.size).add(_v1);
+        _v2.applyMatrix3(_normalMatrix).normalize().multiplyScalar(size).add(_v1);
 
         position.setXYZ(idx, _v1.x, _v1.y, _v1.z);
 

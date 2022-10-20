@@ -1,4 +1,5 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 /// Text = 3D Text
 ///
@@ -16,12 +17,10 @@ part of jsm_deprecated;
 /// }
 
 class TextGeometry extends Geometry {
-  String type = 'TextGeometry';
-
   TextGeometry(text, parameters) : super() {
     this.parameters = {"text": text, "parameters": parameters};
-
-    this.fromBufferGeometry(THREE.TextGeometry(text, parameters));
-    this.mergeVertices();
+    type = 'TextGeometry';
+    fromBufferGeometry(three.TextGeometry(text, parameters));
+    mergeVertices();
   }
 }

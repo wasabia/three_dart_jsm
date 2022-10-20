@@ -1,4 +1,5 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 /// Creates extruded geometry from a path shape.
 ///
@@ -21,20 +22,20 @@ part of jsm_deprecated;
 /// }
 
 class ExtrudeGeometry extends Geometry {
-  String type = "ExtrudeGeometry";
-
   ExtrudeGeometry(shapes, options) : super() {
-    this.parameters = {"shapes": shapes, "options": options};
+    type = "ExtrudeGeometry";
+    parameters = {"shapes": shapes, "options": options};
 
-    this.fromBufferGeometry(THREE.ExtrudeGeometry(shapes, options));
-    this.mergeVertices();
+    fromBufferGeometry(three.ExtrudeGeometry(shapes, options));
+    mergeVertices();
   }
 
+  @override
   toJSON() {
     var data = super.toJSON();
 
-    var shapes = this.parameters["shapes"];
-    var options = this.parameters["options"];
+    var shapes = parameters["shapes"];
+    var options = parameters["options"];
 
     return toJSON3(shapes, options, data);
   }

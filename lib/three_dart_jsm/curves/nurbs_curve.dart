@@ -1,4 +1,6 @@
-part of jsm_curves;
+import 'package:three_dart/three_dart.dart';
+
+import 'nurbs_utils.dart';
 
 /// NURBS curve object
 ///
@@ -15,16 +17,14 @@ class NURBSCurve extends Curve {
   late int startKnot;
   late int endKnot;
 
-  NURBSCurve(degree, knots /* array of reals */, controlPoints /* array of Vector(2|3|4) */,
+  NURBSCurve(this.degree, this.knots /* array of reals */, controlPoints /* array of Vector(2|3|4) */,
       startKnot /* index in knots */, endKnot /* index in knots */
       )
       : super() {
-    this.degree = degree;
-    this.knots = knots;
     this.controlPoints = [];
     // Used by periodic NURBS to remove hidden spans
     this.startKnot = startKnot ?? 0;
-    this.endKnot = endKnot ?? (this.knots.length - 1);
+    this.endKnot = endKnot ?? (knots.length - 1);
 
     for (var i = 0; i < controlPoints.length; ++i) {
       // ensure Vector4 for control points
@@ -33,14 +33,14 @@ class NURBSCurve extends Curve {
     }
   }
 
+  @override
   getPoint(t, optionalTarget) {
     var point = optionalTarget ?? Vector3();
 
-    var u =
-        this.knots[this.startKnot] + t * (this.knots[this.endKnot] - this.knots[this.startKnot]); // linear mapping t->u
+    var u = knots[startKnot] + t * (knots[endKnot] - knots[startKnot]); // linear mapping t->u
 
     // following results in (wx, wy, wz, w) homogeneous point
-    var hpoint = NURBSUtils.calcBSplinePoint(this.degree, this.knots, this.controlPoints, u);
+    var hpoint = calcBSplinePoint(degree, knots, controlPoints, u);
 
     if (hpoint.w != 1.0) {
       // project to 3D space: (wx, wy, wz, w) -> (x, y, z, 1)
@@ -50,11 +50,12 @@ class NURBSCurve extends Curve {
     return point.set(hpoint.x, hpoint.y, hpoint.z);
   }
 
+  @override
   getTangent(t, [optionalTarget]) {
     var tangent = optionalTarget ?? Vector3();
 
-    var u = this.knots[0] + t * (this.knots[this.knots.length - 1] - this.knots[0]);
-    var ders = NURBSUtils.calcNURBSDerivatives(this.degree, this.knots, this.controlPoints, u, 1);
+    var u = knots[0] + t * (knots[knots.length - 1] - knots[0]);
+    var ders = calcNURBSDerivatives(degree, knots, controlPoints, u, 1);
     tangent.copy(ders[1]).normalize();
 
     return tangent;

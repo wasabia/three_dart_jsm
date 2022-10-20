@@ -1,27 +1,21 @@
-part of jsm_deprecated;
+import 'package:three_dart/three_dart.dart' as three;
 
 class Face3 {
   late int a;
   late int b;
   late int c;
-  late THREE.Vector3 normal;
-  late List<THREE.Vector3> vertexNormals;
-  late THREE.Color color;
-  late List<THREE.Color> vertexColors;
+  late three.Vector3 normal;
+  late List<three.Vector3> vertexNormals;
+  late three.Color color;
+  late List<three.Color> vertexColors;
   late int materialIndex;
 
-  Face3(a, b, c, normal, color, {int materialIndex = 0}) {
-    this.a = a;
-    this.b = b;
-    this.c = c;
+  Face3(this.a, this.b, this.c, normal, color, {this.materialIndex = 0}) {
+    this.normal = (normal != null && normal.runtimeType == three.Vector3) ? normal : three.Vector3.init();
+    vertexNormals = normal ?? [];
 
-    this.normal = (normal != null && normal.runtimeType == THREE.Vector3) ? normal : THREE.Vector3.init();
-    this.vertexNormals = normal != null ? normal : [];
-
-    this.color = (color != null && color.runtimeType == THREE.Color) ? color : THREE.Color(0, 0, 0);
-    this.vertexColors = color != null ? color : [];
-
-    this.materialIndex = materialIndex;
+    this.color = (color != null && color.runtimeType == three.Color) ? color : three.Color(0, 0, 0);
+    vertexColors = color ?? [];
   }
 
   clone() {
@@ -29,24 +23,24 @@ class Face3 {
   }
 
   copy(Face3 source) {
-    this.a = source.a;
-    this.b = source.b;
-    this.c = source.c;
+    a = source.a;
+    b = source.b;
+    c = source.c;
 
-    this.normal.copy(source.normal);
-    this.color.copy(source.color);
+    normal.copy(source.normal);
+    color.copy(source.color);
 
-    this.materialIndex = source.materialIndex;
+    materialIndex = source.materialIndex;
 
-    this.vertexNormals = List<THREE.Vector3>.filled(source.vertexNormals.length, THREE.Vector3.init());
+    vertexNormals = List<three.Vector3>.filled(source.vertexNormals.length, three.Vector3.init());
 
     for (var i = 0, il = source.vertexNormals.length; i < il; i++) {
-      this.vertexNormals[i] = source.vertexNormals[i].clone();
+      vertexNormals[i] = source.vertexNormals[i].clone();
     }
 
-    this.vertexColors = List<THREE.Color>.filled(source.vertexColors.length, THREE.Color(0, 0, 0));
+    vertexColors = List<three.Color>.filled(source.vertexColors.length, three.Color(0, 0, 0));
     for (var i = 0, il = source.vertexColors.length; i < il; i++) {
-      this.vertexColors[i] = source.vertexColors[i].clone();
+      vertexColors[i] = source.vertexColors[i].clone();
     }
 
     return this;

@@ -1,12 +1,12 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class IcosahedronGeometry extends Geometry {
-  String type = "IcosahedronGeometry";
-
   IcosahedronGeometry(num radius, int detail) : super() {
-    this.parameters = {"radius": radius, "detail": detail};
+    parameters = {"radius": radius, "detail": detail};
+    type = "IcosahedronGeometry";
 
-    this.fromBufferGeometry(THREE.IcosahedronGeometry(radius, detail));
-    this.mergeVertices();
+    fromBufferGeometry(three.IcosahedronGeometry(radius, detail));
+    mergeVertices();
   }
 }

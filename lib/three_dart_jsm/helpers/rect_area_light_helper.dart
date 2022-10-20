@@ -36,32 +36,33 @@ class RectAreaLightHelper extends Line {
     return instance;
   }
 
+  @override
   void updateMatrixWorld([bool force = false]) {
-    this.scale.set(0.5 * this.light.width!, 0.5 * this.light.height!, 1);
+    scale.set(0.5 * light.width!, 0.5 * light.height!, 1);
 
-    if (this.color != null) {
-      this.material.color.set(this.color);
-      this.children[0].material.color.set(this.color);
+    if (color != null) {
+      material.color.set(color);
+      children[0].material.color.set(color);
     } else {
-      this.material.color.copy(this.light.color).multiplyScalar(this.light.intensity);
+      material.color.copy(light.color).multiplyScalar(light.intensity);
 
       // prevent hue shift
-      var c = this.material.color;
+      var c = material.color;
       var max = Math.max3(c.r, c.g, c.b);
       if (max > 1) c.multiplyScalar(1 / max);
 
-      this.children[0].material.color.copy(this.material.color);
+      children[0].material.color.copy(material.color);
     }
 
     // ignore world scale on light
-    this.matrixWorld.extractRotation(this.light.matrixWorld).scale(this.scale).copyPosition(this.light.matrixWorld);
+    matrixWorld.extractRotation(light.matrixWorld).scale(scale).copyPosition(light.matrixWorld);
 
-    this.children[0].matrixWorld.copy(this.matrixWorld);
+    children[0].matrixWorld.copy(matrixWorld);
   }
 
-  var _meshinverseMatrix = Matrix4();
-  var _meshray = Ray(null, null);
-  var _meshsphere = Sphere(null, null);
+  final _meshinverseMatrix = Matrix4();
+  final _meshray = Ray(null, null);
+  final _meshsphere = Sphere(null, null);
 
   @override
   void raycast(Raycaster raycaster, List<Intersection> intersects) {
@@ -197,10 +198,11 @@ class RectAreaLightHelper extends Line {
     }
   }
 
-  dispose() {
-    this.geometry?.dispose();
-    this.material.dispose();
-    this.children[0].geometry?.dispose();
-    this.children[0].material.dispose();
+  @override
+  void dispose() {
+    geometry?.dispose();
+    material.dispose();
+    children[0].geometry?.dispose();
+    children[0].material.dispose();
   }
 }

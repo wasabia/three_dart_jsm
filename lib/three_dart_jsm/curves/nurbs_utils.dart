@@ -4,10 +4,6 @@
 
 import 'package:three_dart/three_dart.dart';
 
-/**************************************************************
- *	NURBS Utils
- **************************************************************/
-
 /*
 Finds knot vector span.
 
@@ -93,20 +89,20 @@ returns point for given u
 */
 calcBSplinePoint(p, U, P, u) {
   var span = findSpan(p, u, U);
-  var N = calcBasisFunctions(span, u, p, U);
-  var C = Vector4(0, 0, 0, 0);
+  var n = calcBasisFunctions(span, u, p, U);
+  var c = Vector4(0, 0, 0, 0);
 
   for (var j = 0; j <= p; ++j) {
     var point = P[span - p + j];
-    var Nj = N[j];
-    var wNj = point.w * Nj;
-    C.x += point.x * wNj;
-    C.y += point.y * wNj;
-    C.z += point.z * wNj;
-    C.w += point.w * Nj;
+    var nj = n[j];
+    var wNj = point.w * nj;
+    c.x += point.x * wNj;
+    c.y += point.y * wNj;
+    c.z += point.z * wNj;
+    c.w += point.w * nj;
   }
 
-  return C;
+  return c;
 }
 
 /*
@@ -122,15 +118,21 @@ returns array[n+1][p+1] with basis functions derivatives
 */
 calcBasisFunctionDerivatives(span, u, p, n, U) {
   var zeroArr = [];
-  for (var i = 0; i <= p; ++i) zeroArr[i] = 0.0;
+  for (var i = 0; i <= p; ++i) {
+    zeroArr[i] = 0.0;
+  }
 
   var ders = [];
 
-  for (var i = 0; i <= n; ++i) ders[i] = zeroArr.sublist(0);
+  for (var i = 0; i <= n; ++i) {
+    ders[i] = zeroArr.sublist(0);
+  }
 
   var ndu = [];
 
-  for (var i = 0; i <= p; ++i) ndu[i] = zeroArr.sublist(0);
+  for (var i = 0; i <= p; ++i) {
+    ndu[i] = zeroArr.sublist(0);
+  }
 
   ndu[0][0] = 1.0;
 
@@ -228,10 +230,10 @@ calcBasisFunctionDerivatives(span, u, p, n, U) {
 	*/
 calcBSplineDerivatives(p, U, P, u, nd) {
   var du = nd < p ? nd : p;
-  var CK = [];
+  var ck = [];
   var span = findSpan(p, u, U);
   var nders = calcBasisFunctionDerivatives(span, u, p, du, U);
-  var Pw = [];
+  var pw = [];
 
   for (var i = 0; i < P.length; ++i) {
     var point = P[i].clone();
@@ -241,24 +243,24 @@ calcBSplineDerivatives(p, U, P, u, nd) {
     point.y *= w;
     point.z *= w;
 
-    Pw[i] = point;
+    pw[i] = point;
   }
 
   for (var k = 0; k <= du; ++k) {
-    var point = Pw[span - p].clone().multiplyScalar(nders[k][0]);
+    var point = pw[span - p].clone().multiplyScalar(nders[k][0]);
 
     for (var j = 1; j <= p; ++j) {
-      point.add(Pw[span - p + j].clone().multiplyScalar(nders[k][j]));
+      point.add(pw[span - p + j].clone().multiplyScalar(nders[k][j]));
     }
 
-    CK[k] = point;
+    ck[k] = point;
   }
 
   for (var k = du + 1; k <= nd + 1; ++k) {
-    CK[k] = Vector4(0, 0, 0);
+    ck[k] = Vector4(0, 0, 0);
   }
 
-  return CK;
+  return ck;
 }
 
 /*
@@ -293,30 +295,30 @@ Pders : result of function calcBSplineDerivatives
 
 returns array with derivatives for rational curve.
 */
-calcRationalCurveDerivatives(Pders) {
-  var nd = Pders.length;
-  var Aders = [];
+calcRationalCurveDerivatives(pders) {
+  var nd = pders.length;
+  var aders = [];
   var wders = [];
 
   for (var i = 0; i < nd; ++i) {
-    var point = Pders[i];
-    Aders[i] = Vector3(point.x, point.y, point.z);
+    var point = pders[i];
+    aders[i] = Vector3(point.x, point.y, point.z);
     wders[i] = point.w;
   }
 
-  var CK = [];
+  var ck = [];
 
   for (var k = 0; k < nd; ++k) {
-    var v = Aders[k].clone();
+    var v = aders[k].clone();
 
     for (var i = 1; i <= k; ++i) {
-      v.sub(CK[k - i].clone().multiplyScalar(calcKoverI(k, i) * wders[i]));
+      v.sub(ck[k - i].clone().multiplyScalar(calcKoverI(k, i) * wders[i]));
     }
 
-    CK[k] = v.divideScalar(wders[0]);
+    ck[k] = v.divideScalar(wders[0]);
   }
 
-  return CK;
+  return ck;
 }
 
 /*
@@ -331,8 +333,8 @@ nd : number of derivatives
 returns array with derivatives.
 */
 calcNURBSDerivatives(p, U, P, u, nd) {
-  var Pders = calcBSplineDerivatives(p, U, P, u, nd);
-  return calcRationalCurveDerivatives(Pders);
+  var pders = calcBSplineDerivatives(p, U, P, u, nd);
+  return calcRationalCurveDerivatives(pders);
 }
 
 /*
@@ -348,8 +350,8 @@ returns point for given (u, v)
 calcSurfacePoint(p, q, U, V, P, u, v, target) {
   var uspan = findSpan(p, u, U);
   var vspan = findSpan(q, v, V);
-  var Nu = calcBasisFunctions(uspan, u, p, U);
-  var Nv = calcBasisFunctions(vspan, v, q, V);
+  var nu = calcBasisFunctions(uspan, u, p, U);
+  var nv = calcBasisFunctions(vspan, v, q, V);
   var temp = [];
 
   for (var l = 0; l <= q; ++l) {
@@ -360,15 +362,15 @@ calcSurfacePoint(p, q, U, V, P, u, v, target) {
       point.x *= w;
       point.y *= w;
       point.z *= w;
-      temp[l].add(point.multiplyScalar(Nu[k]));
+      temp[l].add(point.multiplyScalar(nu[k]));
     }
   }
 
-  Vector4 Sw = Vector4(0, 0, 0, 0);
+  Vector4 sw = Vector4(0, 0, 0, 0);
   for (var l = 0; l <= q; ++l) {
-    Sw.add(temp[l].multiplyScalar(Nv[l]));
+    sw.add(temp[l].multiplyScalar(nv[l]));
   }
 
-  Sw.divideScalar(Sw.w);
-  target.set(Sw.x, Sw.y, Sw.z);
+  sw.divideScalar(sw.w);
+  target.set(sw.x, sw.y, sw.z);
 }

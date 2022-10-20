@@ -1,4 +1,5 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class DirectGeometry {
   late int id;
@@ -6,17 +7,17 @@ class DirectGeometry {
   late String name;
   late String type;
 
-  List<THREE.Vector3> vertices = [];
-  List<THREE.Vector3> normals = [];
-  List<THREE.Color> colors = [];
-  List<THREE.Vector2> uvs = [];
-  List<THREE.Vector2> uvs2 = [];
+  List<three.Vector3> vertices = [];
+  List<three.Vector3> normals = [];
+  List<three.Color> colors = [];
+  List<three.Vector2> uvs = [];
+  List<three.Vector2> uvs2 = [];
   List<Map<String, int>> groups = [];
-  Map<String, dynamic> morphTargets = Map<String, dynamic>();
-  List<THREE.Vector4> skinWeights = [];
-  List<THREE.Vector4> skinIndices = [];
-  THREE.Box3? boundingBox;
-  THREE.Sphere? boundingSphere;
+  Map<String, dynamic> morphTargets = <String, dynamic>{};
+  List<three.Vector4> skinWeights = [];
+  List<three.Vector4> skinIndices = [];
+  three.Box3? boundingBox;
+  three.Sphere? boundingSphere;
 
   bool verticesNeedUpdate = false;
   bool normalsNeedUpdate = false;
@@ -25,14 +26,14 @@ class DirectGeometry {
   bool groupsNeedUpdate = false;
   bool lineDistancesNeedUpdate = false;
 
-  DirectGeometry() {}
+  DirectGeometry();
 
   computeGroups(geometry) {
     List<Map<String, int>> groups = [];
 
     Map<String, int>? group;
     var i;
-    var materialIndex = null;
+    var materialIndex;
 
     var faces = geometry.faces;
 
@@ -66,9 +67,8 @@ class DirectGeometry {
     var vertices = geometry.vertices;
     var faceVertexUvs = geometry.faceVertexUvs;
 
-    var hasFaceVertexUv = faceVertexUvs != null && faceVertexUvs[0] != null && faceVertexUvs[0].length > 0;
-    var hasFaceVertexUv2 =
-        faceVertexUvs != null && faceVertexUvs.length >= 2 && faceVertexUvs[1] != null && faceVertexUvs[1].length > 0;
+    var hasFaceVertexUv = faceVertexUvs.isNotEmpty && faceVertexUvs[0] != null;
+    var hasFaceVertexUv2 = faceVertexUvs.length >= 2 && faceVertexUvs[1] != null;
 
     // morphs
 
@@ -112,7 +112,7 @@ class DirectGeometry {
 
     //
 
-    if (vertices.length > 0 && faces.length == 0) {
+    if (vertices.isNotEmpty && faces.isEmpty) {
       print('THREE.DirectGeometry: Faceless geometries are not supported.');
     }
 
@@ -124,44 +124,44 @@ class DirectGeometry {
       var vertexNormals = face.vertexNormals;
 
       if (vertexNormals.length == 3) {
-        this.normals.addAll([vertexNormals[0], vertexNormals[1], vertexNormals[2]]);
+        normals.addAll([vertexNormals[0], vertexNormals[1], vertexNormals[2]]);
       } else {
         var normal = face.normal;
 
-        this.normals.addAll([normal, normal, normal]);
+        normals.addAll([normal, normal, normal]);
       }
 
       var vertexColors = face.vertexColors;
 
       if (vertexColors.length == 3) {
-        this.colors.addAll([vertexColors[0], vertexColors[1], vertexColors[2]]);
+        colors.addAll([vertexColors[0], vertexColors[1], vertexColors[2]]);
       } else {
         var color = face.color;
 
-        this.colors.addAll([color, color, color]);
+        colors.addAll([color, color, color]);
       }
 
       if (hasFaceVertexUv == true) {
-        var vertexUvs = faceVertexUvs[0][i];
+        var vertexUvs = faceVertexUvs[0]?[i];
 
         if (vertexUvs != null) {
-          this.uvs.addAll([vertexUvs[0], vertexUvs[1], vertexUvs[2]]);
+          uvs.addAll([vertexUvs[0], vertexUvs[1], vertexUvs[2]]);
         } else {
-          print('THREE.DirectGeometry.fromGeometry(): null vertexUv ${i}');
+          print('THREE.DirectGeometry.fromGeometry(): null vertexUv $i');
 
-          this.uvs.addAll([THREE.Vector2(null, null), THREE.Vector2(null, null), THREE.Vector2(null, null)]);
+          uvs.addAll([three.Vector2(null, null), three.Vector2(null, null), three.Vector2(null, null)]);
         }
       }
 
       if (hasFaceVertexUv2 == true) {
-        var vertexUvs = faceVertexUvs[1][i];
+        var vertexUvs = faceVertexUvs[1]?[i];
 
         if (vertexUvs != null) {
-          this.uvs2.addAll([vertexUvs[0], vertexUvs[1], vertexUvs[2]]);
+          uvs2.addAll([vertexUvs[0], vertexUvs[1], vertexUvs[2]]);
         } else {
-          print('THREE.DirectGeometry.fromGeometry(): null vertexUv2 ${i}');
+          print('THREE.DirectGeometry.fromGeometry(): null vertexUv2 $i');
 
-          this.uvs2.addAll([THREE.Vector2(null, null), THREE.Vector2(null, null), THREE.Vector2(null, null)]);
+          uvs2.addAll([three.Vector2(null, null), three.Vector2(null, null), three.Vector2(null, null)]);
         }
       }
 
@@ -190,20 +190,20 @@ class DirectGeometry {
       }
     }
 
-    this.computeGroups(geometry);
+    computeGroups(geometry);
 
-    this.verticesNeedUpdate = geometry.verticesNeedUpdate;
-    this.normalsNeedUpdate = geometry.normalsNeedUpdate;
-    this.colorsNeedUpdate = geometry.colorsNeedUpdate;
-    this.uvsNeedUpdate = geometry.uvsNeedUpdate;
-    this.groupsNeedUpdate = geometry.groupsNeedUpdate;
+    verticesNeedUpdate = geometry.verticesNeedUpdate;
+    normalsNeedUpdate = geometry.normalsNeedUpdate;
+    colorsNeedUpdate = geometry.colorsNeedUpdate;
+    uvsNeedUpdate = geometry.uvsNeedUpdate;
+    groupsNeedUpdate = geometry.groupsNeedUpdate;
 
     if (geometry.boundingSphere != null) {
-      this.boundingSphere = geometry.boundingSphere!.clone();
+      boundingSphere = geometry.boundingSphere!.clone();
     }
 
     if (geometry.boundingBox != null) {
-      this.boundingBox = geometry.boundingBox!.clone();
+      boundingBox = geometry.boundingBox!.clone();
     }
 
     return this;

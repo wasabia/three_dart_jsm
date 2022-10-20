@@ -21,11 +21,9 @@ class FBXLoader extends Loader {
   late int innerWidth;
   late int innerHeight;
 
-  FBXLoader(manager, innerWidth, innerHeight) : super(manager) {
-    this.innerWidth = innerWidth;
-    this.innerHeight = innerHeight;
-  }
+  FBXLoader(manager, this.innerWidth, this.innerHeight) : super(manager);
 
+  @override
   loadAsync(url) async {
     var completer = Completer();
 

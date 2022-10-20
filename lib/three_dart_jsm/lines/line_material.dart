@@ -1,4 +1,4 @@
-part of jsm_lines;
+import 'package:three_dart/three_dart.dart';
 
 /// parameters = {
 ///  color: <hex>,
@@ -21,7 +21,7 @@ final uniformsLibLine = {
   "opacity": {"value": 1}
 };
 
-Map<String, dynamic> ShaderLib_line = {
+Map<String, dynamic> shaderLibLine = {
   "uniforms": UniformsUtils.merge([uniformsLib["common"], uniformsLib["fog"], uniformsLibLine]),
   "vertexShader": """
 		#include <common>
@@ -230,19 +230,20 @@ Map<String, dynamic> ShaderLib_line = {
 
 class LineMaterial extends ShaderMaterial {
   bool isLineMaterial = true;
-  String type = 'LineMaterial';
   bool dashed = false;
 
   LineMaterial(parameters)
       : super({
-          "uniforms": UniformsUtils.clone(ShaderLib_line["uniforms"]),
-          "vertexShader": ShaderLib_line["vertexShader"],
-          "fragmentShader": ShaderLib_line["fragmentShader"],
+          "uniforms": UniformsUtils.clone(shaderLibLine["uniforms"]),
+          "vertexShader": shaderLibLine["vertexShader"],
+          "fragmentShader": shaderLibLine["fragmentShader"],
           "clipping": true // required for clipping support
         }) {
-    this.setValues(parameters);
+    type = 'LineMaterial';
+    setValues(parameters);
   }
 
+  @override
   setValue(String key, dynamic newValue) {
     if (key == "dashed") {
       dashed = newValue;
@@ -253,43 +254,53 @@ class LineMaterial extends ShaderMaterial {
     }
   }
 
-  get color => this.uniforms["diffuse"]["value"];
+  @override
+  get color => uniforms["diffuse"]["value"];
+  @override
   set color(value) {
-    this.uniforms["diffuse"]["value"] = value;
+    uniforms["diffuse"]["value"] = value;
   }
 
-  get linewidth => this.uniforms["linewidth"]["value"];
+  @override
+  get linewidth => uniforms["linewidth"]["value"];
+  @override
   set linewidth(value) {
-    this.uniforms["linewidth"] = {"value": value};
+    uniforms["linewidth"] = {"value": value};
   }
 
-  get dashScale => this.uniforms["dashScale"]["value"];
+  get dashScale => uniforms["dashScale"]["value"];
   set dashScale(value) {
-    this.uniforms["dashScale"]["value"] = value;
+    uniforms["dashScale"]["value"] = value;
   }
 
-  get dashSize => this.uniforms["dashSize"]["value"];
+  @override
+  get dashSize => uniforms["dashSize"]["value"];
+  @override
   set dashSize(value) {
-    this.uniforms["dashSize"]["value"] = value;
+    uniforms["dashSize"]["value"] = value;
   }
 
-  get dashOffset => this.uniforms["dashOffset"]["value"];
+  get dashOffset => uniforms["dashOffset"]["value"];
   set dashOffset(value) {
-    this.uniforms["dashOffset"]["value"] = value;
+    uniforms["dashOffset"]["value"] = value;
   }
 
-  get gapSize => this.uniforms["gapSize"]["value"];
+  @override
+  get gapSize => uniforms["gapSize"]["value"];
+  @override
   set gapSize(value) {
-    this.uniforms["gapSize"]["value"] = value;
+    uniforms["gapSize"]["value"] = value;
   }
 
-  get opacity => this.uniforms["opacity"]["value"];
+  @override
+  get opacity => uniforms["opacity"]["value"];
+  @override
   set opacity(value) {
-    this.uniforms["opacity"]["value"] = value;
+    uniforms["opacity"]["value"] = value;
   }
 
-  get resolution => this.uniforms["resolution"]["value"];
+  get resolution => uniforms["resolution"]["value"];
   set resolution(value) {
-    this.uniforms["resolution"]["value"] = value;
+    uniforms["resolution"]["value"] = value;
   }
 }

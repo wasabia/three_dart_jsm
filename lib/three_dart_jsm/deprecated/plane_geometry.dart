@@ -1,17 +1,17 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class PlaneGeometry extends Geometry {
-  String type = "PlaneGeometry";
-
   PlaneGeometry(width, height, [widthSegments = 1, heightSegments = 1]) : super() {
-    this.parameters = {
+    type = "PlaneGeometry";
+    parameters = {
       "width": width,
       "height": height,
       "widthSegments": widthSegments,
-      "heightSegments": heightSegments
+      "heightSegments": heightSegments,
     };
 
-    this.fromBufferGeometry(THREE.PlaneGeometry(width, height, widthSegments, heightSegments));
-    this.mergeVertices();
+    fromBufferGeometry(three.PlaneGeometry(width, height, widthSegments, heightSegments));
+    mergeVertices();
   }
 }

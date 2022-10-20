@@ -1,7 +1,6 @@
 library jsm_controls;
 
 import 'package:flutter/material.dart' hide Matrix4;
-import 'package:three_dart/three3d/core/index.dart';
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/extra/dom_like_listenable.dart';
 import 'package:flutter_gl/flutter_gl.dart';

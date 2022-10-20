@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-import 'package:three_dart/three_dart.dart' as THREE;
+import 'package:three_dart/three_dart.dart' as three;
 import '../../extra/console.dart';
 
 /// Utility class for sampling weighted random points on the surface of a mesh.
@@ -12,16 +12,16 @@ import '../../extra/console.dart';
 /// - http://www.joesfer.com/?p=84
 /// - https://stackoverflow.com/a/4322940/1314762
 
-var _face = THREE.Triangle();
+var _face = three.Triangle();
 
-var _color = THREE.Vector3();
+var _color = three.Vector3();
 
 class MeshSurfaceSampler {
-  late THREE.BufferGeometry geometry;
+  late three.BufferGeometry geometry;
 
-  late THREE.Float32BufferAttribute positionAttribute;
-  late THREE.Float32BufferAttribute colorAttribute;
-  THREE.Float32BufferAttribute? weightAttribute;
+  late three.Float32BufferAttribute positionAttribute;
+  late three.Float32BufferAttribute colorAttribute;
+  three.Float32BufferAttribute? weightAttribute;
   Float32List? distribution;
   late Function randomFunction;
 
@@ -38,7 +38,7 @@ class MeshSurfaceSampler {
     }
 
     this.geometry = geometry;
-    randomFunction = THREE.Math.random;
+    randomFunction = three.Math.random;
     positionAttribute = this.geometry.getAttribute('position');
     colorAttribute = this.geometry.getAttribute('color');
     weightAttribute = null;
@@ -108,7 +108,7 @@ class MeshSurfaceSampler {
     var index = -1;
 
     while (start <= end) {
-      var mid = THREE.Math.ceil((start + end) / 2);
+      var mid = three.Math.ceil((start + end) / 2);
 
       if (mid == 0 || dist[mid - 1] <= x && dist[mid] > x) {
         index = mid;

@@ -1,13 +1,17 @@
-part of jsm_lines;
+import 'package:flutter_gl/flutter_gl.dart';
+
+import 'index.dart';
 
 // import { LineSegmentsGeometry } from '../lines/LineSegmentsGeometry.js';
 
 class LineGeometry extends LineSegmentsGeometry {
-  String type = 'LineGeometry';
   bool isLineGeometry = true;
 
-  LineGeometry() : super() {}
+  LineGeometry() : super() {
+    type = 'LineGeometry';
+  }
 
+  @override
   setPositions(array) {
     // converts [ x1, y1, z1,  x2, y2, z2, ... ] to pairs format
 
@@ -29,6 +33,7 @@ class LineGeometry extends LineSegmentsGeometry {
     return this;
   }
 
+  @override
   setColors(array) {
     // converts [ r1, g1, b1,  r2, g2, b2, ... ] to pairs format
 
@@ -54,9 +59,9 @@ class LineGeometry extends LineSegmentsGeometry {
     var geometry = line.geometry;
 
     if (geometry.isGeometry) {
-      this.setPositions(geometry.vertices);
+      setPositions(geometry.vertices);
     } else if (geometry.isBufferGeometry) {
-      this.setPositions(geometry.attributes.position.array); // assumes non-indexed
+      setPositions(geometry.attributes.position.array); // assumes non-indexed
 
     }
 
@@ -65,6 +70,7 @@ class LineGeometry extends LineSegmentsGeometry {
     return this;
   }
 
+  @override
   copy(source) {
     // todo
 

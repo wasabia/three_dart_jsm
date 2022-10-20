@@ -23,12 +23,11 @@ var _v3 = Vector3();
 
 class TransformControlsGizmo extends Object3D {
   bool isTransformControlsGizmo = true;
-  String type = 'TransformControlsGizmo';
 
   Camera? camera;
-  var object = null;
+  var object;
   bool enabled = true;
-  String? axis = null;
+  String? axis;
   var mode = "translate";
   var space = "world";
   var size = 1;
@@ -111,8 +110,9 @@ class TransformControlsGizmo extends Object3D {
 
   late TransformControls controls;
 
-  TransformControlsGizmo(controls) : super() {
-    this.controls = controls;
+  TransformControlsGizmo(this.controls) : super() {
+    type = 'TransformControlsGizmo';
+
     // shared materials
 
     var gizmoMaterial = MeshBasicMaterial(
@@ -177,23 +177,23 @@ class TransformControlsGizmo extends Object3D {
     var lineGeometry2 = CylinderGeometry(0.0075, 0.0075, 0.5, 3);
     lineGeometry2.translate(0, 0.25, 0);
 
-    var CircleGeometry = (radius, arc) {
+    circleGeometry(radius, arc) {
       var geometry = TorusGeometry(radius, 0.0075, 3, 64, arc * Math.pi * 2);
       geometry.rotateY(Math.pi / 2);
       geometry.rotateX(Math.pi / 2);
       return geometry;
-    };
+    }
 
     // Special geometry for transform helper. If scaled with position vector it spans from [0,0,0] to position
 
-    var TranslateHelperGeometry = () {
+    translateHelperGeometry() {
       var geometry = BufferGeometry();
 
       geometry.setAttribute(
           'position', Float32BufferAttribute(Float32Array.fromList([0.0, 0.0, 0.0, 1.0, 1.0, 1.0]), 3));
 
       return geometry;
-    };
+    }
 
     // Gizmo definitions - custom hierarchy definitions for setupGizmo() function
 
@@ -341,7 +341,7 @@ class TransformControlsGizmo extends Object3D {
         [Mesh(OctahedronGeometry(0.01, 2), matHelper), null, null, null, 'helper']
       ],
       "DELTA": [
-        [Line(TranslateHelperGeometry(), matHelper), null, null, null, 'helper']
+        [Line(translateHelperGeometry(), matHelper), null, null, null, 'helper']
       ],
       "X": [
         [
@@ -375,31 +375,31 @@ class TransformControlsGizmo extends Object3D {
     var gizmoRotate = {
       "XYZE": [
         [
-          Mesh(CircleGeometry(0.5, 1), matGray),
+          Mesh(circleGeometry(0.5, 1), matGray),
           null,
           [0, Math.pi / 2, 0]
         ]
       ],
       "X": [
-        [Mesh(CircleGeometry(0.5, 0.5), matRed)]
+        [Mesh(circleGeometry(0.5, 0.5), matRed)]
       ],
       "Y": [
         [
-          Mesh(CircleGeometry(0.5, 0.5), matGreen),
+          Mesh(circleGeometry(0.5, 0.5), matGreen),
           null,
           [0, 0, -Math.pi / 2]
         ]
       ],
       "Z": [
         [
-          Mesh(CircleGeometry(0.5, 0.5), matBlue),
+          Mesh(circleGeometry(0.5, 0.5), matBlue),
           null,
           [0, Math.pi / 2, 0]
         ]
       ],
       "E": [
         [
-          Mesh(CircleGeometry(0.75, 1), matYellowTransparent),
+          Mesh(circleGeometry(0.75, 1), matYellowTransparent),
           null,
           [0, Math.pi / 2, 0]
         ]
@@ -616,38 +616,38 @@ class TransformControlsGizmo extends Object3D {
 
     // Creates an Object3D with gizmos described in custom hierarchy definition.
 
-    var setupGizmo = (gizmoMap) {
+    setupGizmo(gizmoMap) {
       var gizmo = Object3D();
 
       for (var name in gizmoMap.keys) {
-        var _len = gizmoMap[name].length;
+        var len = gizmoMap[name].length;
 
-        for (var i = (_len - 1); i >= 0; i--) {
-          var _gi = gizmoMap[name][i];
+        for (var i = (len - 1); i >= 0; i--) {
+          var gi = gizmoMap[name][i];
 
-          dynamic object = null;
-          if (_gi.length > 0) {
-            object = _gi[0].clone();
+          dynamic object;
+          if (gi.length > 0) {
+            object = gi[0].clone();
           }
 
           List<num>? position;
-          if (_gi.length > 1) {
-            position = _gi[1];
+          if (gi.length > 1) {
+            position = gi[1];
           }
 
           List<num>? rotation;
-          if (_gi.length > 2) {
-            rotation = _gi[2];
+          if (gi.length > 2) {
+            rotation = gi[2];
           }
 
           List<num>? scale;
-          if (_gi.length > 3) {
-            scale = _gi[3];
+          if (gi.length > 3) {
+            scale = gi[3];
           }
 
-          dynamic tag = null;
-          if (_gi.length > 4) {
-            tag = _gi[4];
+          dynamic tag;
+          if (gi.length > 4) {
+            tag = gi[4];
           }
 
           // name and tag properties are essential for picking and updating logic.
@@ -682,58 +682,59 @@ class TransformControlsGizmo extends Object3D {
       }
 
       return gizmo;
-    };
+    }
 
     // Gizmo creation
 
-    this.gizmo['translate'] = setupGizmo(gizmoTranslate);
-    this.gizmo['rotate'] = setupGizmo(gizmoRotate);
-    this.gizmo['scale'] = setupGizmo(gizmoScale);
-    this.picker['translate'] = setupGizmo(pickerTranslate);
-    this.picker['rotate'] = setupGizmo(pickerRotate);
-    this.picker['scale'] = setupGizmo(pickerScale);
-    this.helper['translate'] = setupGizmo(helperTranslate);
-    this.helper['rotate'] = setupGizmo(helperRotate);
-    this.helper['scale'] = setupGizmo(helperScale);
+    gizmo['translate'] = setupGizmo(gizmoTranslate);
+    gizmo['rotate'] = setupGizmo(gizmoRotate);
+    gizmo['scale'] = setupGizmo(gizmoScale);
+    picker['translate'] = setupGizmo(pickerTranslate);
+    picker['rotate'] = setupGizmo(pickerRotate);
+    picker['scale'] = setupGizmo(pickerScale);
+    helper['translate'] = setupGizmo(helperTranslate);
+    helper['rotate'] = setupGizmo(helperRotate);
+    helper['scale'] = setupGizmo(helperScale);
 
-    this.add(this.gizmo['translate']);
-    this.add(this.gizmo['rotate']);
-    this.add(this.gizmo['scale']);
-    this.add(this.picker['translate']);
-    this.add(this.picker['rotate']);
-    this.add(this.picker['scale']);
-    this.add(this.helper['translate']);
-    this.add(this.helper['rotate']);
-    this.add(this.helper['scale']);
+    add(gizmo['translate']);
+    add(gizmo['rotate']);
+    add(gizmo['scale']);
+    add(picker['translate']);
+    add(picker['rotate']);
+    add(picker['scale']);
+    add(helper['translate']);
+    add(helper['rotate']);
+    add(helper['scale']);
 
     // Pickers should be hidden always
 
-    this.picker['translate'].visible = false;
-    this.picker['rotate'].visible = false;
-    this.picker['scale'].visible = false;
+    picker['translate'].visible = false;
+    picker['rotate'].visible = false;
+    picker['scale'].visible = false;
   }
 
   // updateMatrixWorld will update transformations and appearance of individual handles
 
+  @override
   updateMatrixWorld([bool force = false]) {
-    var space = (this.mode == 'scale') ? 'local' : this.space; // scale always oriented to local rotation
+    var space = (mode == 'scale') ? 'local' : this.space; // scale always oriented to local rotation
 
-    var quaternion = (space == 'local') ? this.worldQuaternion : _identityQuaternion;
+    var quaternion = (space == 'local') ? worldQuaternion : _identityQuaternion;
 
     // Show only gizmos for current transform mode
 
-    this.gizmo['translate'].visible = this.mode == 'translate';
-    this.gizmo['rotate'].visible = this.mode == 'rotate';
-    this.gizmo['scale'].visible = this.mode == 'scale';
+    gizmo['translate'].visible = mode == 'translate';
+    gizmo['rotate'].visible = mode == 'rotate';
+    gizmo['scale'].visible = mode == 'scale';
 
-    this.helper['translate'].visible = this.mode == 'translate';
-    this.helper['rotate'].visible = this.mode == 'rotate';
-    this.helper['scale'].visible = this.mode == 'scale';
+    helper['translate'].visible = mode == 'translate';
+    helper['rotate'].visible = mode == 'rotate';
+    helper['scale'].visible = mode == 'scale';
 
     var handles = [];
-    handles.addAll(this.picker[this.mode].children);
-    handles.addAll(this.gizmo[this.mode].children);
-    handles.addAll(this.helper[this.mode].children);
+    handles.addAll(picker[mode].children);
+    handles.addAll(gizmo[mode].children);
+    handles.addAll(helper[mode].children);
 
     // print("TransformControlsGizmo cameraQuaternion ${this.cameraQuaternion.toJSON()} ");
 
@@ -746,18 +747,18 @@ class TransformControlsGizmo extends Object3D {
 
       handle.visible = true;
       handle.rotation.set(0.0, 0.0, 0.0);
-      handle.position.copy(this.worldPosition);
+      handle.position.copy(worldPosition);
 
       var factor;
 
-      if (this.camera! is OrthographicCamera) {
-        factor = (this.camera!.top - this.camera!.bottom) / this.camera!.zoom;
+      if (camera! is OrthographicCamera) {
+        factor = (camera!.top - camera!.bottom) / camera!.zoom;
       } else {
-        factor = this.worldPosition.distanceTo(this.cameraPosition) *
-            Math.min(1.9 * Math.tan(Math.pi * this.camera!.fov / 360) / this.camera!.zoom, 7);
+        factor = worldPosition.distanceTo(cameraPosition) *
+            Math.min(1.9 * Math.tan(Math.pi * camera!.fov / 360) / camera!.zoom, 7);
       }
 
-      handle.scale.set(1.0, 1.0, 1.0).multiplyScalar(factor * this.size / 4);
+      handle.scale.set(1.0, 1.0, 1.0).multiplyScalar(factor * size / 4);
 
       // TODO: simplify helpers and consider decoupling from gizmo
 
@@ -765,71 +766,71 @@ class TransformControlsGizmo extends Object3D {
         handle.visible = false;
 
         if (handle.name == 'AXIS') {
-          handle.position.copy(this.worldPositionStart);
-          handle.visible = this.axis != null;
+          handle.position.copy(worldPositionStart);
+          handle.visible = axis != null;
 
-          if (this.axis == 'X') {
+          if (axis == 'X') {
             _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, 0), false);
             handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
 
-            if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
+            if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(eye)) > 0.9) {
               handle.visible = false;
             }
           }
 
-          if (this.axis == 'Y') {
+          if (axis == 'Y') {
             _tempQuaternion.setFromEuler(_tempEuler.set(0, 0, Math.pi / 2), false);
             handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
 
-            if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
+            if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(eye)) > 0.9) {
               handle.visible = false;
             }
           }
 
-          if (this.axis == 'Z') {
+          if (axis == 'Z') {
             _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.pi / 2, 0), false);
             handle.quaternion.copy(quaternion).multiply(_tempQuaternion);
 
-            if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye)) > 0.9) {
+            if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(eye)) > 0.9) {
               handle.visible = false;
             }
           }
 
-          if (this.axis == 'XYZE') {
+          if (axis == 'XYZE') {
             _tempQuaternion.setFromEuler(_tempEuler.set(0, Math.pi / 2, 0), false);
-            _alignVector.copy(this.rotationAxis);
+            _alignVector.copy(rotationAxis);
             handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(_zeroVector, _alignVector, _unitY));
             handle.quaternion.multiply(_tempQuaternion);
-            handle.visible = this.dragging;
+            handle.visible = dragging;
           }
 
-          if (this.axis == 'E') {
+          if (axis == 'E') {
             handle.visible = false;
           }
         } else if (handle.name == 'START') {
-          handle.position.copy(this.worldPositionStart);
-          handle.visible = this.dragging;
+          handle.position.copy(worldPositionStart);
+          handle.visible = dragging;
         } else if (handle.name == 'END') {
-          handle.position.copy(this.worldPosition);
-          handle.visible = this.dragging;
+          handle.position.copy(worldPosition);
+          handle.visible = dragging;
         } else if (handle.name == 'DELTA') {
-          handle.position.copy(this.worldPositionStart);
-          handle.quaternion.copy(this.worldQuaternionStart);
-          _tempVector.set(1e-10, 1e-10, 1e-10).add(this.worldPositionStart).sub(this.worldPosition).multiplyScalar(-1);
-          _tempVector.applyQuaternion(this.worldQuaternionStart.clone().invert());
+          handle.position.copy(worldPositionStart);
+          handle.quaternion.copy(worldQuaternionStart);
+          _tempVector.set(1e-10, 1e-10, 1e-10).add(worldPositionStart).sub(worldPosition).multiplyScalar(-1);
+          _tempVector.applyQuaternion(worldQuaternionStart.clone().invert());
           handle.scale.copy(_tempVector);
-          handle.visible = this.dragging;
+          handle.visible = dragging;
         } else {
           handle.quaternion.copy(quaternion);
 
-          if (this.dragging) {
-            handle.position.copy(this.worldPositionStart);
+          if (dragging) {
+            handle.position.copy(worldPositionStart);
           } else {
-            handle.position.copy(this.worldPosition);
+            handle.position.copy(worldPosition);
           }
 
-          if (this.axis != null) {
-            handle.visible = this.axis!.indexOf(handle.name) != -1;
+          if (axis != null) {
+            handle.visible = axis!.contains(handle.name);
           }
         }
 
@@ -841,63 +842,63 @@ class TransformControlsGizmo extends Object3D {
 
       handle.quaternion.copy(quaternion);
 
-      if (this.mode == 'translate' || this.mode == 'scale') {
+      if (mode == 'translate' || mode == 'scale') {
         // Hide translate and scale axis facing the camera
 
-        var AXIS_HIDE_TRESHOLD = 0.99;
-        var PLANE_HIDE_TRESHOLD = 0.2;
+        var axisHideThreshold = 0.99;
+        var planeHideThreshold = 0.2;
 
         if (handle.name == 'X') {
-          if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+          if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(eye)) > axisHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
 
         if (handle.name == 'Y') {
-          if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+          if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(eye)) > axisHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
 
         if (handle.name == 'Z') {
-          if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye)) > AXIS_HIDE_TRESHOLD) {
+          if (Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(eye)) > axisHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
 
         if (handle.name == 'XY') {
-          var ll = Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(this.eye));
+          var ll = Math.abs(_alignVector.copy(_unitZ).applyQuaternion(quaternion).dot(eye));
 
-          if (ll < PLANE_HIDE_TRESHOLD) {
+          if (ll < planeHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
 
         if (handle.name == 'YZ') {
-          if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(this.eye)) < PLANE_HIDE_TRESHOLD) {
+          if (Math.abs(_alignVector.copy(_unitX).applyQuaternion(quaternion).dot(eye)) < planeHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
 
         if (handle.name == 'XZ') {
-          if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(this.eye)) < PLANE_HIDE_TRESHOLD) {
+          if (Math.abs(_alignVector.copy(_unitY).applyQuaternion(quaternion).dot(eye)) < planeHideThreshold) {
             handle.scale.set(1e-10, 1e-10, 1e-10);
             handle.visible = false;
           }
         }
-      } else if (this.mode == 'rotate') {
+      } else if (mode == 'rotate') {
         // Align handles to current local or world rotation
 
         _tempQuaternion2.copy(quaternion);
-        _alignVector.copy(this.eye).applyQuaternion(_tempQuaternion.copy(quaternion).invert());
+        _alignVector.copy(eye).applyQuaternion(_tempQuaternion.copy(quaternion).invert());
 
         if (handle.name.indexOf('E') != -1) {
-          handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(this.eye, _zeroVector, _unitY));
+          handle.quaternion.setFromRotationMatrix(_lookAtMatrix.lookAt(eye, _zeroVector, _unitY));
         }
 
         if (handle.name == 'X') {
@@ -920,10 +921,10 @@ class TransformControlsGizmo extends Object3D {
       }
 
       // Hide disabled axes
-      handle.visible = handle.visible && (handle.name.indexOf('X') == -1 || this.showX);
-      handle.visible = handle.visible && (handle.name.indexOf('Y') == -1 || this.showY);
-      handle.visible = handle.visible && (handle.name.indexOf('Z') == -1 || this.showZ);
-      handle.visible = handle.visible && (handle.name.indexOf('E') == -1 || (this.showX && this.showY && this.showZ));
+      handle.visible = handle.visible && (handle.name.indexOf('X') == -1 || showX);
+      handle.visible = handle.visible && (handle.name.indexOf('Y') == -1 || showY);
+      handle.visible = handle.visible && (handle.name.indexOf('Z') == -1 || showZ);
+      handle.visible = handle.visible && (handle.name.indexOf('E') == -1 || (showX && showY && showZ));
 
       // highlight selected axis
 
@@ -933,19 +934,11 @@ class TransformControlsGizmo extends Object3D {
       handle.material.color.copy(handle.material.userData["_color"]);
       handle.material.opacity = handle.material.userData["_opacity"];
 
-      if (this.enabled && this.axis != null) {
-        if (handle.name == this.axis) {
+      if (enabled && axis != null) {
+        if (handle.name == axis) {
           handle.material.color.setHex(0xffff00);
           handle.material.opacity = 1.0;
-        } else if (this
-                .axis!
-                .split('')
-                .where((a) {
-                  return handle.name == a;
-                })
-                .toList()
-                .length >
-            0) {
+        } else if (axis?.split('').where((a) => handle.name == a).toList().isNotEmpty == true) {
           handle.material.color.setHex(0xffff00);
           handle.material.opacity = 1.0;
         }

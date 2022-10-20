@@ -16,18 +16,13 @@ class PointerLockControls with EventDispatcher {
   late GlobalKey<DomLikeListenableState> listenableKey;
   DomLikeListenableState get domElement => listenableKey.currentState!;
 
-  PointerLockControls(camera, listenableKey) : super() {
-    this.camera = camera;
-
-    this.listenableKey = listenableKey;
-
+  PointerLockControls(this.camera, this.listenableKey) : super() {
     scope = this;
-
-    this.connect();
+    connect();
   }
 
   onMouseMove(event) {
-    print("onMouseMove event: ${event} isLocked ${scope.isLocked} ");
+    print("onMouseMove event: $event isLocked ${scope.isLocked} ");
     if (scope.isLocked == false) return;
 
     var movementX = event.movementX ?? event.mozMovementX ?? event.webkitMovementX ?? 0;
@@ -75,7 +70,7 @@ class PointerLockControls with EventDispatcher {
   }
 
   dispose() {
-    this.disconnect();
+    disconnect();
   }
 
   getObject() {
@@ -108,8 +103,8 @@ class PointerLockControls with EventDispatcher {
   }
 
   lock() {
-    this.isLocked = true;
-    this.domElement.requestPointerLock();
+    isLocked = true;
+    domElement.requestPointerLock();
   }
 
   unlock() {

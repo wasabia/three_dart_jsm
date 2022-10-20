@@ -1,10 +1,10 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class BoxGeometry extends Geometry {
-  String type = "BoxGeometry";
-
   BoxGeometry(width, height, depth, [widthSegments = 1, heightSegments = 1, depthSegments = 1]) : super() {
-    this.parameters = {
+    type = "BoxGeometry";
+    parameters = {
       "width": width,
       "height": height,
       "depth": depth,
@@ -13,7 +13,7 @@ class BoxGeometry extends Geometry {
       "depthSegments": depthSegments
     };
 
-    this.fromBufferGeometry(THREE.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments));
-    this.mergeVertices();
+    fromBufferGeometry(three.BoxGeometry(width, height, depth, widthSegments, heightSegments, depthSegments));
+    mergeVertices();
   }
 }

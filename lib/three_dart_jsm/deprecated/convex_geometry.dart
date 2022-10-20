@@ -1,10 +1,10 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class ConvexGeometry extends Geometry {
-  String type = "ConvexGeometry";
-
   ConvexGeometry(points) : super() {
-    this.fromBufferGeometry(THREE.ConvexGeometry(points ?? []));
-    this.mergeVertices();
+    type = "ConvexGeometry";
+    fromBufferGeometry(three.ConvexGeometry(points ?? []));
+    mergeVertices();
   }
 }

@@ -1,13 +1,22 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class CircleGeometry extends Geometry {
-  String type = "CircleGeometry";
-
   CircleGeometry(radius, segments, thetaStart, thetaLength) : super() {
-    this.parameters = {"radius": radius, "segments": segments, "thetaStart": thetaStart, "thetaLength": thetaLength};
+    type = "CircleGeometry";
+    parameters = {
+      "radius": radius,
+      "segments": segments,
+      "thetaStart": thetaStart,
+      "thetaLength": thetaLength,
+    };
 
-    this.fromBufferGeometry(
-        THREE.CircleGeometry(radius: radius, segments: segments, thetaStart: thetaStart, thetaLength: thetaLength));
-    this.mergeVertices();
+    fromBufferGeometry(three.CircleGeometry(
+      radius: radius,
+      segments: segments,
+      thetaStart: thetaStart,
+      thetaLength: thetaLength,
+    ));
+    mergeVertices();
   }
 }

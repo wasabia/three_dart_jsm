@@ -1,10 +1,12 @@
-part of jsm_lines;
+import 'package:flutter_gl/flutter_gl.dart';
+import 'package:three_dart/three_dart.dart';
 
 class LineSegments2 extends Mesh {
-  String type = "LineSegments2";
   bool isLineSegments2 = true;
 
-  LineSegments2(geometry, material) : super(geometry, material) {}
+  LineSegments2(geometry, material) : super(geometry, material) {
+    type = "LineSegments2";
+  }
 
   // if ( geometry === undefined ) geometry = new LineSegmentsGeometry();
   // if ( material === undefined ) material = new LineMaterial( { color: Math.random() * 0xffffff } );
@@ -38,6 +40,7 @@ class LineSegments2 extends Mesh {
     return this;
   }
 
+  @override
   raycast(Raycaster raycaster, intersects) {
     var start = Vector4.init();
     var end = Vector4.init();
@@ -56,7 +59,7 @@ class LineSegments2 extends Mesh {
 
     var ray = raycaster.ray;
     var camera = raycaster.camera;
-    var projectionMatrix = camera.projectionMatrix;
+    var projectionMatrix = camera?.projectionMatrix ?? Matrix4();
 
     var geometry = this.geometry!;
     var material = this.material;
@@ -74,7 +77,7 @@ class LineSegments2 extends Mesh {
 
     // ndc space [ - 1.0, 1.0 ]
     ssOrigin.w = 1;
-    ssOrigin.applyMatrix4(camera.matrixWorldInverse);
+    ssOrigin.applyMatrix4(camera?.matrixWorldInverse ?? Matrix4());
     ssOrigin.applyMatrix4(projectionMatrix);
     ssOrigin.multiplyScalar(1 / ssOrigin.w);
 
@@ -86,7 +89,7 @@ class LineSegments2 extends Mesh {
     ssOrigin3.copy(ssOrigin);
 
     var matrixWorld = this.matrixWorld;
-    mvMatrix.multiplyMatrices(camera.matrixWorldInverse, matrixWorld);
+    mvMatrix.multiplyMatrices(camera?.matrixWorldInverse ?? Matrix4(), matrixWorld);
 
     for (var i = 0, l = instanceStart.count; i < l; i++) {
       start.fromBufferAttribute(instanceStart, i);

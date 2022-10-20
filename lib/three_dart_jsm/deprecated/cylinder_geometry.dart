@@ -1,11 +1,19 @@
-part of jsm_deprecated;
+import 'index.dart';
+import 'package:three_dart/three_dart.dart' as three;
 
 class CylinderGeometry extends Geometry {
-  String type = "CylinderGeometry";
-
-  CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength)
-      : super() {
-    this.parameters = {
+  CylinderGeometry(
+    radiusTop,
+    radiusBottom,
+    height,
+    radialSegments,
+    heightSegments,
+    openEnded,
+    thetaStart,
+    thetaLength,
+  ) : super() {
+    type = "CylinderGeometry";
+    parameters = {
       "radiusTop": radiusTop,
       "radiusBottom": radiusBottom,
       "height": height,
@@ -13,11 +21,19 @@ class CylinderGeometry extends Geometry {
       "heightSegments": heightSegments,
       "openEnded": openEnded,
       "thetaStart": thetaStart,
-      "thetaLength": thetaLength
+      "thetaLength": thetaLength,
     };
 
-    this.fromBufferGeometry(THREE.CylinderGeometry(
-        radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength));
-    this.mergeVertices();
+    fromBufferGeometry(three.CylinderGeometry(
+      radiusTop,
+      radiusBottom,
+      height,
+      radialSegments,
+      heightSegments,
+      openEnded,
+      thetaStart,
+      thetaLength,
+    ));
+    mergeVertices();
   }
 }

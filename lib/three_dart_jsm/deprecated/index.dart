@@ -1,19 +1,17 @@
 library jsm_deprecated;
 
-import 'package:three_dart/three_dart.dart' as THREE;
+export 'geometry.dart';
+export 'face3.dart';
+export 'direct_geometry.dart';
 
-part 'geometry.dart';
-part 'face3.dart';
-part 'direct_geometry.dart';
-
-part 'cylinder_geometry.dart';
-part 'dodecahedron_geometry.dart';
-part 'box_geometry.dart';
-part 'circle_geometry.dart';
-part 'convex_geometry.dart';
-// part './EdgesGeometry.dart';
-part 'extrude_geometry.dart';
-part 'icosahedron_geometry.dart';
-part 'plane_geometry.dart';
-part 'text_geometry.dart';
-// part './WireframeGeometry.dart';
+export 'cylinder_geometry.dart';
+export 'dodecahedron_geometry.dart';
+export 'box_geometry.dart';
+export 'circle_geometry.dart';
+export 'convex_geometry.dart';
+// export './EdgesGeometry.dart';
+export 'extrude_geometry.dart';
+export 'icosahedron_geometry.dart';
+export 'plane_geometry.dart';
+export 'text_geometry.dart';
+// export './WireframeGeometry.dart';
