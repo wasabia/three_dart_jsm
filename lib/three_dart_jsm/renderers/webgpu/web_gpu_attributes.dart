@@ -1,4 +1,5 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
 class WebGPUAttributes {
   late WeakMap buffers;
@@ -8,49 +9,49 @@ class WebGPUAttributes {
   // late GPUDevice device;
 
   WebGPUAttributes(device) {
-    this.buffers = WeakMap();
+    buffers = WeakMap();
     // this.device = device;
   }
 
   get(attribute) {
     if (attribute is InterleavedBufferAttribute) attribute = attribute.data;
 
-    return this.buffers.get(attribute);
+    return buffers.get(attribute);
   }
 
   remove(attribute) {
     if (attribute is InterleavedBufferAttribute) attribute = attribute.data;
 
-    var data = this.buffers.get(attribute);
+    var data = buffers.get(attribute);
 
     if (data != null) {
       data.buffer.destroy();
 
-      this.buffers.delete(attribute);
+      buffers.delete(attribute);
     }
   }
 
   update(attribute, [isIndex = false, usage]) {
     if (attribute is InterleavedBufferAttribute) attribute = attribute.data;
 
-    var data = this.buffers.get(attribute);
+    var data = buffers.get(attribute);
 
     if (data == undefined) {
       if (usage == null) {
         // usage = (isIndex == true) ? GPUBufferUsage.Index : GPUBufferUsage.Vertex;
       }
 
-      data = this._createBuffer(attribute, usage);
+      data = _createBuffer(attribute, usage);
 
-      this.buffers.set(attribute, data);
+      buffers.set(attribute, data);
     } else if (usage != null && usage != data.usage) {
       data.buffer.destroy();
 
-      data = this._createBuffer(attribute, usage);
+      data = _createBuffer(attribute, usage);
 
-      this.buffers.set(attribute, data);
+      buffers.set(attribute, data);
     } else if (data["version"] < attribute.version) {
-      this._writeBuffer(data["buffer"], attribute);
+      _writeBuffer(data["buffer"], attribute);
 
       data["version"] = attribute.version;
     }

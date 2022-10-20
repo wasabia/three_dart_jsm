@@ -29,8 +29,6 @@ class NodeKeywords {
   }
 
   parse(code) {
-    var keywordNames = keywords;
-
     var regExp = RegExp(r"\\b${keywordNames.join( '\\b|\\b' )}\\b", caseSensitive: false);
 
     var codeKeywords = code.match(regExp);

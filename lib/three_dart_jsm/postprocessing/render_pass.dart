@@ -1,8 +1,4 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:three_dart/three_dart.dart';
-import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 
 import 'pass.dart';
 
@@ -13,13 +9,9 @@ class RenderPass extends Pass {
   Material? overrideMaterial;
   final Color _oldClearColor = Color(1, 1, 1);
 
-  RenderPass(scene, camera, Material? overrideMaterial, Color? clearColor, num? clearAlpha) : super() {
+  RenderPass(scene, camera, this.overrideMaterial, this.clearColor, num? clearAlpha) : super() {
     this.scene = scene;
     this.camera = camera;
-
-    this.overrideMaterial = overrideMaterial;
-
-    this.clearColor = clearColor;
     this.clearAlpha = clearAlpha ?? 0;
 
     clear = true;

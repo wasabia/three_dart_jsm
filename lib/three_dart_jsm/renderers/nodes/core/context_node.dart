@@ -1,12 +1,10 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ContextNode extends Node {
   late dynamic node;
   late dynamic context;
 
-  ContextNode(node, [context]) : super() {
-    this.node = node;
+  ContextNode(this.node, [context]) : super() {
     this.context = context ?? {};
   }
 

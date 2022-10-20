@@ -1,5 +1,3 @@
-part of three_webgpu;
-
 int _id = 0;
 
 class WebGPUProgrammableStage {
@@ -10,12 +8,9 @@ class WebGPUProgrammableStage {
 
   late Map stage;
 // TODO (WebGPU): implement
-  WebGPUProgrammableStage(device, code, type) {
-    this.id = _id++;
-
-    this.code = code;
-    this.type = type;
-    this.usedTimes = 0;
+  WebGPUProgrammableStage(device, this.code, this.type) {
+    id = _id++;
+    usedTimes = 0;
 
     // print("WebGPUProgrammableStage type: ${type} ${type.runtimeType} ===============================");
     // print(code);

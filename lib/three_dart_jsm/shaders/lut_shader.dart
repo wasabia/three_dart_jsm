@@ -1,4 +1,4 @@
-var LUTShader = {
+var lutShader = {
   "defines": {
     "USE_3DTEXTURE": 1,
   },

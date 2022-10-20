@@ -1,6 +1,6 @@
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
-var F_Schlick = ShaderNode((inputs) {
+var fSchlick = shaderNode((inputs) {
   var f0 = inputs.f0;
   var f90 = inputs.f90;
   var dotVH = inputs.dotVH;
@@ -15,11 +15,11 @@ var F_Schlick = ShaderNode((inputs) {
   return add(mul(f0, sub(1.0, fresnel)), mul(f90, fresnel));
 }); // validated
 
-var BRDF_Lambert = ShaderNode((inputs) {
-  return mul(RECIPROCAL_PI, inputs.diffuseColor); // punctual light
+var brdfLambert = shaderNode((inputs) {
+  return mul(reciprocalPi, inputs.diffuseColor); // punctual light
 }); // validated
 
-var getDistanceAttenuation = ShaderNode((inputs) {
+var getDistanceAttenuation = shaderNode((inputs) {
   var lightDistance = inputs.lightDistance;
   var cutoffDistance = inputs.cutoffDistance;
   var decayExponent = inputs.decayExponent;
@@ -37,7 +37,7 @@ var getDistanceAttenuation = ShaderNode((inputs) {
 
 // Moving Frostbite to Physically Based Rendering 3.0 - page 12, listing 2
 // https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
-var V_GGX_SmithCorrelated = ShaderNode((inputs) {
+var vGGXSmithCorrelated = shaderNode((inputs) {
   var alpha = inputs.alpha;
   var dotNL = inputs.dotNL;
   var dotNV = inputs.dotNV;
@@ -47,13 +47,13 @@ var V_GGX_SmithCorrelated = ShaderNode((inputs) {
   var gv = mul(dotNL, sqrt(add(a2, mul(sub(1.0, a2), pow2(dotNV)))));
   var gl = mul(dotNV, sqrt(add(a2, mul(sub(1.0, a2), pow2(dotNL)))));
 
-  return div(0.5, max(add(gv, gl), EPSILON));
+  return div(0.5, max(add(gv, gl), epsilon));
 }); // validated
 
 // Microfacet Models for Refraction through Rough Surfaces - equation (33)
 // http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
 // alpha is "roughness squared" in Disney’s reparameterization
-var D_GGX = ShaderNode((inputs) {
+var dGGX = shaderNode((inputs) {
   var alpha = inputs.alpha;
   var dotNH = inputs.dotNH;
 
@@ -61,11 +61,11 @@ var D_GGX = ShaderNode((inputs) {
 
   var denom = add(mul(pow2(dotNH), sub(a2, 1.0)), 1.0); // avoid alpha = 0 with dotNH = 1
 
-  return mul(RECIPROCAL_PI, div(a2, pow2(denom)));
+  return mul(reciprocalPi, div(a2, pow2(denom)));
 }); // validated
 
 // GGX Distribution, Schlick Fresnel, GGX_SmithCorrelated Visibility
-var BRDF_GGX = ShaderNode((inputs) {
+var brdfGGX = shaderNode((inputs) {
   var lightDirection = inputs.lightDirection;
   var f0 = inputs.f0;
   var f90 = inputs.f90;
@@ -80,16 +80,16 @@ var BRDF_GGX = ShaderNode((inputs) {
   var dotNH = saturate(dot(transformedNormalView, halfDir));
   var dotVH = saturate(dot(positionViewDirection, halfDir));
 
-  var F = F_Schlick({f0, f90, dotVH});
+  var F = fSchlick({f0, f90, dotVH});
 
-  var V = V_GGX_SmithCorrelated({alpha, dotNL, dotNV});
+  var V = vGGXSmithCorrelated({alpha, dotNL, dotNV});
 
-  var D = D_GGX({alpha, dotNH});
+  var D = dGGX({alpha, dotNH});
 
   return mul(F, mul(V, D));
 }); // validated
 
-var RE_Direct_Physical = ShaderNode((inputs) {
+var reDirectPhysical = shaderNode((inputs) {
   var lightDirection = inputs.lightDirection;
   var lightColor = inputs.lightColor;
   var directDiffuse = inputs.directDiffuse;
@@ -98,18 +98,18 @@ var RE_Direct_Physical = ShaderNode((inputs) {
   var dotNL = saturate(dot(transformedNormalView, lightDirection));
   var irradiance = mul(dotNL, lightColor);
 
-  irradiance = mul(irradiance, PI); // punctual light
+  irradiance = mul(irradiance, pi); // punctual light
 
-  addTo(directDiffuse, mul(irradiance, BRDF_Lambert({diffuseColor})));
+  addTo(directDiffuse, mul(irradiance, brdfLambert({diffuseColor})));
 
   addTo(
       directSpecular,
       mul(irradiance,
-          BRDF_GGX({"lightDirection": lightDirection, "f0": specularColor, "f90": 1, "roughness": roughness})));
+          brdfGGX({"lightDirection": lightDirection, "f0": specularColor, "f90": 1, "roughness": roughness})));
 });
 
-var PhysicalLightingModel = ShaderNode((inputs /*, builder*/) {
+var physicalLightingModel = shaderNode((inputs /*, builder*/) {
   // PHYSICALLY_CORRECT_LIGHTS <-> builder.renderer.physicallyCorrectLights === true
 
-  RE_Direct_Physical(inputs);
+  reDirectPhysical(inputs);
 });

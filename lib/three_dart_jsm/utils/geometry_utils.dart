@@ -15,15 +15,15 @@ class GeometryUtils {
   /// @param v3         Corner index +X, -Z.
   static hilbert2D(center, size, iterations, v0, v1, v2, v3) {
     // Default Vars
-    center = center != null ? center : Vector3(0, 0, 0);
-    size = size != null ? size : 10;
+    center = center ?? Vector3(0, 0, 0);
+    size = size ?? 10;
 
     var half = size / 2;
-    iterations = iterations != null ? iterations : 1;
-    v0 = v0 != null ? v0 : 0;
-    v1 = v1 != null ? v1 : 1;
-    v2 = v2 != null ? v2 : 2;
-    v3 = v3 != null ? v3 : 3;
+    iterations = iterations ?? 1;
+    v0 = v0 ?? 0;
+    v1 = v1 ?? 1;
+    v2 = v2 ?? 2;
+    v3 = v3 ?? 3;
 
     var vecS = [
       Vector3(center.x - half, center.y, center.z - half),
@@ -70,19 +70,19 @@ class GeometryUtils {
   /// @param v7         Corner index +X, +Y, -Z.
   static hilbert3D(center, size, iterations, v0, v1, v2, v3, v4, v5, v6, v7) {
     // Default Vars
-    center = center != null ? center : Vector3(0, 0, 0);
-    size = size != null ? size : 10;
+    center = center ?? Vector3(0, 0, 0);
+    size = size ?? 10;
 
     var half = size / 2;
-    iterations = iterations != null ? iterations : 1;
-    v0 = v0 != null ? v0 : 0;
-    v1 = v1 != null ? v1 : 1;
-    v2 = v2 != null ? v2 : 2;
-    v3 = v3 != null ? v3 : 3;
-    v4 = v4 != null ? v4 : 4;
-    v5 = v5 != null ? v5 : 5;
-    v6 = v6 != null ? v6 : 6;
-    v7 = v7 != null ? v7 : 7;
+    iterations = iterations ?? 1;
+    v0 = v0 ?? 0;
+    v1 = v1 ?? 1;
+    v2 = v2 ?? 2;
+    v3 = v3 ?? 3;
+    v4 = v4 ?? 4;
+    v5 = v5 ?? 5;
+    v6 = v6 ?? 6;
+    v7 = v7 ?? 7;
 
     var vecS = [
       Vector3(center.x - half, center.y + half, center.z - half),
@@ -126,7 +126,7 @@ class GeometryUtils {
   static gosper(size) {
     size = (size != null) ? size : 1;
 
-    Function fractalize = (config) {
+    fractalize(config) {
       var output;
       var input = config["axiom"];
 
@@ -147,9 +147,9 @@ class GeometryUtils {
       }
 
       return output;
-    };
+    }
 
-    Function toPoints = (Map<String, dynamic> config) {
+    toPoints(Map<String, dynamic> config) {
       num currX = 0, currY = 0;
       num angle = 0;
       List<num> path = [0, 0, 0];
@@ -170,9 +170,7 @@ class GeometryUtils {
       }
 
       return path;
-    };
-
-    //
+    }
 
     var gosper = fractalize({
       "axiom": 'A',

@@ -1,12 +1,11 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
-var LinearToLinear = ShaderNode((inputs) {
+var linearToLinear = shaderNode((inputs) {
   return inputs.value;
 });
 
-var LinearTosRGB = ShaderNode((inputs) {
+var linearTosRGB = shaderNode((inputs) {
   var value = inputs.value;
 
   var rgb = value.rgb;
@@ -20,20 +19,16 @@ var LinearTosRGB = ShaderNode((inputs) {
   return join([rgbResult.r, rgbResult.g, rgbResult.b, value.a]);
 });
 
-var EncodingLib = {"LinearToLinear": LinearToLinear, "LinearTosRGB": LinearTosRGB};
+var encodingLib = {"LinearToLinear": linearToLinear, "LinearTosRGB": linearTosRGB};
 
 class ColorSpaceNode extends TempNode {
-  static const String LINEAR_TO_LINEAR = 'LinearToLinear';
-  static const String LINEAR_TO_SRGB = 'LinearTosRGB';
+  static const String linearToLinear = 'LinearToLinear';
+  static const String linearToSRGB = 'LinearTosRGB';
 
   late dynamic method;
   late dynamic node;
 
-  ColorSpaceNode(method, node) : super('vec4') {
-    this.method = method;
-
-    this.node = node;
-  }
+  ColorSpaceNode(this.method, this.node) : super('vec4');
 
   fromEncoding(encoding) {
     var method;
@@ -44,7 +39,7 @@ class ColorSpaceNode extends TempNode {
       method = 'sRGB';
     }
 
-    this.method = 'LinearTo' + method;
+    this.method = 'LinearTo$method';
 
     return this;
   }
@@ -56,8 +51,8 @@ class ColorSpaceNode extends TempNode {
     var method = this.method;
     var node = this.node;
 
-    if (method != ColorSpaceNode.LINEAR_TO_LINEAR) {
-      var encodingFunctionNode = EncodingLib[method];
+    if (method != ColorSpaceNode.linearToLinear) {
+      var encodingFunctionNode = encodingLib[method];
 
       return encodingFunctionNode({value: node}).build(builder, type);
     } else {

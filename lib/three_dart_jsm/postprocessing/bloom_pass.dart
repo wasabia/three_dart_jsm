@@ -5,8 +5,6 @@ import 'pass.dart';
 class BloomPass extends Pass {
   late WebGLRenderTarget renderTargetX;
   late WebGLRenderTarget renderTargetY;
-  @override
-  late Map<String, dynamic> uniforms;
   late ShaderMaterial materialCopy;
   late Map<String, dynamic> convolutionUniforms;
   late ShaderMaterial materialConvolution;
@@ -27,11 +25,6 @@ class BloomPass extends Pass {
     renderTargetY.texture.name = 'BloomPass.y';
 
     // copy material
-
-    if (CopyShader == null) print('THREE.BloomPass relies on CopyShader');
-
-    var copyShader = CopyShader;
-
     uniforms = UniformsUtils.clone(copyShader["uniforms"]);
 
     uniforms['opacity']["value"] = strength;
@@ -45,17 +38,10 @@ class BloomPass extends Pass {
     });
 
     // convolution material
-
-    if (ConvolutionShader == null) {
-      print('THREE.BloomPass relies on ConvolutionShader');
-    }
-
-    var convolutionShader = ConvolutionShader;
-
     convolutionUniforms = UniformsUtils.clone(convolutionShader["uniforms"]);
 
     convolutionUniforms['uImageIncrement']["value"] = BloomPass.blurX;
-    convolutionUniforms['cKernel']["value"] = ConvolutionShader_buildKernel(sigma);
+    convolutionUniforms['cKernel']["value"] = convolutionShaderBuildKernel(sigma);
 
     materialConvolution = ShaderMaterial({
       "uniforms": convolutionUniforms,

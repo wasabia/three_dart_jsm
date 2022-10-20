@@ -1,4 +1,3 @@
-import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 var declarationRegexp = RegExp(r"^fn\s*([a-z_0-9]+)?\s*\(([\s\S]*?)\)\s*\-\>\s*([a-z_0-9]+)?", caseSensitive: false);

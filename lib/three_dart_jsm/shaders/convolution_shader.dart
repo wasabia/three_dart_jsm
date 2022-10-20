@@ -4,7 +4,7 @@ import 'package:three_dart/three3d/math/index.dart';
 /// ported from o3d sample to WebGL / GLSL
 /// http://o3d.googlecode.com/svn/trunk/samples/convolution.html
 
-Map ConvolutionShader = {
+Map convolutionShader = {
   "defines": {'KERNEL_SIZE_FLOAT': '25.0', 'KERNEL_SIZE_INT': '25'},
   "uniforms": {
     'tDiffuse': {"value": null},
@@ -36,12 +36,12 @@ Map ConvolutionShader = {
   ].join('\n'),
 };
 
-Function ConvolutionShader_buildKernel = (sigma) {
+Function convolutionShaderBuildKernel = (sigma) {
   // We lop off the sqrt(2 * pi) * sigma term, since we're going to normalize anyway.
 
-  Function gauss = (x, sigma) {
+  gauss(x, sigma) {
     return Math.exp(-(x * x) / (2.0 * sigma * sigma));
-  };
+  }
 
   var i, values, sum, halfWidth, kMaxKernelSize = 25;
   int kernelSize = (2 * Math.ceil(sigma * 3.0) + 1).toInt();
@@ -58,7 +58,9 @@ Function ConvolutionShader_buildKernel = (sigma) {
 
   // normalize the kernel
 
-  for (i = 0; i < kernelSize; ++i) values[i] /= sum;
+  for (i = 0; i < kernelSize; ++i) {
+    values[i] /= sum;
+  }
 
   return values;
 };

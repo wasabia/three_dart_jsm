@@ -6,15 +6,9 @@ import 'pass.dart';
 class TexturePass extends Pass {
   late Texture map;
   late num opacity;
-  @override
-  late Map<String, dynamic> uniforms;
-  // ShaderMaterial material;
-  // dynamic fsQuad;
 
   TexturePass(this.map, opacity) : super() {
-    if (CopyShader == null) print('THREE.TexturePass relies on CopyShader');
-
-    var shader = CopyShader;
+    var shader = copyShader;
 
     this.opacity = (opacity != null) ? opacity : 1.0;
 

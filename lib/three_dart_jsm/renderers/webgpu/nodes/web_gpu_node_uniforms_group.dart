@@ -1,4 +1,4 @@
-part of three_webgpu;
+import '../index.dart';
 
 class WebGPUNodeUniformsGroup extends WebGPUUniformsGroup {
   WebGPUNodeUniformsGroup(shaderStage) : super('nodeUniforms') {

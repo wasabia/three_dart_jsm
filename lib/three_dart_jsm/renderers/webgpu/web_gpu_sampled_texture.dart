@@ -1,4 +1,4 @@
-part of three_webgpu;
+import 'index.dart';
 
 class WebGPUSampledTexture extends WebGPUBinding {
   late dynamic texture;
@@ -7,36 +7,33 @@ class WebGPUSampledTexture extends WebGPUBinding {
 
   bool isSampledTexture = true;
 
-  WebGPUSampledTexture(name, texture) : super(name) {
-    this.texture = texture;
-
-    this.dimension = GPUTextureViewDimension.TwoD;
-
-    this.type = GPUBindingType.SampledTexture;
+  WebGPUSampledTexture(name, this.texture) : super(name) {
+    dimension = GPUTextureViewDimension.twoD;
+    type = GPUBindingType.sampledTexture;
     // this.visibility = GPUShaderStage.Fragment;
 
-    this.textureGPU = null; // set by the renderer
+    textureGPU = null; // set by the renderer
   }
 
   getTexture() {
-    return this.texture;
+    return texture;
   }
 }
 
 class WebGPUSampledArrayTexture extends WebGPUSampledTexture {
   WebGPUSampledArrayTexture(name, texture) : super(name, texture) {
-    this.dimension = GPUTextureViewDimension.TwoDArray;
+    dimension = GPUTextureViewDimension.twoDArray;
   }
 }
 
 class WebGPUSampled3DTexture extends WebGPUSampledTexture {
   WebGPUSampled3DTexture(name, texture) : super(name, texture) {
-    this.dimension = GPUTextureViewDimension.ThreeD;
+    dimension = GPUTextureViewDimension.threeD;
   }
 }
 
 class WebGPUSampledCubeTexture extends WebGPUSampledTexture {
   WebGPUSampledCubeTexture(name, texture) : super(name, texture) {
-    this.dimension = GPUTextureViewDimension.Cube;
+    dimension = GPUTextureViewDimension.cube;
   }
 }

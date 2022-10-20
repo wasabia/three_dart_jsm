@@ -1,4 +1,4 @@
-part of jsm_math;
+import 'package:three_dart/three_dart.dart';
 
 // module scope helper variables
 
@@ -26,7 +26,7 @@ var b = OBBC({
 });
 
 var R = [[], [], []];
-var AbsR = [[], [], []];
+var absR = [[], [], []];
 var t = [];
 
 var xAxis = Vector3.init();
@@ -64,9 +64,9 @@ class OBB {
   }
 
   copy(obb) {
-    this.center.copy(obb.center);
-    this.halfSize.copy(obb.halfSize);
-    this.rotation.copy(obb.rotation);
+    center.copy(obb.center);
+    halfSize.copy(obb.halfSize);
+    rotation.copy(obb.rotation);
 
     return this;
   }
@@ -76,7 +76,7 @@ class OBB {
   }
 
   getSize(result) {
-    return result.copy(this.halfSize).multiplyScalar(2);
+    return result.copy(halfSize).multiplyScalar(2);
   }
 
   /// Reference: Closest Point on OBB to Point in Real-Time Collision Detection
@@ -84,12 +84,12 @@ class OBB {
   clampPoint(point, result) {
     var halfSize = this.halfSize;
 
-    v1.subVectors(point, this.center);
-    this.rotation.extractBasis(xAxis, yAxis, zAxis);
+    v1.subVectors(point, center);
+    rotation.extractBasis(xAxis, yAxis, zAxis);
 
     // start at the center position of the OBB
 
-    result.copy(this.center);
+    result.copy(center);
 
     // project the target onto the OBB axes and walk towards that point
 
@@ -106,24 +106,24 @@ class OBB {
   }
 
   containsPoint(point) {
-    v1.subVectors(point, this.center);
-    this.rotation.extractBasis(xAxis, yAxis, zAxis);
+    v1.subVectors(point, center);
+    rotation.extractBasis(xAxis, yAxis, zAxis);
 
     // project v1 onto each axis and check if these points lie inside the OBB
 
-    return Math.abs(v1.dot(xAxis)) <= this.halfSize.x &&
-        Math.abs(v1.dot(yAxis)) <= this.halfSize.y &&
-        Math.abs(v1.dot(zAxis)) <= this.halfSize.z;
+    return Math.abs(v1.dot(xAxis)) <= halfSize.x &&
+        Math.abs(v1.dot(yAxis)) <= halfSize.y &&
+        Math.abs(v1.dot(zAxis)) <= halfSize.z;
   }
 
   intersectsBox3(box3) {
-    return this.intersectsOBB(obb.fromBox3(box3));
+    return intersectsOBB(obb.fromBox3(box3));
   }
 
   intersectsSphere(sphere) {
     // find the point on the OBB closest to the sphere center
 
-    this.clampPoint(sphere.center, closestPoint);
+    clampPoint(sphere.center, closestPoint);
 
     // if that point is inside the sphere, the OBB and sphere intersect
 
@@ -136,11 +136,11 @@ class OBB {
   intersectsOBB(obb, {epsilon = Math.epsilon}) {
     // prepare data structures (the code uses the same nomenclature like the reference)
 
-    a.c = this.center;
-    a.e[0] = this.halfSize.x;
-    a.e[1] = this.halfSize.y;
-    a.e[2] = this.halfSize.z;
-    this.rotation.extractBasis(a.u[0], a.u[1], a.u[2]);
+    a.c = center;
+    a.e[0] = halfSize.x;
+    a.e[1] = halfSize.y;
+    a.e[2] = halfSize.z;
+    rotation.extractBasis(a.u[0], a.u[1], a.u[2]);
 
     b.c = obb.center;
     b.e[0] = obb.halfSize.x;
@@ -172,7 +172,7 @@ class OBB {
 
     for (var i = 0; i < 3; i++) {
       for (var j = 0; j < 3; j++) {
-        AbsR[i][j] = Math.abs(R[i][j]) + epsilon;
+        absR[i][j] = Math.abs(R[i][j]) + epsilon;
       }
     }
 
@@ -182,70 +182,70 @@ class OBB {
 
     for (var i = 0; i < 3; i++) {
       ra = a.e[i];
-      rb = b.e[0] * AbsR[i][0] + b.e[1] * AbsR[i][1] + b.e[2] * AbsR[i][2];
+      rb = b.e[0] * absR[i][0] + b.e[1] * absR[i][1] + b.e[2] * absR[i][2];
       if (Math.abs(t[i]) > ra + rb) return false;
     }
 
     // test axes L = B0, L = B1, L = B2
 
     for (var i = 0; i < 3; i++) {
-      ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
+      ra = a.e[0] * absR[0][i] + a.e[1] * absR[1][i] + a.e[2] * absR[2][i];
       rb = b.e[i];
       if (Math.abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return false;
     }
 
     // test axis L = A0 x B0
 
-    ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
-    rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
+    ra = a.e[1] * absR[2][0] + a.e[2] * absR[1][0];
+    rb = b.e[1] * absR[0][2] + b.e[2] * absR[0][1];
     if (Math.abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return false;
 
     // test axis L = A0 x B1
 
-    ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
-    rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
+    ra = a.e[1] * absR[2][1] + a.e[2] * absR[1][1];
+    rb = b.e[0] * absR[0][2] + b.e[2] * absR[0][0];
     if (Math.abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return false;
 
     // test axis L = A0 x B2
 
-    ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
-    rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
+    ra = a.e[1] * absR[2][2] + a.e[2] * absR[1][2];
+    rb = b.e[0] * absR[0][1] + b.e[1] * absR[0][0];
     if (Math.abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return false;
 
     // test axis L = A1 x B0
 
-    ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
-    rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
+    ra = a.e[0] * absR[2][0] + a.e[2] * absR[0][0];
+    rb = b.e[1] * absR[1][2] + b.e[2] * absR[1][1];
     if (Math.abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return false;
 
     // test axis L = A1 x B1
 
-    ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
-    rb = b.e[0] * AbsR[1][2] + b.e[2] * AbsR[1][0];
+    ra = a.e[0] * absR[2][1] + a.e[2] * absR[0][1];
+    rb = b.e[0] * absR[1][2] + b.e[2] * absR[1][0];
     if (Math.abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return false;
 
     // test axis L = A1 x B2
 
-    ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
-    rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
+    ra = a.e[0] * absR[2][2] + a.e[2] * absR[0][2];
+    rb = b.e[0] * absR[1][1] + b.e[1] * absR[1][0];
     if (Math.abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return false;
 
     // test axis L = A2 x B0
 
-    ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
-    rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
+    ra = a.e[0] * absR[1][0] + a.e[1] * absR[0][0];
+    rb = b.e[1] * absR[2][2] + b.e[2] * absR[2][1];
     if (Math.abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return false;
 
     // test axis L = A2 x B1
 
-    ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
-    rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
+    ra = a.e[0] * absR[1][1] + a.e[1] * absR[0][1];
+    rb = b.e[0] * absR[2][2] + b.e[2] * absR[2][0];
     if (Math.abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return false;
 
     // test axis L = A2 x B2
 
-    ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
-    rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
+    ra = a.e[0] * absR[1][2] + a.e[1] * absR[0][2];
+    rb = b.e[0] * absR[2][1] + b.e[1] * absR[2][0];
     if (Math.abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return false;
 
     // since no separating axis is found, the OBBs must be intersecting
@@ -256,17 +256,17 @@ class OBB {
   /// Reference: Testing Box Against Plane in Real-Time Collision Detection
   /// by Christer Ericson (chapter 5.2.3)
   intersectsPlane(plane) {
-    this.rotation.extractBasis(xAxis, yAxis, zAxis);
+    rotation.extractBasis(xAxis, yAxis, zAxis);
 
     // compute the projection interval radius of this OBB onto L(t) = this->center + t * p.normal;
 
-    var r = this.halfSize.x * Math.abs(plane.normal.dot(xAxis)) +
-        this.halfSize.y * Math.abs(plane.normal.dot(yAxis)) +
-        this.halfSize.z * Math.abs(plane.normal.dot(zAxis));
+    var r = halfSize.x * Math.abs(plane.normal.dot(xAxis)) +
+        halfSize.y * Math.abs(plane.normal.dot(yAxis)) +
+        halfSize.z * Math.abs(plane.normal.dot(zAxis));
 
     // compute distance of the OBB's center from the plane
 
-    var d = plane.normal.dot(this.center) - plane.constant;
+    var d = plane.normal.dot(center) - plane.constant;
 
     // Intersection occurs when distance d falls within [-r,+r] interval
 
@@ -279,13 +279,13 @@ class OBB {
     // the idea is to perform the intersection test in the local space
     // of the OBB.
 
-    this.getSize(size);
+    getSize(size);
     aabb.setFromCenterAndSize(v1.set(0, 0, 0), size);
 
     // create a 4x4 transformation matrix
 
-    matrix4FromRotationMatrix(obbmatrix, this.rotation);
-    obbmatrix.setPositionFromVector3(this.center);
+    matrix4FromRotationMatrix(obbmatrix, rotation);
+    obbmatrix.setPositionFromVector3(center);
 
     // transform ray to the local space of the OBB
 
@@ -306,21 +306,21 @@ class OBB {
   /// Performs a ray/OBB intersection test. Returns either true or false if
   /// there is a intersection or not.
   intersectsRay(ray) {
-    return this.intersectRay(ray, v1) != null;
+    return intersectRay(ray, v1) != null;
   }
 
   fromBox3(box3) {
-    box3.getCenter(this.center);
+    box3.getCenter(center);
 
-    box3.getSize(this.halfSize).multiplyScalar(0.5);
+    box3.getSize(halfSize).multiplyScalar(0.5);
 
-    this.rotation.identity();
+    rotation.identity();
 
     return this;
   }
 
   equals(obb) {
-    return obb.center.equals(this.center) && obb.halfSize.equals(this.halfSize) && obb.rotation.equals(this.rotation);
+    return obb.center.equals(center) && obb.halfSize.equals(halfSize) && obb.rotation.equals(rotation);
   }
 
   applyMatrix4(matrix) {
@@ -351,14 +351,14 @@ class OBB {
     rotationMatrix.elements[7] *= invSZ;
     rotationMatrix.elements[8] *= invSZ;
 
-    this.rotation.multiply(rotationMatrix);
+    rotation.multiply(rotationMatrix);
 
-    this.halfSize.x *= sx;
-    this.halfSize.y *= sy;
-    this.halfSize.z *= sz;
+    halfSize.x *= sx;
+    halfSize.y *= sy;
+    halfSize.z *= sz;
 
     v1.setFromMatrixPosition(matrix);
-    this.center.add(v1);
+    center.add(v1);
 
     return this;
   }

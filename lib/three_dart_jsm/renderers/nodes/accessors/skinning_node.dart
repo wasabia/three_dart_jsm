@@ -1,7 +1,6 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
-var Skinning = ShaderNode((inputs, builder) {
+var skinning = shaderNode((inputs, builder) {
   var position = inputs.position;
   var normal = inputs.normal;
   var index = inputs.index;
@@ -47,12 +46,8 @@ class SkinningNode extends Node {
   late dynamic bindMatrixInverseNode;
   late dynamic boneMatricesNode;
 
-  SkinningNode(skinnedMesh) : super('void') {
-    this.skinnedMesh = skinnedMesh;
-
-    updateType = NodeUpdateType.Object;
-
-    //
+  SkinningNode(this.skinnedMesh) : super('void') {
+    updateType = NodeUpdateType.object;
 
     skinIndexNode = AttributeNode('skinIndex', 'uvec4');
     skinWeightNode = AttributeNode('skinWeight', 'vec4');
@@ -65,8 +60,8 @@ class SkinningNode extends Node {
   @override
   generate([builder, output]) {
     // inout nodes
-    var position = PositionNode(PositionNode.LOCAL);
-    var normal = NormalNode(NormalNode.LOCAL);
+    var position = PositionNode(PositionNode.local);
+    var normal = NormalNode(NormalNode.local);
 
     var index = skinIndexNode;
     var weight = skinWeightNode;
@@ -74,7 +69,7 @@ class SkinningNode extends Node {
     var bindMatrixInverse = bindMatrixInverseNode;
     var boneMatrices = boneMatricesNode;
 
-    Skinning({position, normal, index, weight, bindMatrix, bindMatrixInverse, boneMatrices}, builder);
+    skinning({position, normal, index, weight, bindMatrix, bindMatrixInverse, boneMatrices}, builder);
   }
 
   @override

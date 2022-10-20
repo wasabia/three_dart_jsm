@@ -31,13 +31,13 @@ class NodeFrame {
   }
 
   updateNode(node) {
-    if (node.updateType == NodeUpdateType.Frame) {
+    if (node.updateType == NodeUpdateType.frame) {
       if (updateMap.get(node) != frameId) {
         updateMap.set(node, frameId);
 
         node.update(this);
       }
-    } else if (node.updateType == NodeUpdateType.Object) {
+    } else if (node.updateType == NodeUpdateType.object) {
       node.update(this);
     }
   }

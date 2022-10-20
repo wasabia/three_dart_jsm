@@ -1,28 +1,29 @@
-part of jsm_loader;
+import 'package:flutter_gl/flutter_gl.dart';
+import 'package:three_dart/three_dart.dart';
 
 // https://wwwimages2.adobe.com/content/dam/acom/en/products/speedgrade/cc/pdfs/cube-lut-specification-1.0.pdf
 
 class LUTCubeLoader extends Loader {
-  LUTCubeLoader(manager) : super(manager) {}
+  LUTCubeLoader(manager) : super(manager);
 
+  @override
   loadAsync(url) async {
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('text');
     final resp = await loader.loadAsync(url);
 
-    return this.parse(resp);
+    return parse(resp);
   }
 
+  @override
   load(url, Function onLoad, [Function? onProgress, Function? onError]) async {
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('text');
     final data = await loader.load(url, (text) {
       // try {
-      if (onLoad != null) {
-        onLoad(this.parse(text));
-      }
+      onLoad(parse(text));
       // } catch ( e ) {
 
       // 	if ( onError != null ) {
@@ -43,7 +44,8 @@ class LUTCubeLoader extends Loader {
     return data;
   }
 
-  parse(str, [String? path, Function? onLoad, Function? onError]) {
+  @override
+  parse(json, [String? path, Function? onLoad, Function? onError]) {
     // Remove empty lines and comments
     // str = str
     // 	.replace( /^#.*?(\n|\r)/gm, '' )
@@ -51,19 +53,19 @@ class LUTCubeLoader extends Loader {
     // 	.trim();
 
     final reg = RegExp(r"^#.*?(\n|\r)", multiLine: true);
-    str = str.replaceAll(reg, "");
+    json = json.replaceAll(reg, "");
 
     final reg2 = RegExp(r"^\s*?(\n|\r)", multiLine: true);
-    str = str.replaceAll(reg2, "");
-    str = str.trim();
+    json = json.replaceAll(reg2, "");
+    json = json.trim();
 
-    var title = null;
+    var title;
     int size = 0;
     var domainMin = Vector3(0, 0, 0);
     var domainMax = Vector3(1, 1, 1);
 
     final reg3 = RegExp(r"[\n\r]+");
-    var lines = str.split(reg3);
+    var lines = json.split(reg3);
     Uint8Array? data;
 
     var currIndex = 0;

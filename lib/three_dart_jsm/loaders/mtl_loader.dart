@@ -1,12 +1,14 @@
-part of jsm_loader;
+import 'dart:async';
+import 'package:three_dart/three_dart.dart';
 
 /// Loads a Wavefront .mtl file specifying materials
 
 class MTLLoader extends Loader {
   dynamic materialOptions;
 
-  MTLLoader(manager) : super(manager) {}
+  MTLLoader(manager) : super(manager);
 
+  @override
   loadAsync(url) async {
     var completer = Completer();
 
@@ -28,19 +30,20 @@ class MTLLoader extends Loader {
   ///
   /// @note In order for relative texture references to resolve correctly
   /// you must call setResourcePath() explicitly prior to load.
+  @override
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
     var path = (this.path == '') ? LoaderUtils.extractUrlBase(url) : this.path;
 
-    var loader = FileLoader(this.manager);
+    var loader = FileLoader(manager);
     loader.setPath(this.path);
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
     loader.load(url, (text) {
       // try {
 
-      if (onLoad != null) onLoad(scope.parse(text, path));
+      onLoad(scope.parse(text, path));
 
       // } catch ( e ) {
 
@@ -61,7 +64,7 @@ class MTLLoader extends Loader {
   }
 
   setMaterialOptions(value) {
-    this.materialOptions = value;
+    materialOptions = value;
     return this;
   }
 
@@ -74,10 +77,11 @@ class MTLLoader extends Loader {
   ///
   /// @note In order for relative texture references to resolve correctly
   /// you must call setResourcePath() explicitly prior to parse.
+  @override
   parse(text, [String? path, Function? onLoad, Function? onError]) {
     var lines = text.split('\n');
     var info = {};
-    var delimiter_pattern = RegExp(r"\s+");
+    var delimiterPattern = RegExp(r"\s+");
     var materialsInfo = {};
 
     for (var i = 0; i < lines.length; i++) {
@@ -104,7 +108,7 @@ class MTLLoader extends Loader {
         materialsInfo[value] = info;
       } else {
         if (key == 'ka' || key == 'kd' || key == 'ks' || key == 'ke') {
-          var ss = value.split(delimiter_pattern);
+          var ss = value.split(delimiterPattern);
           info[key] = [parseFloat(ss[0]), parseFloat(ss[1]), parseFloat(ss[2])];
         } else {
           info[key] = value;
@@ -112,9 +116,9 @@ class MTLLoader extends Loader {
       }
     }
 
-    var materialCreator = MaterialCreator(this.resourcePath != "" ? this.resourcePath : path, this.materialOptions);
-    materialCreator.setCrossOrigin(this.crossOrigin);
-    materialCreator.setManager(this.manager);
+    var materialCreator = MaterialCreator(resourcePath != "" ? resourcePath : path, materialOptions);
+    materialCreator.setCrossOrigin(crossOrigin);
+    materialCreator.setManager(manager);
     materialCreator.setMaterials(materialsInfo);
     return materialCreator;
   }
@@ -149,37 +153,34 @@ class MaterialCreator {
   MaterialCreator(baseUrl, options) {
     this.baseUrl = baseUrl ?? "";
     this.options = options ?? {};
-    this.materialsInfo = {};
-    this.materials = {};
-    this.materialsArray = [];
-    this.nameLookup = {};
+    materialsInfo = {};
+    materials = {};
+    materialsArray = [];
+    nameLookup = {};
 
-    this.crossOrigin = 'anonymous';
+    crossOrigin = 'anonymous';
 
-    this.side = (this.options["side"] != null) ? this.options["side"] : FrontSide;
-    this.wrap = (this.options["wrap"] != null) ? this.options["wrap"] : RepeatWrapping;
+    side = (this.options["side"] != null) ? this.options["side"] : FrontSide;
+    wrap = (this.options["wrap"] != null) ? this.options["wrap"] : RepeatWrapping;
   }
 
   setCrossOrigin(value) {
-    this.crossOrigin = value;
+    crossOrigin = value;
     return this;
   }
 
   setManager(value) {
-    this.manager = value;
+    manager = value;
   }
 
   setMaterials(materialsInfo) {
-    this.materialsInfo = this.convert(materialsInfo);
-    this.materials = {};
-    this.materialsArray = [];
-    this.nameLookup = {};
+    this.materialsInfo = convert(materialsInfo);
+    materials = {};
+    materialsArray = [];
+    nameLookup = {};
   }
 
   convert(materialsInfo) {
-    // TODO options can be null? or have default value
-    if (this.options == null) return materialsInfo;
-
     Map<String, dynamic> converted = {};
 
     for (var mn in materialsInfo.keys) {
@@ -203,11 +204,11 @@ class MaterialCreator {
 
             // Diffuse color (color under white light) using RGB values
 
-            if (this.options != null && this.options["normalizeRGB"] != null) {
+            if (options["normalizeRGB"] != null) {
               value = [value[0] / 255, value[1] / 255, value[2] / 255];
             }
 
-            if (this.options != null && this.options["ignoreZeroRGBs"] != null) {
+            if (options["ignoreZeroRGBs"] != null) {
               if (value[0] == 0 && value[1] == 0 && value[2] == 0) {
                 // ignore
 
@@ -231,53 +232,53 @@ class MaterialCreator {
   }
 
   preload() async {
-    for (var mn in this.materialsInfo.keys) {
-      await this.create(mn);
+    for (var mn in materialsInfo.keys) {
+      await create(mn);
     }
   }
 
   getIndex(materialName) {
-    return this.nameLookup[materialName];
+    return nameLookup[materialName];
   }
 
   getAsArray() async {
     var index = 0;
 
-    for (var mn in this.materialsInfo.keys) {
-      this.materialsArray[index] = await this.create(mn);
-      this.nameLookup[mn] = index;
+    for (var mn in materialsInfo.keys) {
+      materialsArray[index] = await create(mn);
+      nameLookup[mn] = index;
       index++;
     }
 
-    return this.materialsArray;
+    return materialsArray;
   }
 
   create(materialName) async {
-    if (this.materials[materialName] == null) {
-      await this.createMaterial_(materialName);
+    if (materials[materialName] == null) {
+      await createMaterial_(materialName);
     }
 
-    return this.materials[materialName];
+    return materials[materialName];
   }
 
   createMaterial_(materialName) async {
     // Create material
 
     var scope = this;
-    var mat = this.materialsInfo[materialName];
-    var params = {"name": materialName, "side": this.side};
+    var mat = materialsInfo[materialName];
+    var params = {"name": materialName, "side": side};
 
-    var resolveURL = (baseUrl, url) {
-      if (!(url is String) || url == '') return '';
+    resolveURL(baseUrl, url) {
+      if (url is! String || url == '') return '';
 
       // Absolute URL
-      var _reg = RegExp(r"^https?:\/\/", caseSensitive: false);
-      if (_reg.hasMatch(url)) return url;
+      var reg = RegExp(r"^https?:\/\/", caseSensitive: false);
+      if (reg.hasMatch(url)) return url;
 
       return baseUrl + url;
-    };
+    }
 
-    var setMapForType = (mapType, value) async {
+    setMapForType(mapType, value) async {
       if (params[mapType] != null) return; // Keep the first encountered texture
 
       var texParams = scope.getTextureParams(value, params);
@@ -291,7 +292,7 @@ class MaterialCreator {
       map.wrapT = scope.wrap;
 
       params[mapType] = map;
-    };
+    }
 
     for (var prop in mat.keys) {
       var value = mat[prop];
@@ -394,7 +395,7 @@ class MaterialCreator {
         case 'tr':
           n = parseFloat(value);
 
-          if (this.options != null && this.options["invertTrProperty"]) n = 1 - n;
+          if (options["invertTrProperty"]) n = 1 - n;
 
           if (n > 0) {
             params["opacity"] = 1 - n;
@@ -408,8 +409,8 @@ class MaterialCreator {
       }
     }
 
-    this.materials[materialName] = MeshPhongMaterial(params);
-    return this.materials[materialName];
+    materials[materialName] = MeshPhongMaterial(params);
+    return materials[materialName];
   }
 
   getTextureParams(String value, matParams) {
@@ -449,11 +450,9 @@ class MaterialCreator {
     var manager = (this.manager != null) ? this.manager : defaultLoadingManager;
     var loader = manager.getHandler(url);
 
-    if (loader == null) {
-      loader = TextureLoader(manager);
-    }
+    loader ??= TextureLoader(manager);
 
-    if (loader.setCrossOrigin != null) loader.setCrossOrigin(this.crossOrigin);
+    if (loader.setCrossOrigin != null) loader.setCrossOrigin(crossOrigin);
 
     // var texture = loader.load( url, onLoad, onProgress, onError );
     var texture = await loader.loadAsync(url, null);

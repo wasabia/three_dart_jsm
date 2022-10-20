@@ -1,4 +1,6 @@
-part of jsm_loader;
+import 'package:three_dart/three_dart.dart';
+
+import 'package:opentype_dart/index.dart' as opentype;
 
 /// Requires opentype.js to be included in the project.
 /// Loads TTF files and converts them into typeface JSON that can be used directly
@@ -7,33 +9,33 @@ part of jsm_loader;
 class TTFLoader extends Loader {
   bool reversed = false;
 
-  TTFLoader(manager) : super(manager) {}
+  TTFLoader(manager) : super(manager);
 
+  @override
   loadAsync(url) async {
-    var scope = this;
-
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('arraybuffer');
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
     var buffer = await loader.loadAsync(url);
 
-    return this._parse(buffer);
+    return _parse(buffer);
   }
 
+  @override
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('arraybuffer');
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
     loader.load(url, (buffer) {
       // try {
 
-      if (onLoad != null) onLoad(scope._parse(buffer));
+      onLoad(scope._parse(buffer));
 
       // } catch ( e ) {
 
@@ -69,7 +71,7 @@ class TTFLoader extends Loader {
 
       var reversed = [];
 
-      paths.forEach((p) {
+      for (var p in paths) {
         var result = {"type": 'm', "x": p[p.length - 1].x, "y": p[p.length - 1].y};
 
         reversed.add(result);
@@ -92,7 +94,7 @@ class TTFLoader extends Loader {
           result["y"] = p[i - 1].y;
           reversed.add(result);
         }
-      });
+      }
 
       return reversed;
     }
@@ -131,18 +133,15 @@ class TTFLoader extends Loader {
               token["o"] += command["type"].toLowerCase() + ' ';
 
               if (command["x"] != null && command["y"] != null) {
-                token["o"] +=
-                    round(command["x"] * scale).toString() + ' ' + round(command["y"] * scale).toString() + ' ';
+                token["o"] += '${round(command["x"] * scale)} ${round(command["y"] * scale)} ';
               }
 
               if (command["x1"] != null && command["y1"] != null) {
-                token["o"] +=
-                    round(command["x1"] * scale).toString() + ' ' + round(command["y1"] * scale).toString() + ' ';
+                token["o"] += '${round(command["x1"] * scale)} ${round(command["y1"] * scale)} ';
               }
 
               if (command["x2"] != null && command["y2"] != null) {
-                token["o"] +=
-                    round(command["x2"] * scale).toString() + ' ' + round(command["y2"] * scale).toString() + ' ';
+                token["o"] += '${round(command["x2"] * scale)} ${round(command["y2"] * scale)} ';
               }
             });
           }
@@ -169,6 +168,6 @@ class TTFLoader extends Loader {
       };
     }
 
-    return convert(opentype.parseBuffer(arraybuffer, null), this.reversed); // eslint-disable-line no-undef
+    return convert(opentype.parseBuffer(arraybuffer, null), reversed); // eslint-disable-line no-undef
   }
 }

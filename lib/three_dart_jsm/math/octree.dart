@@ -1,4 +1,6 @@
-part of jsm_math;
+import 'package:three_dart/three_dart.dart';
+
+import 'capsule.dart';
 
 class OctreeData {
   OctreeData({required this.normal, this.point, required this.depth});
@@ -28,26 +30,26 @@ class Octree {
   Box3? bounds;
   late List<Octree> subTrees;
 
-  Vector3 _v1 = Vector3();
-  Vector3 _v2 = Vector3();
-  Plane _plane = Plane();
-  Line3 _line1 = Line3();
-  Line3 _line2 = Line3();
-  Sphere _sphere = Sphere();
-  Capsule _capsule = Capsule();
+  final Vector3 _v1 = Vector3();
+  final Vector3 _v2 = Vector3();
+  final Plane _plane = Plane();
+  final Line3 _line1 = Line3();
+  final Line3 _line2 = Line3();
+  final Sphere _sphere = Sphere();
+  final Capsule _capsule = Capsule();
 
   List<Triangle> getRayTriangles(Ray ray, List<Triangle> triangles) {
     for (int i = 0; i < subTrees.length; i++) {
-      Octree _subTree = subTrees[i];
-      if (!ray.intersectsBox(_subTree.box)) continue;
-      if (_subTree.triangles.isNotEmpty) {
-        for (int j = 0; j < _subTree.triangles.length; j++) {
-          if (triangles.contains(_subTree.triangles[j])) {
-            triangles.add(_subTree.triangles[j]);
+      Octree subTree = subTrees[i];
+      if (!ray.intersectsBox(subTree.box)) continue;
+      if (subTree.triangles.isNotEmpty) {
+        for (int j = 0; j < subTree.triangles.length; j++) {
+          if (triangles.contains(subTree.triangles[j])) {
+            triangles.add(subTree.triangles[j]);
           }
         }
       } else {
-        _subTree.getRayTriangles(ray, triangles);
+        subTree.getRayTriangles(ray, triangles);
       }
     }
 
@@ -113,38 +115,37 @@ class Octree {
   }
 
   void split(int level) {
-    List<Octree> _subTrees = [];
+    List<Octree> subTrees = [];
     Vector3 halfsize = _v2.copy(box.max).sub(box.min).multiplyScalar(0.5);
 
     for (int x = 0; x < 2; x++) {
       for (int y = 0; y < 2; y++) {
         for (int z = 0; z < 2; z++) {
-          Box3 _box = Box3();
+          Box3 box = Box3();
           final Vector3 v = _v1.set(x.toDouble(), y.toDouble(), z.toDouble());
-          _box.min.copy(box.min).add(v.multiply(halfsize));
-          _box.max.copy(_box.min).add(halfsize);
-          _subTrees.add(Octree(_box));
+          box.min.copy(box.min).add(v.multiply(halfsize));
+          box.max.copy(box.min).add(halfsize);
+          subTrees.add(Octree(box));
         }
       }
     }
 
     while (triangles.isNotEmpty) {
       Triangle triangle = triangles.removeLast();
-      for (int i = 0; i < _subTrees.length; i++) {
-        if (_subTrees[i].box.intersectsTriangle(triangle)) {
-          _subTrees[i].triangles.add(triangle);
+      for (int i = 0; i < subTrees.length; i++) {
+        if (subTrees[i].box.intersectsTriangle(triangle)) {
+          subTrees[i].triangles.add(triangle);
         }
       }
     }
-    ;
 
-    for (int i = 0; i < _subTrees.length; i++) {
-      int len = _subTrees[i].triangles.length;
+    for (int i = 0; i < subTrees.length; i++) {
+      int len = subTrees[i].triangles.length;
       if (len > 8 && level < 16) {
-        _subTrees[i].split(level + 1);
+        subTrees[i].split(level + 1);
       }
       if (len != 0) {
-        subTrees.add(_subTrees[i]);
+        subTrees.add(subTrees[i]);
       }
     }
   }

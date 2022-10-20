@@ -20,7 +20,7 @@
 
 // ported from https://github.com/toji/web-texture-tool/blob/master/src/webgpu-mipmap-generator.js
 
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
 
 class WebGPUTextureUtils {
   // late GPUDevice device;
@@ -95,7 +95,7 @@ class WebGPUTextureUtils {
   }
 
   getMipmapPipeline(format) {
-    var pipeline = this.pipelines[format];
+    var pipeline = pipelines[format];
 
     if (pipeline == undefined) {
       // pipeline = this.device.createRenderPipeline(GPURenderPipelineDescriptor(
@@ -110,7 +110,7 @@ class WebGPUTextureUtils {
       //         stripIndexFormat: GPUIndexFormat.Uint32),
       //     multisample: GPUMultisampleState()));
 
-      this.pipelines[format] = pipeline;
+      pipelines[format] = pipeline;
     }
 
     return pipeline;

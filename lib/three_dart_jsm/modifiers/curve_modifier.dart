@@ -1,16 +1,16 @@
 part of jsm_modifiers;
 
 // Original src: https://github.com/zz85/threejs-path-flow
-var CHANNELS = 4;
-int TEXTURE_WIDTH = 1024;
-int TEXTURE_HEIGHT = 4;
+var channels = 4;
+int textureWidth = 1024;
+int textureHeight = 4;
 
 /// Make a new DataTexture to store the descriptions of the curves.
 ///
 /// @param { number } numberOfCurves the number of curves needed to be described by this texture.
 initSplineTexture({int numberOfCurves = 1}) {
-  var dataArray = Float32Array((TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * CHANNELS).toInt());
-  var dataTexture = DataTexture(dataArray, TEXTURE_WIDTH, TEXTURE_HEIGHT * numberOfCurves, RGBAFormat, FloatType, null,
+  var dataArray = Float32Array((textureWidth * textureHeight * numberOfCurves * channels).toInt());
+  var dataTexture = DataTexture(dataArray, textureWidth, textureHeight * numberOfCurves, RGBAFormat, FloatType, null,
       null, null, null, null, null, null);
 
   dataTexture.wrapS = RepeatWrapping;
@@ -27,24 +27,24 @@ initSplineTexture({int numberOfCurves = 1}) {
 /// @param { Curve } splineCurve The curve to describe
 /// @param { number } offset Which curve slot to write to
 updateSplineTexture(texture, splineCurve, {offset = 0}) {
-  var numberOfPoints = Math.floor(TEXTURE_WIDTH * (TEXTURE_HEIGHT / 4));
+  var numberOfPoints = Math.floor(textureWidth * (textureHeight / 4));
   splineCurve.arcLengthDivisions = numberOfPoints / 2;
   splineCurve.updateArcLengths();
   var points = splineCurve.getSpacedPoints(numberOfPoints);
   var frenetFrames = splineCurve.computeFrenetFrames(numberOfPoints, true);
 
   for (var i = 0; i < numberOfPoints; i++) {
-    var rowOffset = Math.floor(i / TEXTURE_WIDTH);
-    var rowIndex = i % TEXTURE_WIDTH;
+    var rowOffset = Math.floor(i / textureWidth);
+    var rowIndex = i % textureWidth;
 
     var pt = points[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 0 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 0 + rowOffset + (textureHeight * offset));
     pt = frenetFrames.tangents[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 1 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 1 + rowOffset + (textureHeight * offset));
     pt = frenetFrames.normals[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 2 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 2 + rowOffset + (textureHeight * offset));
     pt = frenetFrames.binormals[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 3 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 3 + rowOffset + (textureHeight * offset));
   }
 
   texture.needsUpdate = true;
@@ -53,11 +53,11 @@ updateSplineTexture(texture, splineCurve, {offset = 0}) {
 setTextureValue(texture, index, x, y, z, o) {
   var image = texture.image;
   var data = image.data;
-  var i = CHANNELS * TEXTURE_WIDTH * o; // Row Offset
-  data[index * CHANNELS + i + 0] = x;
-  data[index * CHANNELS + i + 1] = y;
-  data[index * CHANNELS + i + 2] = z;
-  data[index * CHANNELS + i + 3] = 1;
+  var i = channels * textureWidth * o; // Row Offset
+  data[index * channels + i + 0] = x;
+  data[index * channels + i + 1] = y;
+  data[index * channels + i + 2] = z;
+  data[index * channels + i + 3] = 1;
 }
 
 /// Create a new set of uniforms for describing the curve modifier
@@ -112,7 +112,7 @@ mt = mod(mt, textureStacks);
 float rowOffset = floor(mt);
 
 #ifdef USE_INSTANCING
-rowOffset += instanceMatrix[3][1] * $TEXTURE_HEIGHT.;
+rowOffset += instanceMatrix[3][1] * $textureHeight.;
 #endif
 
 vec3 spinePos = texture2D(spineTexture, vec2(mt, (0. + rowOffset + 0.5) / textureLayers)).xyz;
@@ -136,8 +136,8 @@ vec3 transformedNormal = normalMatrix * (basis * objectNormal);
 		uniform float spineLength;
 		uniform int flow;
 
-		float textureLayers = ${TEXTURE_HEIGHT * numberOfCurves}.;
-		float textureStacks = ${TEXTURE_HEIGHT / 4}.;
+		float textureLayers = ${textureHeight * numberOfCurves}.;
+		float textureStacks = ${textureHeight / 4}.;
 
 		${shader.vertexShader}
 		"""
@@ -151,7 +151,7 @@ vec3 transformedNormal = normalMatrix * (basis * objectNormal);
         .replaceAll('#include <begin_vertex>', '')
 
         // shader override
-        .replaceFirst(RegExp("void\s*main\s*\(\)\s*\{"), mainReplace)
+        .replaceFirst(RegExp("void\\s*main\\s*\\(\\)\\s*\\{"), mainReplace)
         .replaceFirst('#include <project_vertex>', """
         vec4 mvPosition = modelViewMatrix * vec4( transformed, 1.0 );
 				gl_Position = projectionMatrix * mvPosition;
@@ -182,25 +182,25 @@ class Flow {
       }
     });
 
-    this.curveArray = List.filled(numberOfCurves, null);
-    this.curveLengthArray = List.filled(numberOfCurves, null);
+    curveArray = List.filled(numberOfCurves, null);
+    curveLengthArray = List.filled(numberOfCurves, null);
 
-    this.object3D = obj3D;
+    object3D = obj3D;
     this.splineTexure = splineTexure;
     this.uniforms = uniforms;
   }
 
   updateCurve(index, curve) {
-    if (index >= this.curveArray.length) throw ('Index out of range for Flow');
+    if (index >= curveArray.length) throw ('Index out of range for Flow');
     var curveLength = curve.getLength();
-    this.uniforms["spineLength"]["value"] = curveLength;
-    this.curveLengthArray[index] = curveLength;
-    this.curveArray[index] = curve;
-    updateSplineTexture(this.splineTexure, curve, offset: index);
+    uniforms["spineLength"]["value"] = curveLength;
+    curveLengthArray[index] = curveLength;
+    curveArray[index] = curve;
+    updateSplineTexture(splineTexure, curve, offset: index);
   }
 
   moveAlongCurve(amount) {
-    this.uniforms["pathOffset"]["value"] += amount;
+    uniforms["pathOffset"]["value"] += amount;
   }
 }
 
@@ -210,7 +210,6 @@ var matrix = Matrix4();
 class InstancedFlow extends Flow {
   late List<int> offsets;
   late List<int> whichCurve;
-  late Mesh object3D;
 
   InstancedFlow.create(mesh, curveCount) : super(mesh, numberOfCurves: curveCount);
 
@@ -235,12 +234,12 @@ class InstancedFlow extends Flow {
   ///
   /// @param {number} index of the instanced element to update
   writeChanges(index) {
-    matrix.makeTranslation(this.curveLengthArray[this.whichCurve[index]], this.whichCurve[index], this.offsets[index]);
+    matrix.makeTranslation(curveLengthArray[whichCurve[index]], whichCurve[index], offsets[index]);
 
-    var _object3D = this.object3D as InstancedMesh;
+    var obj = object3D as InstancedMesh;
 
-    _object3D.setMatrixAt(index, matrix);
-    _object3D.instanceMatrix?.needsUpdate = true;
+    obj.setMatrixAt(index, matrix);
+    obj.instanceMatrix?.needsUpdate = true;
   }
 
   /// Move an individual element along the curve by a specific amount
@@ -248,8 +247,8 @@ class InstancedFlow extends Flow {
   /// @param {number} index Which element to update
   /// @param {number} offset Move by how much
   moveIndividualAlongCurve(index, int offset) {
-    this.offsets[index] += offset;
-    this.writeChanges(index);
+    offsets[index] += offset;
+    writeChanges(index);
   }
 
   /// Select which curve to use for an element
@@ -258,7 +257,7 @@ class InstancedFlow extends Flow {
   /// @param {number} curveNo the index of the curve it should use
   setCurve(index, curveNo) {
     if (curveNo == null) throw ('curve index being set is Not a Number (NaN)');
-    this.whichCurve[index] = curveNo;
-    this.writeChanges(index);
+    whichCurve[index] = curveNo;
+    writeChanges(index);
   }
 }

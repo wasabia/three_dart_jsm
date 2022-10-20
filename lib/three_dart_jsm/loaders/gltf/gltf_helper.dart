@@ -1,12 +1,15 @@
-part of gltf_loader;
+import 'dart:typed_data';
+import 'package:flutter_gl/flutter_gl.dart';
+import 'package:three_dart/three_dart.dart';
+import 'index.dart';
 
 /*********************************/
 /********** INTERNALS ************/
-/*********************************/
+/// *******************************/
 
 /* CONSTANTS */
 
-var WEBGL_CONSTANTS = {
+var webGlConstants = {
   "FLOAT": 5126,
   //FLOAT_MAT2: 35674,
   "FLOAT_MAT3": 35675,
@@ -31,12 +34,10 @@ var WEBGL_CONSTANTS = {
 class GLTypeData {
   late int type;
 
-  GLTypeData(int type) {
-    this.type = type;
-  }
+  GLTypeData(this.type);
 
   getBytesPerElement() {
-    return WEBGL_COMPONENT_TYPES_BYTES_PER_ELEMENT[type];
+    return webGlComponentTypesBytesPerElement[type];
   }
 
   view(buffer, offset, length) {
@@ -53,7 +54,7 @@ class GLTypeData {
     } else if (type == 5126) {
       return Float32List.view(buffer, offset, length);
     } else {
-      throw (" GLTFHelper GLTypeData view type: ${type} is not support ...");
+      throw (" GLTFHelper GLTypeData view type: $type is not support ...");
     }
   }
 
@@ -71,7 +72,7 @@ class GLTypeData {
     } else if (type == 5126) {
       return Float32List(len);
     } else {
-      throw (" GLTFHelper GLTypeData  createList type: ${type} is not support ...");
+      throw (" GLTFHelper GLTypeData  createList type: $type is not support ...");
     }
   }
 
@@ -94,7 +95,7 @@ class GLTypeData {
   }
 }
 
-var WEBGL_COMPONENT_TYPES = {
+var webGlComponentTypes = {
   5120: Int8List,
   5121: Uint8List,
   5122: Int16List,
@@ -103,7 +104,7 @@ var WEBGL_COMPONENT_TYPES = {
   5126: Float32List
 };
 
-var WEBGL_COMPONENT_TYPES_BYTES_PER_ELEMENT = {
+var webGlComponentTypesBytesPerElement = {
   5120: Int8List.bytesPerElement,
   5121: Uint8List.bytesPerElement,
   5122: Int16List.bytesPerElement,
@@ -112,7 +113,7 @@ var WEBGL_COMPONENT_TYPES_BYTES_PER_ELEMENT = {
   5126: Float32List.bytesPerElement
 };
 
-var WEBGL_FILTERS = {
+var webGlFilters = {
   9728: NearestFilter,
   9729: LinearFilter,
   9984: NearestMipmapNearestFilter,
@@ -121,11 +122,11 @@ var WEBGL_FILTERS = {
   9987: LinearMipmapLinearFilter
 };
 
-var WEBGL_WRAPPINGS = {33071: ClampToEdgeWrapping, 33648: MirroredRepeatWrapping, 10497: RepeatWrapping};
+var webGlWrappings = {33071: ClampToEdgeWrapping, 33648: MirroredRepeatWrapping, 10497: RepeatWrapping};
 
-var WEBGL_TYPE_SIZES = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT2': 4, 'MAT3': 9, 'MAT4': 16};
+var webGlTypeSizes = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT2': 4, 'MAT3': 9, 'MAT4': 16};
 
-var ATTRIBUTES = {
+var webGlAttributes = {
   "POSITION": 'position',
   "NORMAL": 'normal',
   "TANGENT": 'tangent',
@@ -136,7 +137,7 @@ var ATTRIBUTES = {
   "JOINTS_0": 'skinIndex',
 };
 
-class PATH_PROPERTIES {
+class PathProperties {
   static const String scale = 'scale';
   static const String translation = 'position';
   static const String rotation = 'quaternion';
@@ -155,19 +156,19 @@ class PATH_PROPERTIES {
     } else if (k == "position") {
       return position;
     } else {
-      throw ("GLTFHelper PATH_PROPERTIES getValue k: ${k} is not support ");
+      throw ("GLTFHelper PATH_PROPERTIES getValue k: $k is not support ");
     }
   }
 }
 
-var INTERPOLATION = {
+var gltfInterpolation = {
   "CUBICSPLINE": null, // We use a custom interpolant (GLTFCubicSplineInterpolation) for CUBICSPLINE tracks. Each
   // keyframe track will be initialized with a default interpolation type, then modified.
   "LINEAR": InterpolateLinear,
   "STEP": InterpolateDiscrete
 };
 
-var ALPHA_MODES = {"OPAQUE": 'OPAQUE', "MASK": 'MASK', "BLEND": 'BLEND'};
+var alphaModes = {"OPAQUE": 'OPAQUE', "MASK": 'MASK', "BLEND": 'BLEND'};
 
 /// Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#default-material
 Function createDefaultMaterial = (GLTFRegistry cache) {
@@ -192,7 +193,7 @@ Function addUnknownExtensionsToUserData = (knownExtensions, object, Map<String, 
   // Add unknown glTF extensions to an object's userData.
 
   if (objectDef["extensions"] != null) {
-    objectDef["extensions"].forEach((name, _value) {
+    objectDef["extensions"].forEach((name, value) {
       if (knownExtensions[name] == null) {
         object["userData"]["gltfExtensions"] = object["userData"]["gltfExtensions"] ?? {};
         object["userData"]["gltfExtensions"][name] = objectDef["extensions"][name];
@@ -244,27 +245,27 @@ addMorphTargets(geometry, targets, parser) async {
     var target = targets[i];
 
     if (hasMorphPosition) {
-      var _position = target["POSITION"] != null
+      var position = target["POSITION"] != null
           ? await parser.getDependency('accessor', target["POSITION"])
           : geometry.attributes["position"];
 
-      morphPositions.add(_position);
+      morphPositions.add(position);
     }
 
     if (hasMorphNormal) {
-      var _normal = target["NORMAL"] != null
+      var normal = target["NORMAL"] != null
           ? await parser.getDependency('accessor', target["NORMAL"])
           : geometry.attributes["normal"];
 
-      morphNormals.add(_normal);
+      morphNormals.add(normal);
     }
 
     if (hasMorphColor) {
-      var _color = target["COLOR_0"] != null
+      var color = target["COLOR_0"] != null
           ? await parser.getDependency('accessor', target["COLOR_0"])
           : geometry.attributes["color"];
 
-      morphColors.add(_color);
+      morphColors.add(color);
     }
   }
 
@@ -293,7 +294,7 @@ Function updateMorphTargets = (mesh, Map<String, dynamic> meshDef) {
     var targetNames = meshDef["extras"]["targetNames"];
 
     if (mesh.morphTargetInfluences.length == targetNames.length) {
-      mesh.morphTargetDictionary = Map<String, dynamic>();
+      mesh.morphTargetDictionary = <String, dynamic>{};
 
       for (var i = 0, il = targetNames.length; i < il; i++) {
         mesh.morphTargetDictionary[targetNames[i]] = i;
@@ -305,8 +306,9 @@ Function updateMorphTargets = (mesh, Map<String, dynamic> meshDef) {
 };
 
 Function createPrimitiveKey = (Map<String, dynamic> primitiveDef) {
-  var dracoExtension =
-      primitiveDef["extensions"] != null ? primitiveDef["extensions"][EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]!] : null;
+  var dracoExtension = primitiveDef["extensions"] != null
+      ? primitiveDef["extensions"][gltfExtensions["KHR_DRACO_MESH_COMPRESSION"]!]
+      : null;
   var geometryKey;
 
   if (dracoExtension != null) {
@@ -377,7 +379,7 @@ Function computeBounds = (geometry, Map<String, dynamic> primitiveDef, GLTFParse
 
       // todo normalized is bool ? int ?
       if (accessor["normalized"] != null && accessor["normalized"] != false && accessor["normalized"] != 0) {
-        var boxScale = getNormalizedComponentScale(WEBGL_COMPONENT_TYPES[accessor.componentType]);
+        var boxScale = getNormalizedComponentScale(webGlComponentTypes[accessor.componentType]);
         box.min.multiplyScalar(boxScale);
         box.max.multiplyScalar(boxScale);
       }
@@ -413,7 +415,7 @@ Function computeBounds = (geometry, Map<String, dynamic> primitiveDef, GLTFParse
           vector.setZ(Math.max(Math.abs(min[2]).toDouble(), Math.abs(max[2])).toDouble());
 
           if (accessor["normalized"] == true) {
-            var boxScale = getNormalizedComponentScale(WEBGL_COMPONENT_TYPES[accessor.componentType]);
+            var boxScale = getNormalizedComponentScale(webGlComponentTypes[accessor.componentType]);
             vector.multiplyScalar(boxScale);
           }
 
@@ -451,20 +453,18 @@ Function addPrimitiveAttributes = (geometry, Map<String, dynamic> primitiveDef, 
 
   List pending = [];
 
-  Function assignAttributeAccessor = (accessorIndex, attributeName) async {
+  assignAttributeAccessor(accessorIndex, attributeName) async {
     final accessor = await parser.getDependency('accessor', accessorIndex);
     return geometry.setAttribute(attributeName, accessor);
-  };
+  }
 
   List<String> attKeys = geometry.attributes.keys.toList();
 
   for (var gltfAttributeName in attributes.keys) {
-    var value = attributes[gltfAttributeName];
-
-    var threeAttributeName = ATTRIBUTES[gltfAttributeName] ?? gltfAttributeName.toLowerCase();
+    var threeAttributeName = webGlAttributes[gltfAttributeName] ?? gltfAttributeName.toLowerCase();
 
     // Skip attributes already provided by e.g. Draco extension.
-    if (attKeys.indexOf(threeAttributeName) >= 0) {
+    if (attKeys.contains(threeAttributeName)) {
       // skip
     } else {
       await assignAttributeAccessor(attributes[gltfAttributeName], threeAttributeName);

@@ -1,4 +1,4 @@
-part of three_webgpu;
+import 'index.dart';
 
 // TODO (WebGPU): implement
 
@@ -16,11 +16,11 @@ class WebGPURenderPipeline {
   // late GPUBindGroupLayout bindGroupLayout;
 
   WebGPURenderPipeline(device, renderer, sampleCount) {
-    this.cacheKey = null;
-    this.shaderAttributes = null;
+    cacheKey = null;
+    shaderAttributes = null;
     // this.stageVertex = null;
     // this.stageFragment = null;
-    this.usedTimes = 0;
+    usedTimes = 0;
 
     // this._device = device;
     // this._renderer = renderer;

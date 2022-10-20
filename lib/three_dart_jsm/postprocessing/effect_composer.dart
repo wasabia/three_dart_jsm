@@ -24,9 +24,7 @@ class EffectComposer {
 
   late Pass copyPass;
 
-  EffectComposer(WebGLRenderer renderer, WebGLRenderTarget? renderTarget) {
-    this.renderer = renderer;
-
+  EffectComposer(this.renderer, WebGLRenderTarget? renderTarget) {
     if (renderTarget == null) {
       var parameters = {"minFilter": LinearFilter, "magFilter": LinearFilter, "format": RGBAFormat};
 
@@ -55,16 +53,7 @@ class EffectComposer {
     passes = [];
 
     // dependencies
-
-    if (CopyShader == null) {
-      print('THREE.EffectComposer relies on CopyShader');
-    }
-
-    if (ShaderPass == null) {
-      print('THREE.EffectComposer relies on ShaderPass');
-    }
-
-    copyPass = ShaderPass(CopyShader, null);
+    copyPass = ShaderPass(copyShader, null);
 
     clock = Clock(false);
   }

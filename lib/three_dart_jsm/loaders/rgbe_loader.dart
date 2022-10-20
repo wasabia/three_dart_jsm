@@ -1,4 +1,7 @@
-part of jsm_loader;
+import 'dart:async';
+import 'dart:typed_data';
+import 'package:flutter_gl/flutter_gl.dart';
+import 'package:three_dart/three_dart.dart';
 
 // https://github.com/mrdoob/three.js/issues/5552
 // http://en.wikipedia.org/wiki/RGBE_image_format
@@ -6,43 +9,44 @@ part of jsm_loader;
 class RGBELoader extends DataTextureLoader {
   int type = HalfFloatType;
 
-  RGBELoader(manager) : super(manager) {}
+  RGBELoader(manager) : super(manager);
 
   // adapted from http://www.graphics.cornell.edu/~bjw/rgbe.html
 
-  parse(buffer, [String? path, Function? onLoad, Function? onError]) {
+  @override
+  parse(json, [String? path, Function? onLoad, Function? onError]) {
     int byteArrayPos = 0;
 
     const
         /* return codes for rgbe routines */
         //RGBE_RETURN_SUCCESS = 0,
-        RGBE_RETURN_FAILURE = -1,
+        rgbeReturnFailure = -1,
 
         /* default error routine.  change this to change error handling */
-        rgbe_read_error = 1,
-        rgbe_write_error = 2,
-        rgbe_format_error = 3,
-        rgbe_memory_error = 4;
+        rgbeReadError = 1,
+        rgbeWriteError = 2,
+        rgbeFormatError = 3,
+        rgbeMemoryError = 4;
 
-    var rgbe_error = (rgbe_error_code, msg) {
-      switch (rgbe_error_code) {
-        case rgbe_read_error:
+    rgbeError(rgbeErrorCode, msg) {
+      switch (rgbeErrorCode) {
+        case rgbeReadError:
           print('THREE.RGBELoader Read Error: ${msg ?? ""}');
           break;
-        case rgbe_write_error:
+        case rgbeWriteError:
           print('THREE.RGBELoader Write Error: ${msg ?? ""}');
           break;
-        case rgbe_format_error:
+        case rgbeFormatError:
           print('THREE.RGBELoader Bad File Format: ${msg ?? ""}');
           break;
-        case rgbe_memory_error:
+        case rgbeMemoryError:
           print('THREE.RGBELoader: Error: ${msg ?? ""}');
           break;
         default:
       }
 
-      return RGBE_RETURN_FAILURE;
-    };
+      return rgbeReturnFailure;
+    }
 
     /* offsets to red, green, and blue components in a data (float) pixel */
     //RGBE_DATA_RED = 0,
@@ -53,21 +57,21 @@ class RGBELoader extends DataTextureLoader {
     //RGBE_DATA_SIZE = 4,
 
     /* flags indicating which fields in an rgbe_header_info are valid */
-    var RGBE_VALID_PROGRAMTYPE = 1, RGBE_VALID_FORMAT = 2, RGBE_VALID_DIMENSIONS = 4;
+    var rgbeValieProgramType = 1, rgbeValidFormat = 2, rbgValidDimensions = 4;
 
-    var NEWLINE = '\n';
+    var newLine = '\n';
 
-    var fgets = (Uint8List buffer, [lineLimit, consume]) {
+    fgets(Uint8List buffer, [lineLimit, consume]) {
       var chunkSize = 128;
 
-      lineLimit = lineLimit == null ? 1024 : lineLimit;
+      lineLimit = lineLimit ?? 1024;
       var p = byteArrayPos;
       var i = -1;
       int len = 0;
       var s = '';
       var chunk = String.fromCharCodes(buffer.sublist(p, p + chunkSize));
 
-      while ((0 > (i = chunk.indexOf(NEWLINE))) && (len < lineLimit) && (p < buffer.lengthInBytes)) {
+      while ((0 > (i = chunk.indexOf(newLine))) && (len < lineLimit) && (p < buffer.lengthInBytes)) {
         s += chunk;
         len += chunk.length;
         p += chunkSize;
@@ -86,16 +90,16 @@ class RGBELoader extends DataTextureLoader {
       }
 
       return null;
-    };
+    }
 
     /* minimal header reading.  modify if you want to parse more information */
-    var RGBE_ReadHeader = (buffer) {
+    rgbeReadHeader(buffer) {
       // regexes to parse header info fields
-      var magic_token_re = RegExp(r"^#\?(\S+)"),
-          gamma_re = RegExp(r"^\s*GAMMA\s*=\s*(\d+(\.\d+)?)\s*$"),
-          exposure_re = RegExp(r"^\s*EXPOSURE\s*=\s*(\d+(\.\d+)?)\s*$"),
-          format_re = RegExp(r"^\s*FORMAT=(\S+)\s*$"),
-          dimensions_re = RegExp(r"^\s*\-Y\s+(\d+)\s+\+X\s+(\d+)\s*$");
+      var magicTokenRe = RegExp(r"^#\?(\S+)"),
+          gammaRe = RegExp(r"^\s*GAMMA\s*=\s*(\d+(\.\d+)?)\s*$"),
+          exposureRe = RegExp(r"^\s*EXPOSURE\s*=\s*(\d+(\.\d+)?)\s*$"),
+          formatRe = RegExp(r"^\s*FORMAT=(\S+)\s*$"),
+          dimensionsRe = RegExp(r"^\s*\-Y\s+(\d+)\s+\+X\s+(\d+)\s*$");
 
       // RGBE format header struct
       Map<String, dynamic> header = {
@@ -129,110 +133,110 @@ class RGBELoader extends DataTextureLoader {
       var line = fgets(buffer, null, null);
 
       if (byteArrayPos >= buffer.lengthInBytes || line == null) {
-        return rgbe_error(rgbe_read_error, 'no header found');
+        return rgbeError(rgbeReadError, 'no header found');
       }
 
       /* if you want to require the magic token then uncomment the next line */
-      if (!(magic_token_re.hasMatch(line))) {
-        return rgbe_error(rgbe_format_error, 'bad initial token');
+      if (!(magicTokenRe.hasMatch(line))) {
+        return rgbeError(rgbeFormatError, 'bad initial token');
       }
 
-      match = magic_token_re.firstMatch(line);
+      match = magicTokenRe.firstMatch(line);
 
-      int _valid = header["valid"]!;
+      int valid = header["valid"]!;
 
-      _valid |= RGBE_VALID_PROGRAMTYPE;
-      header["valid"] = _valid;
+      valid |= rgbeValieProgramType;
+      header["valid"] = valid;
 
       header["programtype"] = match[1];
-      header["string"] += line + '\n';
+      header["string"] += '$line\n';
 
       while (true) {
         line = fgets(buffer);
         if (null == line) break;
-        header["string"] += line + '\n';
+        header["string"] += '$line\n';
 
-        if (line.length > 0 && '#' == line[0]) {
-          header["comments"] += line + '\n';
+        if (line.isNotEmpty && '#' == line[0]) {
+          header["comments"] += '$line\n';
           continue; // comment line
 
         }
 
-        if (gamma_re.hasMatch(line)) {
-          match = gamma_re.firstMatch(line);
+        if (gammaRe.hasMatch(line)) {
+          match = gammaRe.firstMatch(line);
 
           header["gamma"] = parseFloat(match[1]);
         }
 
-        if (exposure_re.hasMatch(line)) {
-          match = exposure_re.firstMatch(line);
+        if (exposureRe.hasMatch(line)) {
+          match = exposureRe.firstMatch(line);
 
           header["exposure"] = parseFloat(match[1]);
         }
 
-        if (format_re.hasMatch(line)) {
-          match = format_re.firstMatch(line);
+        if (formatRe.hasMatch(line)) {
+          match = formatRe.firstMatch(line);
 
-          header["valid"] |= RGBE_VALID_FORMAT;
+          header["valid"] |= rgbeValidFormat;
           header["format"] = match[1]; //'32-bit_rle_rgbe';
 
         }
 
-        if (dimensions_re.hasMatch(line)) {
-          match = dimensions_re.firstMatch(line);
+        if (dimensionsRe.hasMatch(line)) {
+          match = dimensionsRe.firstMatch(line);
 
-          header["valid"] |= RGBE_VALID_DIMENSIONS;
+          header["valid"] |= rbgValidDimensions;
           header["height"] = int.parse(match[1]);
           header["width"] = int.parse(match[2]);
         }
 
-        if ((header["valid"] & RGBE_VALID_FORMAT) == 1 && (header["valid"] & RGBE_VALID_DIMENSIONS) == 1) break;
+        if ((header["valid"] & rgbeValidFormat) == 1 && (header["valid"] & rbgValidDimensions) == 1) break;
       }
 
-      if ((header["valid"] & RGBE_VALID_FORMAT) == 0) {
-        return rgbe_error(rgbe_format_error, 'missing format specifier');
+      if ((header["valid"] & rgbeValidFormat) == 0) {
+        return rgbeError(rgbeFormatError, 'missing format specifier');
       }
 
-      if ((header["valid"] & RGBE_VALID_DIMENSIONS) == 0) {
-        return rgbe_error(rgbe_format_error, 'missing image size specifier');
+      if ((header["valid"] & rbgValidDimensions) == 0) {
+        return rgbeError(rgbeFormatError, 'missing image size specifier');
       }
 
       return header;
-    };
+    }
 
-    var RGBE_ReadPixels_RLE = (Uint8List buffer, int w, int h) {
-      int scanline_width = w;
+    rgbeReadPixelsRLE(Uint8List buffer, int w, int h) {
+      int scanlineWidth = w;
 
       if (
           // run length encoding is not allowed so read flat
-          ((scanline_width < 8) || (scanline_width > 0x7fff)) ||
+          ((scanlineWidth < 8) || (scanlineWidth > 0x7fff)) ||
               // this file is not run length encoded
               ((2 != buffer[0]) || (2 != buffer[1]) || ((buffer[2] & 0x80) != 0))) {
         // return the flat buffer
         return buffer;
       }
 
-      if (scanline_width != ((buffer[2] << 8) | buffer[3])) {
-        return rgbe_error(rgbe_format_error, 'wrong scanline width');
+      if (scanlineWidth != ((buffer[2] << 8) | buffer[3])) {
+        return rgbeError(rgbeFormatError, 'wrong scanline width');
       }
 
-      var data_rgba = Uint8List(4 * w * h);
+      var dataRgba = Uint8List(4 * w * h);
 
-      if (data_rgba.length == 0) {
-        return rgbe_error(rgbe_memory_error, 'unable to allocate buffer space');
+      if (dataRgba.isEmpty) {
+        return rgbeError(rgbeMemoryError, 'unable to allocate buffer space');
       }
 
       var offset = 0, pos = 0;
 
-      var ptr_end = 4 * scanline_width;
+      var ptrEnd = 4 * scanlineWidth;
       var rgbeStart = Uint8List(4);
-      var scanline_buffer = Uint8List(ptr_end);
-      var num_scanlines = h;
+      var scanlineBuffer = Uint8List(ptrEnd);
+      var numScanlines = h;
 
       // read in each successive scanline
-      while ((num_scanlines > 0) && (pos < buffer.lengthInBytes)) {
+      while ((numScanlines > 0) && (pos < buffer.lengthInBytes)) {
         if (pos + 4 > buffer.lengthInBytes) {
-          return rgbe_error(rgbe_read_error, null);
+          return rgbeError(rgbeReadError, null);
         }
 
         rgbeStart[0] = buffer[pos++];
@@ -240,8 +244,8 @@ class RGBELoader extends DataTextureLoader {
         rgbeStart[2] = buffer[pos++];
         rgbeStart[3] = buffer[pos++];
 
-        if ((2 != rgbeStart[0]) || (2 != rgbeStart[1]) || (((rgbeStart[2] << 8) | rgbeStart[3]) != scanline_width)) {
-          return rgbe_error(rgbe_format_error, 'bad rgbe scanline format');
+        if ((2 != rgbeStart[0]) || (2 != rgbeStart[1]) || (((rgbeStart[2] << 8) | rgbeStart[3]) != scanlineWidth)) {
+          return rgbeError(rgbeFormatError, 'bad rgbe scanline format');
         }
 
         // read each of the four channels for the scanline into the buffer
@@ -249,26 +253,26 @@ class RGBELoader extends DataTextureLoader {
         var ptr = 0;
         int count;
 
-        while ((ptr < ptr_end) && (pos < buffer.lengthInBytes)) {
+        while ((ptr < ptrEnd) && (pos < buffer.lengthInBytes)) {
           count = buffer[pos++];
           var isEncodedRun = count > 128;
           if (isEncodedRun) count -= 128;
 
-          if ((0 == count) || (ptr + count > ptr_end)) {
-            return rgbe_error(rgbe_format_error, 'bad scanline data');
+          if ((0 == count) || (ptr + count > ptrEnd)) {
+            return rgbeError(rgbeFormatError, 'bad scanline data');
           }
 
           if (isEncodedRun) {
             // a (encoded) run of the same value
             var byteValue = buffer[pos++];
             for (var i = 0; i < count; i++) {
-              scanline_buffer[ptr++] = byteValue;
+              scanlineBuffer[ptr++] = byteValue;
             }
             //ptr += count;
 
           } else {
             // a literal-run
-            scanline_buffer.setAll(ptr, buffer.sublist(pos, pos + count));
+            scanlineBuffer.setAll(ptr, buffer.sublist(pos, pos + count));
             ptr += count;
             pos += count;
           }
@@ -276,26 +280,26 @@ class RGBELoader extends DataTextureLoader {
 
         // now convert data from buffer into rgba
         // first red, then green, then blue, then exponent (alpha)
-        var l = scanline_width; //scanline_buffer.lengthInBytes;
+        var l = scanlineWidth; //scanline_buffer.lengthInBytes;
         for (var i = 0; i < l; i++) {
           var off = 0;
-          data_rgba[offset] = scanline_buffer[i + off];
-          off += scanline_width; //1;
-          data_rgba[offset + 1] = scanline_buffer[i + off];
-          off += scanline_width; //1;
-          data_rgba[offset + 2] = scanline_buffer[i + off];
-          off += scanline_width; //1;
-          data_rgba[offset + 3] = scanline_buffer[i + off];
+          dataRgba[offset] = scanlineBuffer[i + off];
+          off += scanlineWidth; //1;
+          dataRgba[offset + 1] = scanlineBuffer[i + off];
+          off += scanlineWidth; //1;
+          dataRgba[offset + 2] = scanlineBuffer[i + off];
+          off += scanlineWidth; //1;
+          dataRgba[offset + 3] = scanlineBuffer[i + off];
           offset += 4;
         }
 
-        num_scanlines--;
+        numScanlines--;
       }
 
-      return data_rgba;
-    };
+      return dataRgba;
+    }
 
-    var RGBEByteToRGBFloat = (sourceArray, sourceOffset, destArray, destOffset) {
+    rgbeByteToRGBFloat(sourceArray, sourceOffset, destArray, destOffset) {
       var e = sourceArray[sourceOffset + 3];
       var scale = Math.pow(2.0, e - 128.0) / 255.0;
 
@@ -303,9 +307,9 @@ class RGBELoader extends DataTextureLoader {
       destArray[destOffset + 1] = sourceArray[sourceOffset + 1] * scale;
       destArray[destOffset + 2] = sourceArray[sourceOffset + 2] * scale;
       destArray[destOffset + 3] = 1;
-    };
+    }
 
-    var RGBEByteToRGBHalf = (sourceArray, sourceOffset, destArray, destOffset) {
+    rgbeByteToRGBHalf(sourceArray, sourceOffset, destArray, destOffset) {
       var e = sourceArray[sourceOffset + 3];
       var scale = Math.pow(2.0, e - 128.0) / 255.0;
 
@@ -314,84 +318,83 @@ class RGBELoader extends DataTextureLoader {
       destArray[destOffset + 1] = DataUtils.toHalfFloat(Math.min(sourceArray[sourceOffset + 1] * scale, 65504));
       destArray[destOffset + 2] = DataUtils.toHalfFloat(Math.min(sourceArray[sourceOffset + 2] * scale, 65504));
       destArray[destOffset + 3] = DataUtils.toHalfFloat(1.0);
-    };
+    }
 
     // var byteArray = new Uint8Array( buffer );
     // byteArray.pos = 0;
-    var byteArray = buffer;
+    var byteArray = json;
 
-    var rgbe_header_info = RGBE_ReadHeader(byteArray);
+    var rgbeHeaderInfo = rgbeReadHeader(byteArray);
 
-    if (RGBE_RETURN_FAILURE != rgbe_header_info) {
-      rgbe_header_info = rgbe_header_info as Map<String, dynamic>;
+    if (rgbeReturnFailure != rgbeHeaderInfo) {
+      rgbeHeaderInfo = rgbeHeaderInfo as Map<String, dynamic>;
 
-      var w = rgbe_header_info["width"], h = rgbe_header_info["height"];
+      var w = rgbeHeaderInfo["width"], h = rgbeHeaderInfo["height"];
 
-      Uint8List image_rgba_data = RGBE_ReadPixels_RLE(byteArray.sublist(byteArrayPos), w, h) as Uint8List;
+      Uint8List imageRgbaData = rgbeReadPixelsRLE(byteArray.sublist(byteArrayPos), w, h) as Uint8List;
 
-      if (RGBE_RETURN_FAILURE != image_rgba_data) {
-        var data, format, type;
-        int numElements;
+      var data, format, type;
+      int numElements;
 
-        switch (this.type) {
+      switch (this.type) {
 
-          // case UnsignedByteType:
+        // case UnsignedByteType:
 
-          // 	data = image_rgba_data;
-          // 	format = RGBEFormat; // handled as THREE.RGBAFormat in shaders
-          // 	type = UnsignedByteType;
-          // 	break;
+        // 	data = image_rgba_data;
+        // 	format = RGBEFormat; // handled as THREE.RGBAFormat in shaders
+        // 	type = UnsignedByteType;
+        // 	break;
 
-          case FloatType:
-            numElements = image_rgba_data.length ~/ 4;
-            var floatArray = Float32Array(numElements * 4);
+        case FloatType:
+          numElements = imageRgbaData.length ~/ 4;
+          var floatArray = Float32Array(numElements * 4);
 
-            for (var j = 0; j < numElements; j++) {
-              RGBEByteToRGBFloat(image_rgba_data, j * 4, floatArray, j * 4);
-            }
+          for (var j = 0; j < numElements; j++) {
+            rgbeByteToRGBFloat(imageRgbaData, j * 4, floatArray, j * 4);
+          }
 
-            data = floatArray;
-            type = FloatType;
-            break;
+          data = floatArray;
+          type = FloatType;
+          break;
 
-          case HalfFloatType:
-            numElements = image_rgba_data.length ~/ 4;
-            var halfArray = Uint16Array(numElements * 4);
+        case HalfFloatType:
+          numElements = imageRgbaData.length ~/ 4;
+          var halfArray = Uint16Array(numElements * 4);
 
-            for (var j = 0; j < numElements; j++) {
-              RGBEByteToRGBHalf(image_rgba_data, j * 4, halfArray, j * 4);
-            }
+          for (var j = 0; j < numElements; j++) {
+            rgbeByteToRGBHalf(imageRgbaData, j * 4, halfArray, j * 4);
+          }
 
-            data = halfArray;
-            type = HalfFloatType;
-            break;
+          data = halfArray;
+          type = HalfFloatType;
+          break;
 
-          default:
-            print('THREE.RGBELoader: unsupported type: ${this.type}');
-            break;
-        }
-
-        return {
-          "width": w,
-          "height": h,
-          "data": data,
-          "header": rgbe_header_info["string"],
-          "gamma": rgbe_header_info["gamma"],
-          "exposure": rgbe_header_info["exposure"],
-          "format": format,
-          "type": type
-        };
+        default:
+          print('THREE.RGBELoader: unsupported type: ${this.type}');
+          break;
       }
+
+      return {
+        "width": w,
+        "height": h,
+        "data": data,
+        "header": rgbeHeaderInfo["string"],
+        "gamma": rgbeHeaderInfo["gamma"],
+        "exposure": rgbeHeaderInfo["exposure"],
+        "format": format,
+        "type": type
+      };
     }
 
     return null;
   }
 
   setDataType(value) {
-    this.type = value;
+    type = value;
     return this;
   }
 
+  @override
   loadAsync(url) async {
     var completer = Completer();
 
@@ -402,8 +405,9 @@ class RGBELoader extends DataTextureLoader {
     return completer.future;
   }
 
+  @override
   load(url, onLoad, [onProgress, onError]) {
-    var onLoadCallback = (texture, texData) {
+    onLoadCallback(texture, texData) {
       switch (texture.type) {
         case UnsignedByteType:
           texture.encoding = RGBEEncoding;
@@ -430,8 +434,8 @@ class RGBELoader extends DataTextureLoader {
           break;
       }
 
-      if (onLoad != null) onLoad(texture);
-    };
+      onLoad(texture);
+    }
 
     return super.load(url, onLoadCallback, onProgress, onError);
   }

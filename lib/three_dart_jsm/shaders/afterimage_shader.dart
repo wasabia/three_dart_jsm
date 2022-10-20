@@ -2,7 +2,7 @@
 /// I created this effect inspired by a demo on codepen:
 /// https://codepen.io/brunoimbrizi/pen/MoRJaN?page=1&
 
-var AfterimageShader = {
+var afterimageShader = {
   "uniforms": {
     'damp': {"value": 0.96},
     'tOld': {},

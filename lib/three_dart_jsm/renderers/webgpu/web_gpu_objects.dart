@@ -1,34 +1,31 @@
-part of three_webgpu;
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 class WebGPUObjects {
-  late WebGPUGeometries geometries;
-  late WebGPUInfo info;
-  late WeakMap updateMap;
+  WebGPUGeometries geometries;
+  WebGPUInfo info;
+  final updateMap = WeakMap();
 
-  WebGPUObjects(geometries, info) {
-    this.geometries = geometries;
-    this.info = info;
-
-    this.updateMap = WeakMap();
-  }
+  WebGPUObjects(this.geometries, this.info);
 
   update(object) {
     var geometry = object.geometry;
     var updateMap = this.updateMap;
-    var frame = this.info.render["frame"];
+    var frame = info.render["frame"];
 
     if (geometry is! BufferGeometry) {
       throw ('THREE.WebGPURenderer: This renderer only supports THREE.BufferGeometry for geometries.');
     }
 
     if (updateMap.get(geometry) != frame) {
-      this.geometries.update(geometry);
+      geometries.update(geometry);
 
       updateMap.set(geometry, frame);
     }
   }
 
   dispose() {
-    this.updateMap = WeakMap();
+    updateMap.clear();
   }
 }

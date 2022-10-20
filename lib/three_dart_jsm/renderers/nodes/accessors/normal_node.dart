@@ -1,17 +1,14 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class NormalNode extends Node {
-  static const String GEOMETRY = 'geometry';
-  static const String LOCAL = 'local';
-  static const String WORLD = 'world';
-  static const String VIEW = 'view';
+  static const String geometry = 'geometry';
+  static const String local = 'local';
+  static const String world = 'world';
+  static const String view = 'view';
 
-  late dynamic scope;
+  late String scope;
 
-  NormalNode([scope = NormalNode.LOCAL]) : super('vec3') {
-    this.scope = scope;
-  }
+  NormalNode([this.scope = NormalNode.local]) : super('vec3');
 
   @override
   getHash([builder]) {
@@ -24,18 +21,18 @@ class NormalNode extends Node {
 
     var outputNode;
 
-    if (scope == NormalNode.GEOMETRY) {
+    if (scope == NormalNode.geometry) {
       outputNode = AttributeNode('normal', 'vec3');
-    } else if (scope == NormalNode.LOCAL) {
-      outputNode = VaryNode(NormalNode(NormalNode.GEOMETRY));
-    } else if (scope == NormalNode.VIEW) {
-      var vertexNormalNode = OperatorNode('*', ModelNode(ModelNode.NORMAL_MATRIX), NormalNode(NormalNode.LOCAL));
-      outputNode = MathNode(MathNode.NORMALIZE, VaryNode(vertexNormalNode));
-    } else if (scope == NormalNode.WORLD) {
+    } else if (scope == NormalNode.local) {
+      outputNode = VaryNode(NormalNode(NormalNode.geometry));
+    } else if (scope == NormalNode.view) {
+      var vertexNormalNode = OperatorNode('*', ModelNode(ModelNode.normalMatrix), NormalNode(NormalNode.local));
+      outputNode = MathNode(MathNode.normalize, VaryNode(vertexNormalNode));
+    } else if (scope == NormalNode.world) {
       // To use INVERSE_TRANSFORM_DIRECTION only inverse the param order like this: MathNode( ..., Vector, Matrix );
       var vertexNormalNode =
-          MathNode(MathNode.TRANSFORM_DIRECTION, NormalNode(NormalNode.VIEW), CameraNode(CameraNode.VIEW_MATRIX));
-      outputNode = MathNode(MathNode.NORMALIZE, VaryNode(vertexNormalNode));
+          MathNode(MathNode.transformDirection, NormalNode(NormalNode.view), CameraNode(CameraNode.viewMatrix));
+      outputNode = MathNode(MathNode.normalize, VaryNode(vertexNormalNode));
     }
 
     return outputNode.build(builder);

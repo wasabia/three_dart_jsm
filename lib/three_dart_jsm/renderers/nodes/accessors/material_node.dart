@@ -1,18 +1,17 @@
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class MaterialNode extends Node {
-  static const String ALPHA_TEST = 'alphaTest';
-  static const String COLOR = 'color';
-  static const String OPACITY = 'opacity';
-  static const String SPECULAR = 'specular';
-  static const String ROUGHNESS = 'roughness';
-  static const String METALNESS = 'metalness';
+  static const String alphaTest = 'alphaTest';
+  static const String color = 'color';
+  static const String opacity = 'opacity';
+  static const String specular = 'specular';
+  static const String roughness = 'roughness';
+  static const String metalness = 'metalness';
 
   late String scope;
 
-  MaterialNode([scope = MaterialNode.COLOR]) : super() {
+  MaterialNode([this.scope = MaterialNode.color]) : super() {
     generateLength = 2;
-    this.scope = scope;
   }
 
   @override
@@ -20,13 +19,13 @@ class MaterialNode extends Node {
     var scope = this.scope;
     var material = builder.context["material"];
 
-    if (scope == MaterialNode.COLOR) {
+    if (scope == MaterialNode.color) {
       return material.map != null ? 'vec4' : 'vec3';
-    } else if (scope == MaterialNode.OPACITY) {
+    } else if (scope == MaterialNode.opacity) {
       return 'float';
-    } else if (scope == MaterialNode.SPECULAR) {
+    } else if (scope == MaterialNode.specular) {
       return 'vec3';
-    } else if (scope == MaterialNode.ROUGHNESS || scope == MaterialNode.METALNESS) {
+    } else if (scope == MaterialNode.roughness || scope == MaterialNode.metalness) {
       return 'float';
     }
   }
@@ -40,9 +39,9 @@ class MaterialNode extends Node {
 
     print(" ============ this ${this} generate scope: $scope  ");
 
-    if (scope == MaterialNode.ALPHA_TEST) {
+    if (scope == MaterialNode.alphaTest) {
       node = MaterialReferenceNode('alphaTest', 'float');
-    } else if (scope == MaterialNode.COLOR) {
+    } else if (scope == MaterialNode.color) {
       var colorNode = MaterialReferenceNode('color', 'color');
 
       if (material.map != null && material.map != null && material.map.isTexture == true) {
@@ -50,7 +49,7 @@ class MaterialNode extends Node {
       } else {
         node = colorNode;
       }
-    } else if (scope == MaterialNode.OPACITY) {
+    } else if (scope == MaterialNode.opacity) {
       var opacityNode = MaterialReferenceNode('opacity', 'float');
 
       if (material.alphaMap != null && material.alphaMap != null && material.alphaMap.isTexture == true) {
@@ -58,7 +57,7 @@ class MaterialNode extends Node {
       } else {
         node = opacityNode;
       }
-    } else if (scope == MaterialNode.SPECULAR) {
+    } else if (scope == MaterialNode.specular) {
       var specularColorNode = MaterialReferenceNode('specularColor', 'color');
 
       if (material.specularColorMap != null && material.specularColorMap.isTexture == true) {

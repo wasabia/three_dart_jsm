@@ -1,85 +1,78 @@
-part of three_webgpu;
+import '../index.dart';
 
 class FloatNodeUniform extends FloatUniform {
   late dynamic nodeUniform;
 
-  FloatNodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  FloatNodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class Vector2NodeUniform extends Vector2Uniform {
   late dynamic nodeUniform;
 
-  Vector2NodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  Vector2NodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class Vector3NodeUniform extends Vector3Uniform {
   late dynamic nodeUniform;
 
-  Vector3NodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  Vector3NodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class Vector4NodeUniform extends Vector4Uniform {
   late dynamic nodeUniform;
 
-  Vector4NodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  Vector4NodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class ColorNodeUniform extends ColorUniform {
   late dynamic nodeUniform;
 
-  ColorNodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  ColorNodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class Matrix3NodeUniform extends Matrix3Uniform {
   late dynamic nodeUniform;
 
-  Matrix3NodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  Matrix3NodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }
 
 class Matrix4NodeUniform extends Matrix4Uniform {
   late dynamic nodeUniform;
 
-  Matrix4NodeUniform(nodeUniform) : super(nodeUniform.name, nodeUniform.value) {
-    this.nodeUniform = nodeUniform;
-  }
+  Matrix4NodeUniform(this.nodeUniform) : super(nodeUniform.name, nodeUniform.value);
 
+  @override
   getValue() {
-    return this.nodeUniform.value;
+    return nodeUniform.value;
   }
 }

@@ -1,15 +1,15 @@
 class NodeFunctionInput {
-  late String type;
-  late String name;
-  late int count;
-  late String qualifier;
-  late bool isConst;
+  String type;
+  String name;
+  int count;
+  String qualifier;
+  bool isConst;
 
-  NodeFunctionInput(type, name, [count, qualifier = '', isConst = false]) {
-    this.type = type;
-    this.name = name;
-    this.count = count;
-    this.qualifier = qualifier;
-    this.isConst = isConst;
-  }
+  NodeFunctionInput(
+    this.type,
+    this.name, [
+    this.count = 1,
+    this.qualifier = '',
+    this.isConst = false,
+  ]);
 }

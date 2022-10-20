@@ -48,15 +48,7 @@ class ShadowMapViewer {
 
   late Light light;
 
-  ShadowMapViewer(light, innerWidth, innerHeight) {
-    this.light = light;
-    this.innerWidth = innerWidth;
-    this.innerHeight = innerHeight;
-
-    //- Internals
-    var scope = this;
-    var doRenderLabel = (light.name != null && light.name != '');
-
+  ShadowMapViewer(this.light, this.innerWidth, this.innerHeight) {
     //Holds the initial position and dimension of the HUD
     frame = {"x": 10, "y": 10, "width": 256, "height": 256};
 
@@ -77,7 +69,7 @@ class ShadowMapViewer {
     scene.add(mesh);
 
     //Label for light's name
-    var labelCanvas, labelMesh;
+    // var labelCanvas, labelMesh;
 
     // if ( doRenderLabel ) {
 
@@ -110,16 +102,16 @@ class ShadowMapViewer {
     // }
 
     // Set the size of the displayed shadow map on the HUD
-    this.size = {"width": frame["width"]!, "height": frame["height"]!};
-    // this.size = {
+    size = {"width": frame["width"]!, "height": frame["height"]!};
+    // size = {
     // 	width: frame.width,
     // 	height: frame.height,
     // 	set: function ( width, height ) {
 
-    // 		this.width = width;
-    // 		this.height = height;
+    // 		width = width;
+    // 		height = height;
 
-    // 		mesh.scale.set( this.width / frame.width, this.height / frame.height, 1 );
+    // 		mesh.scale.set( width / frame.width, height / frame.height, 1 );
 
     // 		//Reset the position as it is off when we scale stuff
     // 		resetPosition();
@@ -128,8 +120,8 @@ class ShadowMapViewer {
     // };
 
     // Set the position of the displayed shadow map on the HUD
-    this.position = {"x": frame["x"]!, "y": frame["y"]!};
-    // this.position = {
+    position = {"x": frame["x"]!, "y": frame["y"]!};
+    // position = {
     // 	x: frame.x,
     // 	y: frame.y,
     // 	set: function ( x, y ) {
@@ -148,15 +140,15 @@ class ShadowMapViewer {
     // };
 
     //Force an update to set position/size
-    this.update();
+    update();
   }
 
   setPosition(x, y) {
-    this.position["x"] = x;
-    this.position["y"] = y;
+    position["x"] = x;
+    position["y"] = y;
 
-    var width = this.size["width"]!;
-    var height = this.size["height"]!;
+    var width = size["width"]!;
+    var height = size["height"]!;
 
     mesh.position.set(-innerWidth / 2 + width / 2 + x, innerHeight / 2 - height / 2 - y, 0);
 
@@ -164,8 +156,8 @@ class ShadowMapViewer {
   }
 
   setSize(width, height) {
-    this.size["width"] = width;
-    this.size["height"] = height;
+    size["width"] = width;
+    size["height"] = height;
 
     mesh.scale.set(width / frame["width"], height / frame["height"], 1);
 
@@ -174,16 +166,16 @@ class ShadowMapViewer {
   }
 
   resetPosition() {
-    this.setPosition(this.position["x"], this.position["x"]);
+    setPosition(position["x"], position["x"]);
   }
 
   update() {
-    this.setPosition(this.position["x"], this.position["y"]);
-    this.setSize(this.size["width"], this.size["height"]);
+    setPosition(position["x"], position["y"]);
+    setSize(size["width"], size["height"]);
   }
 
   render(renderer) {
-    if (this.enabled) {
+    if (enabled) {
       print("shadowmap view render   ");
 
       //Because a light's .shadowMap is only initialised after the first render pass
@@ -203,14 +195,14 @@ class ShadowMapViewer {
   }
 
   updateForWindowResize() {
-    if (this.enabled) {
+    if (enabled) {
       camera.left = innerWidth / -2;
       camera.right = innerWidth / 2;
       camera.top = innerHeight / 2;
       camera.bottom = innerHeight / -2;
       camera.updateProjectionMatrix();
 
-      this.update();
+      update();
     }
   }
 }

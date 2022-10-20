@@ -1,4 +1,4 @@
-part of jsm_math;
+import 'package:three_dart/three_dart.dart';
 
 class Capsule {
   Capsule([Vector3? start, Vector3? end, double? radius]) {
@@ -7,11 +7,11 @@ class Capsule {
     this.radius = radius ?? 1;
   }
 
-  Vector3 _v1 = Vector3();
-  Vector3 _v2 = Vector3();
-  Vector3 _v3 = Vector3();
+  final Vector3 _v1 = Vector3();
+  final Vector3 _v2 = Vector3();
+  final Vector3 _v3 = Vector3();
 
-  double EPS = 1e-10;
+  double eps = 1e-10;
 
   late Vector3 start;
   late Vector3 end;
@@ -67,7 +67,7 @@ class Capsule {
     double t2;
     num divisor = b * c - a * a;
 
-    if (Math.abs(divisor) < EPS) {
+    if (Math.abs(divisor) < eps) {
       double d1 = -d / c;
       double d2 = (a - d) / c;
 

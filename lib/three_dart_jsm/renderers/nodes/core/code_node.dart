@@ -1,4 +1,3 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class CodeNode extends Node {
@@ -6,9 +5,7 @@ class CodeNode extends Node {
   late bool useKeywords;
   late List _includes;
 
-  CodeNode([code = '', nodeType = 'code']) : super(nodeType) {
-    this.code = code;
-
+  CodeNode([this.code = '', nodeType = 'code']) : super(nodeType) {
     useKeywords = false;
 
     _includes = [];

@@ -1,4 +1,7 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 class WebGPUTextures {
   // late GPUDevice device;
@@ -12,63 +15,61 @@ class WebGPUTextures {
   late Map samplerCache;
   late dynamic utils;
 
-  WebGPUTextures(device, properties, info) {
+  WebGPUTextures(device, this.properties, this.info) {
     // this.device = device;
-    this.properties = properties;
-    this.info = info;
 
-    this.defaultTexture = null;
-    this.defaultCubeTexture = null;
-    this.defaultSampler = null;
+    defaultTexture = null;
+    defaultCubeTexture = null;
+    defaultSampler = null;
 
-    this.samplerCache = Map();
-    this.utils = null;
+    samplerCache = {};
+    utils = null;
   }
 
   getDefaultSampler() {
-    if (this.defaultSampler == null) {
+    if (defaultSampler == null) {
       // this.defaultSampler = this.device.createSampler();
     }
 
-    return this.defaultSampler;
+    return defaultSampler;
   }
 
   getDefaultTexture() {
-    if (this.defaultTexture == null) {
+    if (defaultTexture == null) {
       var texture = Texture(null);
       texture.minFilter = NearestFilter;
       texture.magFilter = NearestFilter;
 
-      this._uploadTexture(texture);
+      _uploadTexture(texture);
 
-      this.defaultTexture = this.getTextureGPU(texture);
+      defaultTexture = getTextureGPU(texture);
     }
 
-    return this.defaultTexture;
+    return defaultTexture;
   }
 
   getDefaultCubeTexture() {
-    if (this.defaultCubeTexture == null) {
+    if (defaultCubeTexture == null) {
       var texture = CubeTexture(null);
       texture.minFilter = NearestFilter;
       texture.magFilter = NearestFilter;
 
-      this._uploadTexture(texture);
+      _uploadTexture(texture);
 
-      this.defaultCubeTexture = this.getTextureGPU(texture);
+      defaultCubeTexture = getTextureGPU(texture);
     }
 
-    return this.defaultCubeTexture;
+    return defaultCubeTexture;
   }
 
   getTextureGPU(texture) {
-    var textureProperties = this.properties.get(texture);
+    var textureProperties = properties.get(texture);
 
     return textureProperties.textureGPU;
   }
 
   getSampler(texture) {
-    var textureProperties = this.properties.get(texture);
+    var textureProperties = properties.get(texture);
 
     return textureProperties.samplerGPU;
   }
@@ -76,7 +77,7 @@ class WebGPUTextures {
   updateTexture(texture) {
     var needsUpdate = false;
 
-    var textureProperties = this.properties.get(texture);
+    var textureProperties = properties.get(texture);
 
     if (texture.version > 0 && textureProperties.version != texture.version) {
       var image = texture.image;
@@ -96,12 +97,12 @@ class WebGPUTextures {
 
           // texture.addEventListener( 'dispose', disposeCallback );
 
-          this.info.memory["textures"]++;
+          info.memory["textures"]++;
         }
 
         //
 
-        needsUpdate = this._uploadTexture(texture);
+        needsUpdate = _uploadTexture(texture);
       }
     }
 
@@ -127,7 +128,7 @@ class WebGPUTextures {
     array.add(texture.anisotropy);
 
     var key = array.join();
-    var samplerGPU = this.samplerCache.get(key);
+    var samplerGPU = samplerCache.get(key);
 
     if (samplerGPU == undefined) {
       // samplerGPU = this.device.createSampler(GPUSamplerDescriptor(
@@ -139,10 +140,10 @@ class WebGPUTextures {
       //     mipmapFilter: this._convertFilterMode(texture.minFilter),
       //     maxAnisotropy: texture.anisotropy));
 
-      this.samplerCache.set(key, samplerGPU);
+      samplerCache.set(key, samplerGPU);
     }
 
-    var textureProperties = this.properties.get(texture);
+    var textureProperties = properties.get(texture);
     textureProperties.samplerGPU = samplerGPU;
   }
 
@@ -165,7 +166,7 @@ class WebGPUTextures {
       //     usage: GPUTextureUsage.RenderAttachment |
       //         GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
 
-      this.info.memory["textures"]++;
+      info.memory["textures"]++;
 
       // renderTargetProperties["colorTextureGPU"] = colorTextureGPU;
       // renderTargetProperties["colorTextureFormat"] = colorTextureFormat;
@@ -201,7 +202,7 @@ class WebGPUTextures {
         //     format: depthTextureFormat,
         //     usage: GPUTextureUsage.RenderAttachment));
 
-        this.info.memory["textures"]++;
+        info.memory["textures"]++;
 
         // renderTargetProperties["depthTextureGPU"] = depthTextureGPU;
         // renderTargetProperties["depthTextureFormat"] = depthTextureFormat;
@@ -227,7 +228,7 @@ class WebGPUTextures {
   }
 
   dispose() {
-    this.samplerCache.clear();
+    samplerCache.clear();
   }
 
   // int _convertAddressMode(value) {

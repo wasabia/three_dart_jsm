@@ -1,4 +1,9 @@
-part of gltf_loader;
+import 'dart:async';
+import 'dart:convert' as convert;
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
+import 'package:three_dart/three_dart.dart';
+import 'index.dart';
 
 class GLTFLoader extends Loader {
   late List<Function> pluginCallbacks;
@@ -8,54 +13,55 @@ class GLTFLoader extends Loader {
   late dynamic meshoptDecoder;
 
   GLTFLoader([manager]) : super(manager) {
-    this.dracoLoader = null;
-    this.ddsLoader = null;
-    this.ktx2Loader = null;
-    this.meshoptDecoder = null;
+    dracoLoader = null;
+    ddsLoader = null;
+    ktx2Loader = null;
+    meshoptDecoder = null;
 
-    this.pluginCallbacks = [];
+    pluginCallbacks = [];
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsClearcoatExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFTextureBasisUExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFTextureWebPExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsSheenExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsTransmissionExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsVolumeExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsIorExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMaterialsSpecularExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFLightsExtension(parser);
     });
 
-    this.register((parser) {
+    register((parser) {
       return GLTFMeshoptCompression(parser);
     });
   }
 
+  @override
   loadAsync(url) async {
     var completer = Completer();
 
@@ -66,6 +72,7 @@ class GLTFLoader extends Loader {
     return completer.future;
   }
 
+  @override
   load(url, Function onLoad, [Function? onProgress, Function? onError]) {
     var scope = this;
 
@@ -73,8 +80,8 @@ class GLTFLoader extends Loader {
 
     if (this.resourcePath != '') {
       resourcePath = this.resourcePath;
-    } else if (this.path != '') {
-      resourcePath = this.path;
+    } else if (path != '') {
+      resourcePath = path;
     } else {
       resourcePath = LoaderUtils.extractUrlBase(url);
     }
@@ -82,25 +89,25 @@ class GLTFLoader extends Loader {
     // Tells the LoadingManager to track an extra item, which resolves after
     // the model is fully loaded. This means the count of items loaded will
     // be incorrect, but ensures manager.onLoad() does not fire early.
-    this.manager.itemStart(url);
+    manager.itemStart(url);
 
-    Function _onError = (e) {
-      if (onError != null) {
-        onError(e);
-      } else {
-        print(e);
-      }
+    // onError(e) {
+    //   if (onError != null) {
+    //     onError(e);
+    //   } else {
+    //     print(e);
+    //   }
 
-      scope.manager.itemError(url);
-      scope.manager.itemEnd(url);
-    };
+    //   scope.manager.itemError(url);
+    //   scope.manager.itemEnd(url);
+    // }
 
-    var loader = FileLoader(this.manager);
+    var loader = FileLoader(manager);
 
-    loader.setPath(this.path);
+    loader.setPath(path);
     loader.setResponseType('arraybuffer');
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
 
     loader.load(url, (data) {
       // try {
@@ -109,14 +116,14 @@ class GLTFLoader extends Loader {
         onLoad(gltf);
 
         scope.manager.itemEnd(url);
-      }, _onError);
+      }, onError);
 
       // } catch ( e ) {
 
       //   _onError( e );
 
       // }
-    }, onProgress, _onError);
+    }, onProgress, onError);
   }
 
   setDRACOLoader(dracoLoader) {
@@ -140,35 +147,36 @@ class GLTFLoader extends Loader {
   }
 
   register(Function callback) {
-    if (this.pluginCallbacks.indexOf(callback) == -1) {
-      this.pluginCallbacks.add(callback);
+    if (!pluginCallbacks.contains(callback)) {
+      pluginCallbacks.add(callback);
     }
 
     return this;
   }
 
   unregister(callback) {
-    if (this.pluginCallbacks.indexOf(callback) != -1) {
-      splice(this.pluginCallbacks, this.pluginCallbacks.indexOf(callback), 1);
+    if (pluginCallbacks.contains(callback)) {
+      splice(pluginCallbacks, pluginCallbacks.indexOf(callback), 1);
     }
 
     return this;
   }
 
-  parse(data, [String? path, Function? onLoad, Function? onError]) {
+  @override
+  parse(json, [String? path, Function? onLoad, Function? onError]) {
     var content;
     var extensions = {};
     var plugins = {};
 
-    if (data is String) {
-      content = data;
+    if (json is String) {
+      content = json;
     } else {
-      var magic = LoaderUtils.decodeText(Uint8List.view(data.buffer, 0, 4));
+      var magic = LoaderUtils.decodeText(Uint8List.view(json.buffer, 0, 4));
 
-      if (magic == BINARY_EXTENSION_HEADER_MAGIC) {
+      if (magic == binaryExtensionHeaderMagic) {
         // try {
 
-        extensions[EXTENSIONS["KHR_BINARY_GLTF"]] = GLTFBinaryExtension(data.buffer);
+        extensions[gltfExtensions["KHR_BINARY_GLTF"]] = GLTFBinaryExtension(json.buffer);
 
         // } catch ( error ) {
 
@@ -177,36 +185,32 @@ class GLTFLoader extends Loader {
 
         // }
 
-        content = extensions[EXTENSIONS["KHR_BINARY_GLTF"]].content;
+        content = extensions[gltfExtensions["KHR_BINARY_GLTF"]].content;
       } else {
-        content = LoaderUtils.decodeText(data);
+        content = LoaderUtils.decodeText(json);
       }
     }
 
-    Map<String, dynamic> json = convert.jsonDecode(content);
+    Map<String, dynamic> decoded = convert.jsonDecode(content);
 
-    if (json["asset"] == null || num.parse(json["asset"]["version"]) < 2.0) {
+    if (decoded["asset"] == null || num.parse(decoded["asset"]["version"]) < 2.0) {
       if (onError != null) onError('THREE.GLTFLoader: Unsupported asset. glTF versions >= 2.0 are supported.');
       return;
     }
 
-    var parser = GLTFParser(json, {
-      "path": path != null
-          ? path
-          : this.resourcePath != null
-              ? this.resourcePath
-              : '',
-      "crossOrigin": this.crossOrigin,
-      "requestHeader": this.requestHeader,
-      "manager": this.manager,
-      "ktx2Loader": this.ktx2Loader,
-      "meshoptDecoder": this.meshoptDecoder
+    var parser = GLTFParser(decoded, {
+      "path": path ?? (resourcePath ?? ''),
+      "crossOrigin": crossOrigin,
+      "requestHeader": requestHeader,
+      "manager": manager,
+      "ktx2Loader": ktx2Loader,
+      "meshoptDecoder": meshoptDecoder
     });
 
-    parser.fileLoader.setRequestHeader(this.requestHeader);
+    parser.fileLoader.setRequestHeader(requestHeader);
 
-    for (var i = 0; i < this.pluginCallbacks.length; i++) {
-      var plugin = this.pluginCallbacks[i](parser);
+    for (var i = 0; i < pluginCallbacks.length; i++) {
+      var plugin = pluginCallbacks[i](parser);
       plugins[plugin.name] = plugin;
 
       // Workaround to avoid determining as unknown extension
@@ -216,26 +220,26 @@ class GLTFLoader extends Loader {
       extensions[plugin.name] = true;
     }
 
-    if (json["extensionsUsed"] != null) {
-      for (var i = 0; i < json["extensionsUsed"].length; ++i) {
-        var extensionName = json["extensionsUsed"][i];
-        var extensionsRequired = json["extensionsRequired"] ?? [];
+    if (decoded["extensionsUsed"] != null) {
+      for (var i = 0; i < decoded["extensionsUsed"].length; ++i) {
+        var extensionName = decoded["extensionsUsed"][i];
+        var extensionsRequired = decoded["extensionsRequired"] ?? [];
 
-        if (extensionName == EXTENSIONS["KHR_MATERIALS_UNLIT"]) {
+        if (extensionName == gltfExtensions["KHR_MATERIALS_UNLIT"]) {
           extensions[extensionName] = GLTFMaterialsUnlitExtension();
-        } else if (extensionName == EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
+        } else if (extensionName == gltfExtensions["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
           extensions[extensionName] = GLTFMaterialsPbrSpecularGlossinessExtension();
-        } else if (extensionName == EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]) {
-          extensions[extensionName] = GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
-        } else if (extensionName == EXTENSIONS["MSFT_TEXTURE_DDS"]) {
-          extensions[extensionName] = GLTFTextureDDSExtension(this.ddsLoader);
-        } else if (extensionName == EXTENSIONS["KHR_TEXTURE_TRANSFORM"]) {
+        } else if (extensionName == gltfExtensions["KHR_DRACO_MESH_COMPRESSION"]) {
+          extensions[extensionName] = GLTFDracoMeshCompressionExtension(decoded, dracoLoader);
+        } else if (extensionName == gltfExtensions["MSFT_TEXTURE_DDS"]) {
+          extensions[extensionName] = GLTFTextureDDSExtension(ddsLoader);
+        } else if (extensionName == gltfExtensions["KHR_TEXTURE_TRANSFORM"]) {
           extensions[extensionName] = GLTFTextureTransformExtension();
-        } else if (extensionName == EXTENSIONS["KHR_MESH_QUANTIZATION"]) {
+        } else if (extensionName == gltfExtensions["KHR_MESH_QUANTIZATION"]) {
           extensions[extensionName] = GLTFMeshQuantizationExtension();
         } else {
           if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] == null) {
-            print('THREE.GLTFLoader: Unknown extension ${extensionName}.');
+            print('THREE.GLTFLoader: Unknown extension $extensionName.');
           }
         }
 

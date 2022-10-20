@@ -10,8 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  three_dart: #^0.0.14
-    path: ../three_dart
+  three_dart: ^0.0.14
   flutter_gl: ^0.0.20
   typr_dart: ^0.0.2
   opentype_dart: ^0.0.1
@@ -21,9 +20,9 @@ dependencies:
   # flutter_webgpu:
   #   path: ../../flutter_webgpu
 
-dependency_overrides:
-  three_dart:
-    path: ../three_dart
+# dependency_overrides:
+#   three_dart:
+#     path: ../three_dart
 
 dev_dependencies:
   flutter_test:

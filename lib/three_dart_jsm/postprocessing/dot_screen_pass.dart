@@ -4,11 +4,7 @@ import 'pass.dart';
 
 class DotScreenPass extends Pass {
   DotScreenPass(Vector2? center, num? angle, num? scale) : super() {
-    if (DotScreenShader == null) {
-      print('THREE.DotScreenPass relies on DotScreenShader');
-    }
-
-    var shader = DotScreenShader;
+    var shader = dotScreenShader;
 
     uniforms = UniformsUtils.clone(shader["uniforms"]);
 
@@ -16,8 +12,11 @@ class DotScreenPass extends Pass {
     if (angle != null) uniforms['angle']["value"] = angle;
     if (scale != null) uniforms['scale']["value"] = scale;
 
-    material = ShaderMaterial(
-        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
+    material = ShaderMaterial({
+      "uniforms": uniforms,
+      "vertexShader": shader["vertexShader"],
+      "fragmentShader": shader["fragmentShader"],
+    });
 
     fsQuad = FullScreenQuad(material);
   }

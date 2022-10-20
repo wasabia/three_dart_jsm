@@ -1,24 +1,22 @@
-part of three_webgpu;
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 class WebGPUGeometries {
-  late WebGPUAttributes attributes;
-  late WebGPUInfo info;
-  late WeakMap geometries;
+  WebGPUAttributes attributes;
+  WebGPUInfo info;
 
-  WebGPUGeometries(WebGPUAttributes attributes, WebGPUInfo info) {
-    this.attributes = attributes;
-    this.info = info;
+  final geometries = WeakMap();
 
-    this.geometries = WeakMap();
-  }
+  WebGPUGeometries(this.attributes, this.info);
 
   update(geometry) {
-    if (this.geometries.has(geometry) == false) {
+    if (geometries.has(geometry) == false) {
       // var disposeCallback = onGeometryDispose.bind( this );
 
       // this.geometries.set( geometry, onGeometryDispose );
 
-      this.info.memory["geometries"]++;
+      info.memory["geometries"]++;
 
       // geometry.addEventListener( 'dispose', onGeometryDispose );
 
@@ -27,13 +25,13 @@ class WebGPUGeometries {
     var geometryAttributes = geometry.attributes;
 
     for (var name in geometryAttributes.keys) {
-      this.attributes.update(geometryAttributes[name]);
+      attributes.update(geometryAttributes[name]);
     }
 
     var index = geometry.index;
 
     if (index != null) {
-      this.attributes.update(index, true);
+      attributes.update(index, true);
     }
   }
 

@@ -1,28 +1,29 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
 class WebGPUProperties {
   late WeakMap properties;
 
   WebGPUProperties() {
-    this.properties = WeakMap();
+    properties = WeakMap();
   }
 
   get(object) {
-    var map = this.properties.get(object);
+    var map = properties.get(object);
 
     if (map == undefined) {
       map = {};
-      this.properties.set(object, map);
+      properties.set(object, map);
     }
 
     return map;
   }
 
   remove(object) {
-    this.properties.delete(object);
+    properties.delete(object);
   }
 
   dispose() {
-    this.properties = WeakMap();
+    properties = WeakMap();
   }
 }

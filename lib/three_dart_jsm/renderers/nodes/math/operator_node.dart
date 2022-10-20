@@ -5,25 +5,24 @@ class OperatorNode extends TempNode {
   late Node aNode;
   late Node bNode;
 
-  OperatorNode(op, aNode, bNode, [List? params]) : super() {
+  OperatorNode(this.op, aN, bN, [List? params]) : super() {
     generateLength = 2;
 
-    this.op = op;
-
     if (params != null && params.isNotEmpty) {
-      var finalBNode = bNode;
+      var finalBNode = bN;
 
       for (var i = 0; i < params.length; i++) {
         finalBNode = OperatorNode(op, finalBNode, params[i]);
       }
 
-      bNode = finalBNode;
+      bN = finalBNode;
     }
 
-    this.aNode = aNode;
-    this.bNode = bNode;
+    aNode = aN;
+    bNode = bN;
   }
 
+  @override
   getNodeType([builder, output]) {
     var op = this.op;
 
@@ -64,6 +63,7 @@ class OperatorNode extends TempNode {
     }
   }
 
+  @override
   generate([builder, output]) {
     var op = this.op;
 

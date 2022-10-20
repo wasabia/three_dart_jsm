@@ -4,15 +4,21 @@ import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 import 'pass.dart';
 
 class FilmPass extends Pass {
-  FilmPass(noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale) : super() {
-    if (FilmShader == null) print('THREE.FilmPass relies on FilmShader');
-
-    var shader = FilmShader;
+  FilmPass(
+    noiseIntensity,
+    scanlinesIntensity,
+    scanlinesCount,
+    grayscale,
+  ) : super() {
+    var shader = filmShader;
 
     uniforms = UniformsUtils.clone(Map<String, dynamic>.from(shader["uniforms"]));
 
-    material = ShaderMaterial(
-        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
+    material = ShaderMaterial({
+      "uniforms": uniforms,
+      "vertexShader": shader["vertexShader"],
+      "fragmentShader": shader["fragmentShader"],
+    });
 
     if (grayscale != null) uniforms["grayscale"]["value"] = grayscale;
     if (noiseIntensity != null) {

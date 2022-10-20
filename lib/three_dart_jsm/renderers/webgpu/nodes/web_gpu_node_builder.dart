@@ -1,4 +1,8 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import '../../nodes/index.dart';
+import '../index.dart';
 
 var wgslTypeLib = {
   'float': 'f32',
@@ -54,15 +58,13 @@ class WebGPUNodeBuilder extends NodeBuilder {
   late Map bindings;
   late Map bindingsOffset;
 
-  WebGPUNodeBuilder(object, renderer, [lightNode]) : super(object, renderer, null) {
-    this.lightNode = lightNode;
+  WebGPUNodeBuilder(object, renderer, [this.lightNode]) : super(object, renderer, null) {
+    bindings = {"vertex": [], "fragment": []};
+    bindingsOffset = {"vertex": 0, "fragment": 0};
 
-    this.bindings = {"vertex": [], "fragment": []};
-    this.bindingsOffset = {"vertex": 0, "fragment": 0};
+    uniformsGroup = {};
 
-    this.uniformsGroup = {};
-
-    this._parseObject();
+    _parseObject();
   }
 
   _parseObject() {
@@ -79,14 +81,14 @@ class WebGPUNodeBuilder extends NodeBuilder {
 
       // VERTEX STAGE
 
-      Node vertex = PositionNode(PositionNode.GEOMETRY);
+      Node vertex = PositionNode(PositionNode.geometry);
 
       if (lightNode == null && this.lightNode != null && this.lightNode.hasLights == true) {
         lightNode = this.lightNode;
       }
 
       if (material.positionNode != null && material.positionNode.isNode) {
-        var assignPositionNode = OperatorNode('=', PositionNode(PositionNode.LOCAL), material.positionNode);
+        var assignPositionNode = OperatorNode('=', PositionNode(PositionNode.local), material.positionNode);
 
         vertex = BypassNode(vertex, assignPositionNode);
       }
@@ -95,9 +97,9 @@ class WebGPUNodeBuilder extends NodeBuilder {
         vertex = BypassNode(vertex, SkinningNode(object));
       }
 
-      this.context["vertex"] = vertex;
+      context["vertex"] = vertex;
 
-      this.addFlow('vertex', VarNode(ModelViewProjectionNode(), 'MVP', 'vec4'));
+      addFlow('vertex', VarNode(ModelViewProjectionNode(), 'MVP', 'vec4'));
 
       // COLOR
 
@@ -106,12 +108,12 @@ class WebGPUNodeBuilder extends NodeBuilder {
       if (material.colorNode != null && material.colorNode is Node) {
         colorNode = material.colorNode;
       } else {
-        colorNode = MaterialNode(MaterialNode.COLOR);
+        colorNode = MaterialNode(MaterialNode.color);
       }
 
-      colorNode = this.addFlow('fragment', VarNode(colorNode, 'Color', 'vec4'));
+      colorNode = addFlow('fragment', VarNode(colorNode, 'Color', 'vec4'));
 
-      var diffuseColorNode = this.addFlow('fragment', VarNode(colorNode, 'DiffuseColor', 'vec4'));
+      var diffuseColorNode = addFlow('fragment', VarNode(colorNode, 'DiffuseColor', 'vec4'));
 
       // OPACITY
 
@@ -120,12 +122,12 @@ class WebGPUNodeBuilder extends NodeBuilder {
       if (material.opacityNode != null && material.opacityNode is Node) {
         opacityNode = material.opacityNode;
       } else {
-        opacityNode = VarNode(MaterialNode(MaterialNode.OPACITY));
+        opacityNode = VarNode(MaterialNode(MaterialNode.opacity));
       }
 
-      this.addFlow('fragment', VarNode(opacityNode, 'OPACITY', 'float'));
+      addFlow('fragment', VarNode(opacityNode, 'OPACITY', 'float'));
 
-      this.addFlow('fragment', ExpressionNode('DiffuseColor.a = DiffuseColor.a * OPACITY;'));
+      addFlow('fragment', ExpressionNode('DiffuseColor.a = DiffuseColor.a * OPACITY;'));
 
       // ALPHA TEST
 
@@ -134,13 +136,13 @@ class WebGPUNodeBuilder extends NodeBuilder {
       if (material.alphaTestNode != null && material.alphaTestNode is Node) {
         alphaTest = material.alphaTestNode;
       } else if (material.alphaTest > 0) {
-        alphaTest = MaterialNode(MaterialNode.ALPHA_TEST);
+        alphaTest = MaterialNode(MaterialNode.alphaTest);
       }
 
       if (alphaTest != null) {
-        this.addFlow('fragment', VarNode(alphaTest, 'AlphaTest', 'float'));
+        addFlow('fragment', VarNode(alphaTest, 'AlphaTest', 'float'));
 
-        this.addFlow('fragment', ExpressionNode('if ( DiffuseColor.a <= AlphaTest ) { discard; }'));
+        addFlow('fragment', ExpressionNode('if ( DiffuseColor.a <= AlphaTest ) { discard; }'));
       }
 
       if (material is MeshStandardMaterial) {
@@ -151,12 +153,12 @@ class WebGPUNodeBuilder extends NodeBuilder {
         if (material.metalnessNode != null && material.metalnessNode.isNode) {
           metalnessNode = material.metalnessNode;
         } else {
-          metalnessNode = MaterialNode(MaterialNode.METALNESS);
+          metalnessNode = MaterialNode(MaterialNode.metalness);
         }
 
-        this.addFlow('fragment', VarNode(metalnessNode, 'Metalness', 'float'));
+        addFlow('fragment', VarNode(metalnessNode, 'Metalness', 'float'));
 
-        this.addFlow('fragment',
+        addFlow('fragment',
             ExpressionNode('DiffuseColor = vec4<f32>( DiffuseColor.rgb * ( 1.0 - Metalness ), DiffuseColor.a );'));
 
         // ROUGHNESS
@@ -166,16 +168,16 @@ class WebGPUNodeBuilder extends NodeBuilder {
         if (material.roughnessNode && material.roughnessNode.isNode) {
           roughnessNode = material.roughnessNode;
         } else {
-          roughnessNode = MaterialNode(MaterialNode.ROUGHNESS);
+          roughnessNode = MaterialNode(MaterialNode.roughness);
         }
 
         roughnessNode = getRoughness({roughness: roughnessNode});
 
-        this.addFlow('fragment', VarNode(roughnessNode, 'Roughness', 'float'));
+        addFlow('fragment', VarNode(roughnessNode, 'Roughness', 'float'));
 
         // SPECULAR_TINT
 
-        this.addFlow(
+        addFlow(
             'fragment',
             VarNode(
                 ExpressionNode('mix( vec3<f32>( 0.04 ), Color.rgb, Metalness )', 'vec3'), 'SpecularColor', 'color'));
@@ -187,10 +189,10 @@ class WebGPUNodeBuilder extends NodeBuilder {
         if (material.normalNode && material.normalNode.isNode) {
           normalNode = material.normalNode;
         } else {
-          normalNode = NormalNode(NormalNode.VIEW);
+          normalNode = NormalNode(NormalNode.view);
         }
 
-        this.addFlow('fragment', VarNode(normalNode, 'TransformedNormalView', 'vec3'));
+        addFlow('fragment', VarNode(normalNode, 'TransformedNormalView', 'vec3'));
       }
 
       // LIGHT
@@ -200,7 +202,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
       if (lightNode != null && lightNode is Node) {
         var lightContextNode = LightContextNode(lightNode);
 
-        outputNode = this.addFlow('fragment', VarNode(lightContextNode, 'Light', 'vec3'));
+        outputNode = addFlow('fragment', VarNode(lightContextNode, 'Light', 'vec3'));
       }
 
       // OUTGOING LIGHT
@@ -217,17 +219,18 @@ class WebGPUNodeBuilder extends NodeBuilder {
 
       outputNode = join([outgoingLightNode.xyz, nodeObject(diffuseColorNode).w]);
 
-      var outputEncoding = this.renderer.outputEncoding;
+      var outputEncoding = renderer.outputEncoding;
 
       if (outputEncoding != LinearEncoding) {
-        outputNode = ColorSpaceNode(ColorSpaceNode.LINEAR_TO_LINEAR, outputNode);
+        outputNode = ColorSpaceNode(ColorSpaceNode.linearToLinear, outputNode);
         outputNode.fromEncoding(outputEncoding);
       }
 
-      this.addFlow('fragment', VarNode(outputNode, 'Output', 'vec4'));
+      addFlow('fragment', VarNode(outputNode, 'Output', 'vec4'));
     }
   }
 
+  @override
   addFlowCode(code) {
     if (!RegExp(r";\s*$").hasMatch(code)) {
       code += ';';
@@ -243,7 +246,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
     if (shaderStage == 'fragment') {
       return """textureSample( $textureProperty, ${textureProperty}_sampler, $uvSnippet )""";
     } else {
-      this._include('repeatWrapping');
+      _include('repeatWrapping');
 
       var dimension = """textureDimensions( $textureProperty, 0 )""";
 
@@ -251,6 +254,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
     }
   }
 
+  @override
   getPropertyName(node, [shaderStage]) {
     shaderStage = shaderStage ?? this.shaderStage;
 
@@ -280,9 +284,10 @@ class WebGPUNodeBuilder extends NodeBuilder {
     return [...bindings["vertex"], ...bindings["fragment"]];
   }
 
+  @override
   getUniformFromNode(node, shaderStage, type) {
     var uniformNode = super.getUniformFromNode(node, shaderStage, type);
-    Map nodeData = this.getDataFromNode(node, shaderStage);
+    Map nodeData = getDataFromNode(node, shaderStage);
 
     if (nodeData["uniformGPU"] == undefined) {
       var uniformGPU;
@@ -331,7 +336,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
           uniformGPU = [];
 
           for (var inputNode in node.nodes) {
-            var uniformNodeGPU = this._getNodeUniform(inputNode, type);
+            var uniformNodeGPU = _getNodeUniform(inputNode, type);
 
             // fit bounds to buffer
             uniformNodeGPU.boundary = getVectorLength(uniformNodeGPU.itemSize);
@@ -342,7 +347,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
             uniformGPU.add(uniformNodeGPU);
           }
         } else {
-          uniformGPU = this._getNodeUniform(uniformNode, type);
+          uniformGPU = _getNodeUniform(uniformNode, type);
 
           uniformsGroup.addUniform(uniformGPU);
         }
@@ -351,13 +356,14 @@ class WebGPUNodeBuilder extends NodeBuilder {
       nodeData["uniformGPU"] = uniformGPU;
 
       if (shaderStage == 'vertex') {
-        this.bindingsOffset['fragment'] = bindings.length;
+        bindingsOffset['fragment'] = bindings.length;
       }
     }
 
     return uniformNode;
   }
 
+  @override
   getAttributes(shaderStage) {
     var snippets = [];
 
@@ -368,7 +374,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
       for (var index = 0; index < length; index++) {
         var attribute = attributes[index];
         var name = attribute.name;
-        var type = this.getType(attribute.type);
+        var type = getType(attribute.type);
 
         snippets.add("@location( $index ) $name  : $type ");
       }
@@ -377,6 +383,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
     return snippets.join(',\n\t');
   }
 
+  @override
   getVars(shaderStage) {
     var snippets = [];
 
@@ -386,7 +393,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
       var variable = vars[index];
 
       var name = variable.name;
-      var type = this.getType(variable.type);
+      var type = getType(variable.type);
 
       snippets.add("\tvar $name : $type;");
     }
@@ -406,7 +413,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
       for (var index = 0; index < varys.length; index++) {
         var vary = varys[index];
 
-        snippets.add(" @location( $index ) ${vary.name} : ${this.getType(vary.type)}");
+        snippets.add(" @location( $index ) ${vary.name} : ${getType(vary.type)}");
       }
     } else if (shaderStage == 'fragment') {
       var varys = this.varys;
@@ -414,13 +421,13 @@ class WebGPUNodeBuilder extends NodeBuilder {
       for (var index = 0; index < varys.length; index++) {
         var vary = varys[index];
 
-        snippets.add("@location( $index ) ${vary.name} : ${this.getType(vary.type)}");
+        snippets.add("@location( $index ) ${vary.name} : ${getType(vary.type)}");
       }
     }
 
     var code = snippets.join(',\n\t');
 
-    return shaderStage == 'vertex' ? this._getWGSLStruct('NodeVarysStruct', code) : code;
+    return shaderStage == 'vertex' ? _getWGSLStruct('NodeVarysStruct', code) : code;
   }
 
   @override
@@ -431,7 +438,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
     var bufferSnippets = [];
     var groupSnippets = [];
 
-    var index = this.bindingsOffset[shaderStage];
+    var index = bindingsOffset[shaderStage];
 
     for (var uniform in uniforms) {
       if (uniform.type == 'texture') {
@@ -448,14 +455,14 @@ class WebGPUNodeBuilder extends NodeBuilder {
         bindingSnippets.add("@group( 0 ) @binding( ${index++} ) var ${uniform.name} : texture_cube<f32>;");
       } else if (uniform.type == 'buffer') {
         var bufferNode = uniform.node;
-        var bufferType = this.getType(bufferNode.bufferType);
+        var bufferType = getType(bufferNode.bufferType);
         var bufferCount = bufferNode.bufferCount;
 
         var bufferSnippet = "\t${uniform.name} : array< $bufferType, $bufferCount >\n";
 
-        bufferSnippets.add(this._getWGSLUniforms('NodeBuffer', bufferSnippet, index++));
+        bufferSnippets.add(_getWGSLUniforms('NodeBuffer', bufferSnippet, index++));
       } else {
-        var vectorType = this.getType(this.getVectorType(uniform.type));
+        var vectorType = getType(getVectorType(uniform.type));
 
         if (uniform.value is List) {
           var length = uniform.value.length;
@@ -470,19 +477,20 @@ class WebGPUNodeBuilder extends NodeBuilder {
     var code = bindingSnippets.join('\n');
     code += bufferSnippets.join(',\n');
 
-    if (groupSnippets.length > 0) {
-      code += this._getWGSLUniforms('NodeUniforms', groupSnippets.join(',\n'), index++);
+    if (groupSnippets.isNotEmpty) {
+      code += _getWGSLUniforms('NodeUniforms', groupSnippets.join(',\n'), index++);
     }
 
     return code;
   }
 
+  @override
   buildCode() {
     var shadersData = {"fragment": {}, "vertex": {}};
 
     for (var shaderStage in shadersData.keys) {
       var flow = '// code\n';
-      flow += "\t${this.flowCode[shaderStage]}";
+      flow += "\t${flowCode[shaderStage]}";
       flow += '\n';
 
       var flowNodes = this.flowNodes[shaderStage];
@@ -493,11 +501,11 @@ class WebGPUNodeBuilder extends NodeBuilder {
       }
 
       for (var node in flowNodes) {
-        Map flowSlotData = this.getFlowData(shaderStage, node);
+        Map flowSlotData = getFlowData(shaderStage, node);
         var slotName = node.name;
 
         if (slotName != null) {
-          if (flow.length > 0) flow += '\n';
+          if (flow.isNotEmpty) flow += '\n';
 
           flow += "\t// FLOW -> $slotName\n\t";
         }
@@ -519,26 +527,28 @@ class WebGPUNodeBuilder extends NodeBuilder {
 
       var stageData = shadersData[shaderStage]!;
 
-      stageData["uniforms"] = this.getUniforms(shaderStage);
-      stageData["attributes"] = this.getAttributes(shaderStage);
-      stageData["varys"] = this.getVarys(shaderStage);
-      stageData["vars"] = this.getVars(shaderStage);
-      stageData["codes"] = this.getCodes(shaderStage);
+      stageData["uniforms"] = getUniforms(shaderStage);
+      stageData["attributes"] = getAttributes(shaderStage);
+      stageData["varys"] = getVarys(shaderStage);
+      stageData["vars"] = getVars(shaderStage);
+      stageData["codes"] = getCodes(shaderStage);
       stageData["flow"] = flow;
     }
 
-    this.vertexShader = this._getWGSLVertexCode(shadersData["vertex"]);
-    this.fragmentShader = this._getWGSLFragmentCode(shadersData["fragment"]);
+    vertexShader = _getWGSLVertexCode(shadersData["vertex"]);
+    fragmentShader = _getWGSLFragmentCode(shadersData["fragment"]);
   }
 
+  @override
   getMethod(method) {
     if (wgslPolyfill[method] != undefined) {
-      this._include(method);
+      _include(method);
     }
 
     return wgslMethods[method] ?? method;
   }
 
+  @override
   getType(type) {
     return wgslTypeLib[type] ?? type;
   }
@@ -560,7 +570,7 @@ class WebGPUNodeBuilder extends NodeBuilder {
   }
 
   _getWGSLVertexCode(shaderData) {
-    return """${this.getSignature()}
+    return """${getSignature()}
 
 // uniforms
 ${shaderData["uniforms"]}
@@ -590,7 +600,7 @@ fn main( ${shaderData["attributes"]} ) -> NodeVarysStruct {
   }
 
   _getWGSLFragmentCode(shaderData) {
-    return """${this.getSignature()}
+    return """${getSignature()}
 
 // uniforms
 ${shaderData["uniforms"]}
@@ -620,7 +630,7 @@ $vars
 
   _getWGSLUniforms(name, vars, [binding = 0, group = 0]) {
     var structName = name + 'Struct';
-    var structSnippet = this._getWGSLStruct(structName, vars);
+    var structSnippet = _getWGSLStruct(structName, vars);
 
     return """$structSnippet
 [[ binding( $binding ), group( $group ) ]]

@@ -11,7 +11,7 @@ class AfterimagePass extends Pass {
   late FullScreenQuad copyFsQuad;
 
   AfterimagePass(damp, bufferSizeMap) : super() {
-    shader = AfterimageShader;
+    shader = afterimageShader;
 
     uniforms = UniformsUtils.clone(shader["uniforms"]);
 

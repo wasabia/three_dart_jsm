@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:three_dart/three_dart.dart';
-import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
-
-import 'pass.dart';
+import 'package:three_dart_jsm/three_dart_jsm/index.dart';
 
 ///
 /// Supersample Anti-Aliasing Render Pass
@@ -37,9 +34,6 @@ class SSAARenderPass extends Pass {
     this.clearAlpha = clearAlpha ?? 0;
     _oldClearColor = Color(0, 0, 0);
 
-    if (CopyShader == null) print('THREE.SSAARenderPass relies on CopyShader');
-
-    var copyShader = CopyShader;
     copyUniforms = UniformsUtils.clone(copyShader["uniforms"]);
 
     copyMaterial = ShaderMaterial({
@@ -78,7 +72,7 @@ class SSAARenderPass extends Pass {
       sampleRenderTarget!.texture.name = 'SSAARenderPass.sample';
     }
 
-    var jitterOffsets = _JitterVectors[Math.max(0, Math.min(sampleLevel, 5))];
+    var jitterOffsets = _jitterVectors[Math.max(0, Math.min(sampleLevel, 5))];
 
     var autoClear = renderer.autoClear;
     renderer.autoClear = false;
@@ -188,7 +182,7 @@ class SSAARenderPass extends Pass {
 // before being used, thus these integers need to be scaled by 1/16.
 //
 // Sample patterns reference: https://msdn.microsoft.com/en-us/library/windows/desktop/ff476218%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396
-var _JitterVectors = [
+var _jitterVectors = [
   [
     [0, 0]
   ],

@@ -1,19 +1,10 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:three_dart/three_dart.dart';
-import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 
 import 'pass.dart';
 
 class ShaderPasses extends Pass {
   late dynamic textureID;
-  @override
-  late Map<String, dynamic> uniforms;
-  @override
-  late Material material;
-  @override
-  late FullScreenQuad fsQuad;
+
   late Color oldClearColor;
   late num oldClearAlpha;
   late bool oldAutoClear;
@@ -65,7 +56,7 @@ class ShaderPasses extends Pass {
       int i = 0;
       int lastPass = passes!.length - 1;
       WebGLRenderTarget? lastRenderTarget;
-      for (Map<String, dynamic> pass in passes!) {
+      for (final _ in passes!) {
         material.uniforms["acPass"] = {"value": i};
         if (lastRenderTarget != null) {
           material.uniforms["acPassTexture"] = {"value": lastRenderTarget.texture};

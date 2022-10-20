@@ -1,4 +1,8 @@
-part of three_webgpu;
+import 'package:flutter_gl/native-array/index.dart';
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 class WebGPUBindings {
   // TODO (WebGPU): implement
@@ -13,23 +17,23 @@ class WebGPUBindings {
   late WeakMap uniformsData;
   late WeakMap updateMap;
 
-  WebGPUBindings(device, info, properties, textures, renderPipelines, computePipelines, attributes, nodes) {
+  WebGPUBindings(
+    device,
+    this.info,
+    this.properties,
+    this.textures,
+    this.renderPipelines,
+    this.computePipelines,
+    this.attributes,
+    this.nodes,
+  ) {
     // this.device = device;
-    this.info = info;
-    this.properties = properties;
-    this.textures = textures;
-    this.renderPipelines = renderPipelines;
-    this.computePipelines = computePipelines;
-    this.attributes = attributes;
-    this.nodes = nodes;
-
-    this.uniformsData = WeakMap();
-
-    this.updateMap = WeakMap();
+    uniformsData = WeakMap();
+    updateMap = WeakMap();
   }
 
   Map get(object) {
-    var data = this.uniformsData.get(object);
+    var data = uniformsData.get(object);
 
     if (data == undefined) {
       // each object defines an array of bindings (ubos, textures, samplers etc.)
@@ -48,32 +52,32 @@ class WebGPUBindings {
 
       // data = {"layout": bindGroupLayout, "group": bindGroup, "bindings": bindings};
 
-      this.uniformsData.set(object, data);
+      uniformsData.set(object, data);
     }
 
     return data;
   }
 
   remove(object) {
-    this.uniformsData.delete(object);
+    uniformsData.delete(object);
   }
 
   getForCompute(param) {
-    var data = this.uniformsData.get(param);
+    var data = uniformsData.get(param);
 
     if (data == undefined) {
       // bindings are not yet retrieved via node material
 
       var bindings = param.bindings != undefined ? param.bindings.slice() : [];
 
-      var computePipeline = this.computePipelines.get(param);
+      var computePipeline = computePipelines.get(param);
 
       var bindLayout = computePipeline.getBindGroupLayout(0);
-      var bindGroup = this._createBindGroup(bindings, bindLayout);
+      var bindGroup = _createBindGroup(bindings, bindLayout);
 
       data = {"layout": bindLayout, "group": bindGroup, "bindings": bindings};
 
-      this.uniformsData.set(param, data);
+      uniformsData.set(param, data);
     }
 
     return data;
@@ -82,12 +86,12 @@ class WebGPUBindings {
   update(object) {
     var textures = this.textures;
 
-    var data = this.get(object);
+    var data = get(object);
 
     var bindings = data["bindings"];
 
     var updateMap = this.updateMap;
-    var frame = this.info.render["frame"];
+    var frame = info.render["frame"];
 
     var needsBindGroupRefresh = false;
 
@@ -113,7 +117,7 @@ class WebGPUBindings {
         }
       } else if (binding.isStorageBuffer) {
         var attribute = binding.attribute;
-        this.attributes.update(attribute, false, binding.usage);
+        attributes.update(attribute, false, binding.usage);
       } else if (binding.isSampler) {
         var texture = binding.getTexture();
 
@@ -141,13 +145,13 @@ class WebGPUBindings {
     }
 
     if (needsBindGroupRefresh == true) {
-      data["group"] = this._createBindGroup(bindings, data["layout"]);
+      data["group"] = _createBindGroup(bindings, data["layout"]);
     }
   }
 
   dispose() {
-    this.uniformsData = WeakMap();
-    this.updateMap = WeakMap();
+    uniformsData = WeakMap();
+    updateMap = WeakMap();
   }
 
   _createBindGroup(bindings, layout) {

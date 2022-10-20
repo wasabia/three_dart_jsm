@@ -1,4 +1,4 @@
-part of three_webgpu;
+import 'package:three_dart/three_dart.dart';
 
 class WebGPUUniform {
   late String name;
@@ -8,14 +8,11 @@ class WebGPUUniform {
   late int itemSize;
   late int offset;
 
-  WebGPUUniform(name, [value]) {
-    this.name = name;
-    this.value = value;
+  WebGPUUniform(this.name, [this.value]) {
+    boundary = 0; // used to build the uniform buffer according to the STD140 layout
+    itemSize = 0;
 
-    this.boundary = 0; // used to build the uniform buffer according to the STD140 layout
-    this.itemSize = 0;
-
-    this.offset = 0; // this property is set by WebGPUUniformsGroup and marks the start position in the uniform buffer
+    offset = 0; // this property is set by WebGPUUniformsGroup and marks the start position in the uniform buffer
   }
 
   setValue(value) {
@@ -23,22 +20,22 @@ class WebGPUUniform {
   }
 
   getValue() {
-    return this.value;
+    return value;
   }
 }
 
 class FloatUniform extends WebGPUUniform {
   FloatUniform(name, [value = 0]) : super(name, value) {
-    this.boundary = 4;
-    this.itemSize = 1;
+    boundary = 4;
+    itemSize = 1;
   }
 }
 
 class Vector2Uniform extends WebGPUUniform {
   Vector2Uniform(name, [value]) : super(name, value) {
     this.value ??= Vector2();
-    this.boundary = 8;
-    this.itemSize = 2;
+    boundary = 8;
+    itemSize = 2;
   }
 }
 
@@ -46,8 +43,8 @@ class Vector3Uniform extends WebGPUUniform {
   Vector3Uniform(name, [value]) : super(name, value) {
     this.value ??= Vector3();
 
-    this.boundary = 16;
-    this.itemSize = 3;
+    boundary = 16;
+    itemSize = 3;
   }
 }
 
@@ -55,8 +52,8 @@ class Vector4Uniform extends WebGPUUniform {
   Vector4Uniform(name, [value]) : super(name, value) {
     this.value ??= Vector4(0, 0, 0, 0);
 
-    this.boundary = 16;
-    this.itemSize = 4;
+    boundary = 16;
+    itemSize = 4;
   }
 }
 
@@ -64,8 +61,8 @@ class ColorUniform extends WebGPUUniform {
   ColorUniform(name, [value]) : super(name, value) {
     this.value ??= Color();
 
-    this.boundary = 16;
-    this.itemSize = 3;
+    boundary = 16;
+    itemSize = 3;
   }
 }
 
@@ -73,8 +70,8 @@ class Matrix3Uniform extends WebGPUUniform {
   Matrix3Uniform(name, [value]) : super(name, value) {
     this.value = Matrix3();
 
-    this.boundary = 48;
-    this.itemSize = 12;
+    boundary = 48;
+    itemSize = 12;
   }
 }
 
@@ -82,7 +79,7 @@ class Matrix4Uniform extends WebGPUUniform {
   Matrix4Uniform(name, value) : super(name, value) {
     this.value ??= Matrix4();
 
-    this.boundary = 64;
-    this.itemSize = 16;
+    boundary = 64;
+    itemSize = 16;
   }
 }

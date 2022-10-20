@@ -1,4 +1,3 @@
-import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class LightContextNode extends ContextNode {
@@ -16,7 +15,7 @@ class LightContextNode extends ContextNode {
     var lightingModel;
 
     if (material.isMeshStandardMaterial == true) {
-      lightingModel = PhysicalLightingModel;
+      lightingModel = physicalLightingModel;
     }
 
     var directDiffuse = VarNode(Vector3Node(), 'DirectDiffuse', 'vec3');

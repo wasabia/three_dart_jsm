@@ -1,4 +1,5 @@
-part of jsm_math;
+import 'package:flutter_gl/flutter_gl.dart';
+import 'package:three_dart/three_dart.dart';
 
 /// Utility class for sampling weighted random points on the surface of a mesh.
 ///
@@ -10,8 +11,8 @@ part of jsm_math;
 /// - https://stackoverflow.com/a/4322940/1314762
 
 class MeshSurfaceSampler {
-  var _face = Triangle(null, null, null);
-  var _color = Vector3.init();
+  final _face = Triangle(null, null, null);
+  final _color = Vector3.init();
 
   late BufferGeometry geometry;
   late Function randomFunction;
@@ -34,17 +35,17 @@ class MeshSurfaceSampler {
     }
 
     this.geometry = geometry;
-    this.randomFunction = Math.random;
+    randomFunction = Math.random;
 
-    this.positionAttribute = this.geometry.getAttribute('position');
-    this.colorAttribute = this.geometry.getAttribute('color');
-    this.weightAttribute = null;
+    positionAttribute = this.geometry.getAttribute('position');
+    colorAttribute = this.geometry.getAttribute('color');
+    weightAttribute = null;
 
-    this.distribution = null;
+    distribution = null;
   }
 
   setWeightAttribute(name) {
-    this.weightAttribute = name ? this.geometry.getAttribute(name) : null;
+    weightAttribute = name ? geometry.getAttribute(name) : null;
 
     return this;
   }
@@ -77,14 +78,14 @@ class MeshSurfaceSampler {
     // Store cumulative total face weights in an array, where weight index
     // corresponds to face index.
 
-    this.distribution = Float32Array(positionAttribute.count ~/ 3);
+    distribution = Float32Array(positionAttribute.count ~/ 3);
 
     double cumulativeTotal = 0;
 
     for (var i = 0; i < faceWeights.length; i++) {
       cumulativeTotal += faceWeights[i];
 
-      this.distribution![i] = cumulativeTotal;
+      distribution![i] = cumulativeTotal;
     }
 
     return this;
@@ -96,15 +97,15 @@ class MeshSurfaceSampler {
   }
 
   sample(targetPosition, targetNormal, targetColor) {
-    var cumulativeTotal = this.distribution![this.distribution!.length - 1];
+    var cumulativeTotal = distribution![distribution!.length - 1];
 
-    var faceIndex = this.binarySearch(this.randomFunction() * cumulativeTotal);
+    var faceIndex = binarySearch(randomFunction() * cumulativeTotal);
 
-    return this.sampleFace(faceIndex, targetPosition, targetNormal, targetColor);
+    return sampleFace(faceIndex, targetPosition, targetNormal, targetColor);
   }
 
   binarySearch(x) {
-    var dist = this.distribution!;
+    var dist = distribution!;
     var start = 0;
     var end = dist.length - 1;
 
@@ -128,17 +129,17 @@ class MeshSurfaceSampler {
   }
 
   sampleFace(faceIndex, targetPosition, targetNormal, targetColor) {
-    var u = this.randomFunction();
-    var v = this.randomFunction();
+    var u = randomFunction();
+    var v = randomFunction();
 
     if (u + v > 1) {
       u = 1 - u;
       v = 1 - v;
     }
 
-    _face.a.fromBufferAttribute(this.positionAttribute, faceIndex * 3);
-    _face.b.fromBufferAttribute(this.positionAttribute, faceIndex * 3 + 1);
-    _face.c.fromBufferAttribute(this.positionAttribute, faceIndex * 3 + 2);
+    _face.a.fromBufferAttribute(positionAttribute, faceIndex * 3);
+    _face.b.fromBufferAttribute(positionAttribute, faceIndex * 3 + 1);
+    _face.c.fromBufferAttribute(positionAttribute, faceIndex * 3 + 2);
 
     targetPosition
         .set(0, 0, 0)
@@ -150,10 +151,10 @@ class MeshSurfaceSampler {
       _face.getNormal(targetNormal);
     }
 
-    if (targetColor != null && this.colorAttribute != null) {
-      _face.a.fromBufferAttribute(this.colorAttribute, faceIndex * 3);
-      _face.b.fromBufferAttribute(this.colorAttribute, faceIndex * 3 + 1);
-      _face.c.fromBufferAttribute(this.colorAttribute, faceIndex * 3 + 2);
+    if (targetColor != null) {
+      _face.a.fromBufferAttribute(colorAttribute, faceIndex * 3);
+      _face.b.fromBufferAttribute(colorAttribute, faceIndex * 3 + 1);
+      _face.c.fromBufferAttribute(colorAttribute, faceIndex * 3 + 2);
 
       _color.set(0, 0, 0).addScaledVector(_face.a, u).addScaledVector(_face.b, v).addScaledVector(_face.c, 1 - (u + v));
 

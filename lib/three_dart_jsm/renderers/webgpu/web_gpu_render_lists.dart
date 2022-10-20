@@ -1,4 +1,5 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
 painterSortStable(a, b) {
   if (a.groupOrder != b.groupOrder) {
@@ -33,25 +34,25 @@ class WebGPURenderList {
   late List transparent;
 
   WebGPURenderList() {
-    this.renderItems = [];
-    this.renderItemsIndex = 0;
+    renderItems = [];
+    renderItemsIndex = 0;
 
-    this.opaque = [];
-    this.transparent = [];
+    opaque = [];
+    transparent = [];
   }
 
   init() {
-    this.renderItemsIndex = 0;
+    renderItemsIndex = 0;
 
-    this.opaque.length = 0;
-    this.transparent.length = 0;
+    opaque.length = 0;
+    transparent.length = 0;
   }
 
   getNextRenderItem(object, geometry, material, groupOrder, z, group) {
     var renderItem;
 
-    if (this.renderItemsIndex < this.renderItems.length) {
-      renderItem = this.renderItems[this.renderItemsIndex];
+    if (renderItemsIndex < renderItems.length) {
+      renderItem = renderItems[renderItemsIndex];
     }
 
     if (renderItem == undefined) {
@@ -66,7 +67,7 @@ class WebGPURenderList {
           group: group);
 
       // this.renderItems[ this.renderItemsIndex ] = renderItem;
-      this.renderItems.add(renderItem);
+      renderItems.add(renderItem);
     } else {
       renderItem.id = object.id;
       renderItem.object = object;
@@ -78,33 +79,33 @@ class WebGPURenderList {
       renderItem.group = group;
     }
 
-    this.renderItemsIndex++;
+    renderItemsIndex++;
 
     return renderItem;
   }
 
   push(object, geometry, material, groupOrder, z, group) {
-    var renderItem = this.getNextRenderItem(object, geometry, material, groupOrder, z, group);
+    var renderItem = getNextRenderItem(object, geometry, material, groupOrder, z, group);
 
-    (material.transparent == true ? this.transparent : this.opaque).add(renderItem);
+    (material.transparent == true ? transparent : opaque).add(renderItem);
   }
 
   unshift(object, geometry, material, groupOrder, z, group) {
-    var renderItem = this.getNextRenderItem(object, geometry, material, groupOrder, z, group);
+    var renderItem = getNextRenderItem(object, geometry, material, groupOrder, z, group);
 
-    (material.transparent == true ? this.transparent : this.opaque).insert(0, renderItem);
+    (material.transparent == true ? transparent : opaque).insert(0, renderItem);
   }
 
   sort(customOpaqueSort, customTransparentSort) {
-    if (this.opaque.length > 1) this.opaque.sort(customOpaqueSort ?? painterSortStable);
-    if (this.transparent.length > 1) this.transparent.sort(customTransparentSort ?? reversePainterSortStable);
+    if (opaque.length > 1) opaque.sort(customOpaqueSort ?? painterSortStable);
+    if (transparent.length > 1) transparent.sort(customTransparentSort ?? reversePainterSortStable);
   }
 
   finish() {
     // Clear references from inactive renderItems in the list
 
-    for (var i = this.renderItemsIndex, il = this.renderItems.length; i < il; i++) {
-      var renderItem = this.renderItems[i];
+    for (var i = renderItemsIndex, il = renderItems.length; i < il; i++) {
+      var renderItem = renderItems[i];
 
       if (renderItem.id == null) break;
 
@@ -122,7 +123,7 @@ class WebGPURenderLists {
   late WeakMap lists;
 
   WebGPURenderLists() {
-    this.lists = WeakMap();
+    lists = WeakMap();
   }
 
   get(scene, camera) {
@@ -147,7 +148,7 @@ class WebGPURenderLists {
   }
 
   dispose() {
-    this.lists = WeakMap();
+    lists = WeakMap();
   }
 }
 

@@ -1,9 +1,9 @@
-part of three_webgpu;
+import 'index.dart';
 
 getFloatLength(floatLength) {
   // ensure chunk size alignment (STD140 layout)
 
-  return floatLength + ((GPUChunkSize - (floatLength % GPUChunkSize)) % GPUChunkSize);
+  return floatLength + ((gpuChunkSize - (floatLength % gpuChunkSize)) % gpuChunkSize);
 }
 
 getVectorLength(count, [vectorLength = 4]) {

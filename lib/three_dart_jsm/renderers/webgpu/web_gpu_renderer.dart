@@ -1,4 +1,7 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 var _frustum = Frustum();
 var _projScreenMatrix = Matrix4();
@@ -60,28 +63,28 @@ class WebGPURenderer {
 
     // this.domElement = ( parameters.canvas != undefined ) ? parameters.canvas : this._createCanvasElement();
 
-    this.autoClear = true;
-    this.autoClearColor = true;
-    this.autoClearDepth = true;
-    this.autoClearStencil = true;
+    autoClear = true;
+    autoClearColor = true;
+    autoClearDepth = true;
+    autoClearStencil = true;
 
-    this.outputEncoding = LinearEncoding;
+    outputEncoding = LinearEncoding;
 
-    this.sortObjects = true;
+    sortObjects = true;
 
     // internals
 
-    this._parameters = {};
-    this._parameters.addAll(parameters);
+    _parameters = {};
+    _parameters.addAll(parameters);
 
-    this._pixelRatio = 1;
+    _pixelRatio = 1;
     // this._width = this.domElement.width;
     // this._height = this.domElement.height;
-    this._width = this._parameters["width"];
-    this._height = this._parameters["height"];
+    _width = _parameters["width"];
+    _height = _parameters["height"];
 
-    this._viewport = null;
-    this._scissor = null;
+    _viewport = null;
+    _scissor = null;
 
     // this._adapter = null;
     // this._device = null;
@@ -89,46 +92,45 @@ class WebGPURenderer {
     // this._colorBuffer = null;
     // this._depthBuffer = null;
 
-    this._info = null;
-    this._properties = null;
+    _info = null;
+    _properties = null;
     // this._attributes = null;
     // this._geometries = null;
-    this._nodes = null;
+    _nodes = null;
     // this._bindings = null;
-    this._objects = null;
+    _objects = null;
     // this._renderPipelines = null;
-    this._computePipelines = null;
-    this._renderLists = null;
-    this._textures = null;
-    this._background = null;
+    _computePipelines = null;
+    _renderLists = null;
+    _textures = null;
+    _background = null;
 
     // this._renderPassDescriptor = null;
 
-    this._currentRenderList = null;
-    this._opaqueSort = null;
-    this._transparentSort = null;
+    _currentRenderList = null;
+    _opaqueSort = null;
+    _transparentSort = null;
 
-    this._clearAlpha = 1;
-    this._clearColor = Color(0x000000);
-    this._clearDepth = 1;
-    this._clearStencil = 0;
+    _clearAlpha = 1;
+    _clearColor = Color(0x000000);
+    _clearDepth = 1;
+    _clearStencil = 0;
 
-    this._renderTarget = null;
+    _renderTarget = null;
 
     // some parameters require default values other than "undefined"
 
-    this._parameters["antialias"] = (parameters["antialias"] == true);
+    _parameters["antialias"] = (parameters["antialias"] == true);
 
-    if (this._parameters["antialias"] == true) {
-      this._parameters["sampleCount"] = parameters["sampleCount"] ?? 4;
+    if (_parameters["antialias"] == true) {
+      _parameters["sampleCount"] = parameters["sampleCount"] ?? 4;
     } else {
-      this._parameters["sampleCount"] = 1;
+      _parameters["sampleCount"] = 1;
     }
 
-    this._parameters["requiredFeatures"] =
+    _parameters["requiredFeatures"] =
         (parameters["requiredFeatures"] == undefined) ? [] : parameters["requiredFeatures"];
-    this._parameters["requiredLimits"] =
-        (parameters["requiredLimits"] == undefined) ? {} : parameters["requiredLimits"];
+    _parameters["requiredLimits"] = (parameters["requiredLimits"] == undefined) ? {} : parameters["requiredLimits"];
   }
 
   init() {
@@ -193,26 +195,26 @@ class WebGPURenderer {
   render(Scene scene, camera) {
     // @TODO: move this to animation loop
 
-    this._nodes.updateFrame();
+    _nodes.updateFrame();
 
     if (scene.autoUpdate == true) scene.updateMatrixWorld();
 
     if (camera.parent == null) camera.updateMatrixWorld();
 
-    if (this._info.autoReset == true) this._info.reset();
+    if (_info.autoReset == true) _info.reset();
 
     _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _frustum.setFromProjectionMatrix(_projScreenMatrix);
 
-    this._currentRenderList = this._renderLists.get(scene, camera);
-    this._currentRenderList.init();
+    _currentRenderList = _renderLists.get(scene, camera);
+    _currentRenderList.init();
 
-    this._projectObject(scene, camera, 0);
+    _projectObject(scene, camera, 0);
 
-    this._currentRenderList.finish();
+    _currentRenderList.finish();
 
-    if (this.sortObjects == true) {
-      this._currentRenderList.sort(this._opaqueSort, this._transparentSort);
+    if (sortObjects == true) {
+      _currentRenderList.sort(_opaqueSort, _transparentSort);
     }
 
     // prepare render pass descriptor
@@ -220,7 +222,7 @@ class WebGPURenderer {
     // var colorAttachment = this._renderPassDescriptor.colorAttachments;
     // var depthStencilAttachment = this._renderPassDescriptor.depthStencilAttachment;
 
-    var renderTarget = this._renderTarget;
+    var renderTarget = _renderTarget;
 
     if (renderTarget != null) {
       // @TODO: Support RenderTarget with antialiasing.
@@ -341,35 +343,35 @@ class WebGPURenderer {
   }
 
   getContext() {
-    return this._context;
+    return _context;
   }
 
   getPixelRatio() {
-    return this._pixelRatio;
+    return _pixelRatio;
   }
 
   getDrawingBufferSize(target) {
-    return target.set(this._width * this._pixelRatio, this._height * this._pixelRatio).floor();
+    return target.set(_width * _pixelRatio, _height * _pixelRatio).floor();
   }
 
   getSize(Vector2 target) {
-    return target.set(this._width.toDouble(), this._height.toDouble());
+    return target.set(_width.toDouble(), _height.toDouble());
   }
 
   setPixelRatio([value = 1]) {
-    this._pixelRatio = value;
+    _pixelRatio = value;
 
-    this.setSize(this._width, this._height, false);
+    setSize(_width, _height, false);
   }
 
   setDrawingBufferSize(width, height, pixelRatio) {
-    this._width = width;
-    this._height = height;
+    _width = width;
+    _height = height;
 
-    this._pixelRatio = pixelRatio;
+    _pixelRatio = pixelRatio;
 
-    this.domElement.width = Math.floor(width * pixelRatio);
-    this.domElement.height = Math.floor(height * pixelRatio);
+    domElement.width = Math.floor(width * pixelRatio);
+    domElement.height = Math.floor(height * pixelRatio);
 
     // this._configureContext();
     // this._setupColorBuffer();
@@ -377,8 +379,8 @@ class WebGPURenderer {
   }
 
   setSize(width, height, [updateStyle = true]) {
-    this._width = width;
-    this._height = height;
+    _width = width;
+    _height = height;
 
     // this.domElement.width = Math.floor( width * this._pixelRatio );
     // this.domElement.height = Math.floor( height * this._pixelRatio );
@@ -395,15 +397,15 @@ class WebGPURenderer {
   }
 
   setOpaqueSort(method) {
-    this._opaqueSort = method;
+    _opaqueSort = method;
   }
 
   setTransparentSort(method) {
-    this._transparentSort = method;
+    _transparentSort = method;
   }
 
   getScissor(target) {
-    var scissor = this._scissor!;
+    var scissor = _scissor!;
 
     target.x = scissor["x"];
     target.y = scissor["y"];
@@ -415,14 +417,14 @@ class WebGPURenderer {
 
   setScissor(x, y, width, height) {
     if (x == null) {
-      this._scissor = null;
+      _scissor = null;
     } else {
-      this._scissor = {"x": x, "y": y, "width": width, "height": height};
+      _scissor = {"x": x, "y": y, "width": width, "height": height};
     }
   }
 
   getViewport(target) {
-    var viewport = this._viewport!;
+    var viewport = _viewport!;
 
     target.x = viewport["x"];
     target.y = viewport["y"];
@@ -436,24 +438,24 @@ class WebGPURenderer {
 
   setViewport(x, y, width, height, [minDepth = 0, maxDepth = 1]) {
     if (x == null) {
-      this._viewport = null;
+      _viewport = null;
     } else {
-      this._viewport = {"x": x, "y": y, "width": width, "height": height, "minDepth": minDepth, "maxDepth": maxDepth};
+      _viewport = {"x": x, "y": y, "width": width, "height": height, "minDepth": minDepth, "maxDepth": maxDepth};
     }
   }
 
   getCurrentEncoding() {
-    var renderTarget = this.getRenderTarget();
-    return (renderTarget != null) ? renderTarget.texture.encoding : this.outputEncoding;
+    var renderTarget = getRenderTarget();
+    return (renderTarget != null) ? renderTarget.texture.encoding : outputEncoding;
   }
 
   getCurrentColorFormat() {
     var format;
 
-    var renderTarget = this.getRenderTarget();
+    var renderTarget = getRenderTarget();
 
     if (renderTarget != null) {
-      var renderTargetProperties = this._properties.get(renderTarget);
+      var renderTargetProperties = _properties.get(renderTarget);
       format = renderTargetProperties["colorTextureFormat"];
     } else {
       // format = GPUTextureFormat.BGRA8Unorm; // default context format
@@ -466,10 +468,10 @@ class WebGPURenderer {
   getCurrentDepthStencilFormat() {
     var format;
 
-    var renderTarget = this.getRenderTarget();
+    var renderTarget = getRenderTarget();
 
     if (renderTarget != null) {
-      var renderTargetProperties = this._properties.get(renderTarget);
+      var renderTargetProperties = _properties.get(renderTarget);
       format = renderTargetProperties["depthTextureFormat"];
     } else {
       // format = GPUTextureFormat.Depth24PlusStencil8;
@@ -479,59 +481,59 @@ class WebGPURenderer {
   }
 
   getClearColor(target) {
-    return target.copy(this._clearColor);
+    return target.copy(_clearColor);
   }
 
   setClearColor(color, [alpha = 1]) {
-    this._clearColor.set(color);
-    this._clearAlpha = alpha;
+    _clearColor.set(color);
+    _clearAlpha = alpha;
   }
 
   getClearAlpha() {
-    return this._clearAlpha;
+    return _clearAlpha;
   }
 
   setClearAlpha(alpha) {
-    this._clearAlpha = alpha;
+    _clearAlpha = alpha;
   }
 
   getClearDepth() {
-    return this._clearDepth;
+    return _clearDepth;
   }
 
   setClearDepth(depth) {
-    this._clearDepth = depth;
+    _clearDepth = depth;
   }
 
   getClearStencil() {
-    return this._clearStencil;
+    return _clearStencil;
   }
 
   setClearStencil(stencil) {
-    this._clearStencil = stencil;
+    _clearStencil = stencil;
   }
 
   clear() {
-    this._background.clear();
+    _background.clear();
   }
 
   dispose() {
-    this._objects.dispose();
-    this._properties.dispose();
-    this._renderPipelines.dispose();
-    this._computePipelines.dispose();
-    this._nodes.dispose();
-    this._bindings.dispose();
-    this._info.dispose();
-    this._renderLists.dispose();
-    this._textures.dispose();
+    _objects.dispose();
+    _properties.dispose();
+    _renderPipelines.dispose();
+    _computePipelines.dispose();
+    _nodes.dispose();
+    _bindings.dispose();
+    _info.dispose();
+    _renderLists.dispose();
+    _textures.dispose();
   }
 
   setRenderTarget(renderTarget) {
-    this._renderTarget = renderTarget;
+    _renderTarget = renderTarget;
 
     if (renderTarget != null) {
-      this._textures.initRenderTarget(renderTarget);
+      _textures.initRenderTarget(renderTarget);
     }
   }
 
@@ -560,11 +562,11 @@ class WebGPURenderer {
   }
 
   getRenderTarget() {
-    return this._renderTarget;
+    return _renderTarget;
   }
 
   _projectObject(object, camera, groupOrder) {
-    var currentRenderList = this._currentRenderList;
+    var currentRenderList = _currentRenderList;
 
     if (object.visible == false) return;
 
@@ -584,7 +586,7 @@ class WebGPURenderer {
         }
       } else if (object is Sprite) {
         if (!object.frustumCulled || _frustum.intersectsSprite(object)) {
-          if (this.sortObjects == true) {
+          if (sortObjects == true) {
             _vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
           }
 
@@ -600,7 +602,7 @@ class WebGPURenderer {
             'THREE.WebGPURenderer: Objects of type THREE.LineLoop are not supported. Please use THREE.Line or THREE.LineSegments.');
       } else if (object is Mesh || object is Line || object is Points) {
         if (!object.frustumCulled || _frustum.intersectsObject(object)) {
-          if (this.sortObjects == true) {
+          if (sortObjects == true) {
             _vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
           }
 
@@ -628,7 +630,7 @@ class WebGPURenderer {
     var children = object.children;
 
     for (var i = 0, l = children.length; i < l; i++) {
-      this._projectObject(children[i], camera, groupOrder);
+      _projectObject(children[i], camera, groupOrder);
     }
   }
 

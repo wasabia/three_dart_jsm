@@ -4,7 +4,7 @@ import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 import 'shader_pass.dart';
 
 class LUTPass extends ShaderPass {
-  LUTPass(Map<String, dynamic> options) : super(LUTShader, null) {
+  LUTPass(Map<String, dynamic> options) : super(lutShader, null) {
     lut = options["lut"];
     intensity = options["intensity"] ?? 1;
   }

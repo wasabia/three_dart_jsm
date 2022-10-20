@@ -18,7 +18,7 @@ class Node {
   dynamic value;
 
   Node([this.nodeType]) {
-    updateType = NodeUpdateType.None;
+    updateType = NodeUpdateType.none;
 
     uuid = MathUtils.generateUUID();
   }

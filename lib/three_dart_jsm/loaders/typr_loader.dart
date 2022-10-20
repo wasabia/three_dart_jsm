@@ -1,4 +1,7 @@
-part of jsm_loader;
+import 'dart:typed_data';
+import 'package:three_dart/three_dart.dart';
+
+import 'package:typr_dart/typr_dart.dart' as typr_dart;
 
 /// Requires opentype.js to be included in the project.
 /// Loads TTF files and converts them into typeface JSON that can be used directly
@@ -7,31 +10,33 @@ part of jsm_loader;
 class TYPRLoader extends Loader {
   bool reversed = false;
 
-  TYPRLoader(manager) : super(manager) {}
+  TYPRLoader(manager) : super(manager);
 
+  @override
   loadAsync(url) async {
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('arraybuffer');
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
     var buffer = await loader.loadAsync(url);
 
-    return this._parse(buffer);
+    return _parse(buffer);
   }
 
+  @override
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
-    var loader = FileLoader(this.manager);
-    loader.setPath(this.path);
+    var loader = FileLoader(manager);
+    loader.setPath(path);
     loader.setResponseType('arraybuffer');
-    loader.setRequestHeader(this.requestHeader);
-    loader.setWithCredentials(this.withCredentials);
+    loader.setRequestHeader(requestHeader);
+    loader.setWithCredentials(withCredentials);
     loader.load(url, (buffer) {
       // try {
 
-      if (onLoad != null) onLoad(scope._parse(buffer));
+      onLoad(scope._parse(buffer));
 
       // } catch ( e ) {
 
@@ -53,12 +58,12 @@ class TYPRLoader extends Loader {
 
   _parse(Uint8List arraybuffer) {
     convert(typr_dart.Font font, reversed) {
-      var round = Math.round;
+      // var round = Math.round;
 
-      var glyphs = {};
-      var scale = (100000) / ((font.head["unitsPerEm"] ?? 2048) * 72);
+      // var glyphs = {};
+      // var scale = (100000) / ((font.head["unitsPerEm"] ?? 2048) * 72);
 
-      var numGlyphs = font.maxp["numGlyphs"];
+      // var numGlyphs = font.maxp["numGlyphs"];
 
       // for ( var i = 0; i < numGlyphs; i ++ ) {
 
@@ -103,6 +108,6 @@ class TYPRLoader extends Loader {
       };
     }
 
-    return convert(typr_dart.Font(arraybuffer), this.reversed); // eslint-disable-line no-undef
+    return convert(typr_dart.Font(arraybuffer), reversed); // eslint-disable-line no-undef
   }
 }

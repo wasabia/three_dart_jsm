@@ -1,17 +1,16 @@
 import '../index.dart';
 
 class PositionNode extends Node {
-  static const String GEOMETRY = 'geometry';
-  static const String LOCAL = 'local';
-  static const String WORLD = 'world';
-  static const String VIEW = 'view';
-  static const String VIEW_DIRECTION = 'viewDirection';
+  static const String geometry = 'geometry';
+  static const String local = 'local';
+  static const String world = 'world';
+  static const String view = 'view';
+  static const String viewDirection = 'viewDirection';
 
   late String scope;
 
-  PositionNode([scope = PositionNode.LOCAL]) : super('vec3') {
+  PositionNode([this.scope = PositionNode.local]) : super('vec3') {
     generateLength = 1;
-    this.scope = scope;
   }
 
   @override
@@ -25,20 +24,20 @@ class PositionNode extends Node {
 
     var outputNode;
 
-    if (scope == PositionNode.GEOMETRY) {
+    if (scope == PositionNode.geometry) {
       outputNode = AttributeNode('position', 'vec3');
-    } else if (scope == PositionNode.LOCAL) {
-      outputNode = VaryNode(PositionNode(PositionNode.GEOMETRY));
-    } else if (scope == PositionNode.WORLD) {
+    } else if (scope == PositionNode.local) {
+      outputNode = VaryNode(PositionNode(PositionNode.geometry));
+    } else if (scope == PositionNode.world) {
       var vertexPositionNode =
-          MathNode(MathNode.TRANSFORM_DIRECTION, ModelNode(ModelNode.WORLD_MATRIX), PositionNode(PositionNode.LOCAL));
+          MathNode(MathNode.transformDirection, ModelNode(ModelNode.worldMatrix), PositionNode(PositionNode.local));
       outputNode = VaryNode(vertexPositionNode);
-    } else if (scope == PositionNode.VIEW) {
-      var vertexPositionNode = OperatorNode('*', ModelNode(ModelNode.VIEW_MATRIX), PositionNode(PositionNode.LOCAL));
+    } else if (scope == PositionNode.view) {
+      var vertexPositionNode = OperatorNode('*', ModelNode(ModelNode.viewMatrix), PositionNode(PositionNode.local));
       outputNode = VaryNode(vertexPositionNode);
-    } else if (scope == PositionNode.VIEW_DIRECTION) {
-      var vertexPositionNode = MathNode(MathNode.NEGATE, PositionNode(PositionNode.VIEW));
-      outputNode = MathNode(MathNode.NORMALIZE, VaryNode(vertexPositionNode));
+    } else if (scope == PositionNode.viewDirection) {
+      var vertexPositionNode = MathNode(MathNode.negate, PositionNode(PositionNode.view));
+      outputNode = MathNode(MathNode.normalize, VaryNode(vertexPositionNode));
     }
 
     return outputNode.build(builder, getNodeType(builder));

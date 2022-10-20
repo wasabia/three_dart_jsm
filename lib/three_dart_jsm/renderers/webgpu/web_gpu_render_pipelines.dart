@@ -1,4 +1,7 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import 'index.dart';
 
 class _Stages {
   Map vertex;
@@ -30,59 +33,55 @@ class WebGPURenderPipelines {
   late dynamic bindings;
   late List pipelines;
   late WeakMap objectCache;
-  late _Stages stages;
+  late _Stages _stages;
 
-  WebGPURenderPipelines(renderer, device, sampleCount, nodes, [bindings]) {
-    this.renderer = renderer;
+  WebGPURenderPipelines(this.renderer, device, this.sampleCount, this.nodes, [this.bindings]) {
     // this.device = device;
-    this.sampleCount = sampleCount;
-    this.nodes = nodes;
-    this.bindings = bindings;
 
-    this.pipelines = [];
-    this.objectCache = WeakMap();
+    pipelines = [];
+    objectCache = WeakMap();
 
-    this.stages = _Stages(vertex: Map(), fragment: Map());
+    _stages = _Stages(vertex: {}, fragment: {});
   }
 
   get(object) {
     // var device = this.device;
     var material = object.material;
 
-    Map<String, dynamic> cache = this._getCache(object);
+    Map<String, dynamic> cache = _getCache(object);
 
     var currentPipeline;
 
-    if (this._needsUpdate(object, cache)) {
+    if (_needsUpdate(object, cache)) {
       // release previous cache
 
       if (cache["currentPipeline"] != undefined) {
-        this._releaseObject(object);
+        _releaseObject(object);
       }
 
       // get shader
 
-      WebGPUNodeBuilder nodeBuilder = this.nodes.get(object);
+      WebGPUNodeBuilder nodeBuilder = nodes.get(object);
 
       // programmable stages
 
-      var stageVertex = this.stages.vertex.get(nodeBuilder.vertexShader);
+      var stageVertex = _stages.vertex.get(nodeBuilder.vertexShader);
 
       if (stageVertex == undefined) {
         // stageVertex = new WebGPUProgrammableStage(device, nodeBuilder.vertexShader, 'vertex');
-        this.stages.vertex.set(nodeBuilder.vertexShader, stageVertex);
+        _stages.vertex.set(nodeBuilder.vertexShader, stageVertex);
       }
 
-      var stageFragment = this.stages.fragment.get(nodeBuilder.fragmentShader);
+      var stageFragment = _stages.fragment.get(nodeBuilder.fragmentShader);
 
       if (stageFragment == undefined) {
         // stageFragment = new WebGPUProgrammableStage(device, nodeBuilder.fragmentShader, 'fragment');
-        this.stages.fragment.set(nodeBuilder.fragmentShader, stageFragment);
+        _stages.fragment.set(nodeBuilder.fragmentShader, stageFragment);
       }
 
       // determine render pipeline
 
-      currentPipeline = this._acquirePipeline(stageVertex, stageFragment, object, nodeBuilder);
+      currentPipeline = _acquirePipeline(stageVertex, stageFragment, object, nodeBuilder);
 
       cache["currentPipeline"] = currentPipeline;
 
@@ -103,8 +102,8 @@ class WebGPURenderPipelines {
   }
 
   dispose() {
-    this.pipelines = [];
-    this.objectCache = WeakMap();
+    pipelines = [];
+    objectCache = WeakMap();
     // this.shaderModules = _Stages(
     // 	vertex: new Map(),
     // 	fragment: new Map()
@@ -117,7 +116,7 @@ class WebGPURenderPipelines {
 
     // check for existing pipeline
 
-    var cacheKey = this._computeCacheKey(stageVertex, stageFragment, object);
+    var cacheKey = _computeCacheKey(stageVertex, stageFragment, object);
 
     for (var i = 0, il = pipelines.length; i < il; i++) {
       var preexistingPipeline = pipelines[i];
@@ -166,7 +165,7 @@ class WebGPURenderPipelines {
       material.stencilFuncMask,
       material.stencilWriteMask,
       material.side,
-      this.sampleCount,
+      sampleCount,
       renderer.getCurrentEncoding(),
       renderer.getCurrentColorFormat(),
       renderer.getCurrentDepthStencilFormat()
@@ -176,35 +175,35 @@ class WebGPURenderPipelines {
   }
 
   _getCache(object) {
-    var cache = this.objectCache.get(object);
+    var cache = objectCache.get(object);
 
-    if (cache == undefined) {
-      Map<String, dynamic> _cache = {
+    if (cache == null) {
+      Map<String, dynamic> cacheMap = {
         "dispose": () {
-          this._releaseObject(object);
+          _releaseObject(object);
 
-          this.objectCache.delete(object);
+          objectCache.delete(object);
 
           object.material.removeEventListener('dispose', cache.dispose);
         }
       };
 
-      cache = _cache;
+      cache = cacheMap;
 
-      this.objectCache.set(object, cache);
+      objectCache.set(object, cache);
     }
 
     return cache;
   }
 
   _releaseObject(object) {
-    var cache = this.objectCache.get(object);
+    var cache = objectCache.get(object);
 
-    this._releasePipeline(cache.currentPipeline);
+    _releasePipeline(cache.currentPipeline);
     cache.currentPipeline = null;
 
-    this.nodes.remove(object);
-    this.bindings.remove(object);
+    nodes.remove(object);
+    bindings.remove(object);
   }
 
   _releasePipeline(pipeline) {
@@ -215,8 +214,8 @@ class WebGPURenderPipelines {
       pipelines[i] = pipelines[pipelines.length - 1];
       pipelines.removeLast();
 
-      this._releaseStage(pipeline.stageVertex);
-      this._releaseStage(pipeline.stageFragment);
+      _releaseStage(pipeline.stageVertex);
+      _releaseStage(pipeline.stageFragment);
     }
   }
 
@@ -226,9 +225,9 @@ class WebGPURenderPipelines {
       var type = stage.type;
 
       if (type == "verter") {
-        this.stages.vertex.delete(code);
+        _stages.vertex.delete(code);
       } else if (type == "fragment") {
-        this.stages.fragment.delete(code);
+        _stages.fragment.delete(code);
       }
     }
   }
@@ -298,11 +297,11 @@ class WebGPURenderPipelines {
     var colorFormat = renderer.getCurrentColorFormat();
     var depthStencilFormat = renderer.getCurrentDepthStencilFormat();
 
-    if (cache["sampleCount"] != this.sampleCount ||
+    if (cache["sampleCount"] != sampleCount ||
         cache["encoding"] != encoding ||
         cache["colorFormat"] != colorFormat ||
         cache["depthStencilFormat"] != depthStencilFormat) {
-      cache["sampleCount"] = this.sampleCount;
+      cache["sampleCount"] = sampleCount;
       cache["encoding"] = encoding;
       cache["colorFormat"] = colorFormat;
       cache["depthStencilFormat"] = depthStencilFormat;

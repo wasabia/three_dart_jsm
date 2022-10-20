@@ -1,4 +1,5 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
 class WebGPUComputePipelines {
   // TODO (WebGPU): implement
@@ -9,12 +10,12 @@ class WebGPUComputePipelines {
   WebGPUComputePipelines(device) {
     // this.device = device;
 
-    this.pipelines = WeakMap();
-    this.stages = {"compute": WeakMap()};
+    pipelines = WeakMap();
+    stages = {"compute": WeakMap()};
   }
 
   get(param) {
-    var pipeline = this.pipelines.get(param);
+    var pipeline = pipelines.get(param);
 
     // @TODO: Reuse compute pipeline if possible, introduce WebGPUComputePipeline
 
@@ -37,14 +38,14 @@ class WebGPUComputePipelines {
       // pipeline = device.createComputePipeline(
       //     GPUComputePipelineDescriptor(compute: stageCompute.stage));
 
-      this.pipelines.set(param, pipeline);
+      pipelines.set(param, pipeline);
     }
 
     return pipeline;
   }
 
   dispose() {
-    this.pipelines = WeakMap();
-    this.stages = {"compute": WeakMap()};
+    pipelines = WeakMap();
+    stages = {"compute": WeakMap()};
   }
 }

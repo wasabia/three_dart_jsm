@@ -11,11 +11,11 @@ class SkeletonUtils {
 
     options = options ?? {};
 
-    options.preserveMatrix = options.preserveMatrix != null ? options.preserveMatrix : true;
-    options.preservePosition = options.preservePosition != null ? options.preservePosition : true;
-    options.preserveHipPosition = options.preserveHipPosition != null ? options.preserveHipPosition : false;
-    options.useTargetMatrix = options.useTargetMatrix != null ? options.useTargetMatrix : false;
-    options.hip = options.hip != null ? options.hip : 'hip';
+    options.preserveMatrix = options.preserveMatrix ?? true;
+    options.preservePosition = options.preservePosition ?? true;
+    options.preserveHipPosition = options.preserveHipPosition ?? false;
+    options.useTargetMatrix = options.useTargetMatrix ?? false;
+    options.hip = options.hip ?? 'hip';
     options.names = options.names ?? {};
 
     var sourceBones = source.isObject3D ? source.skeleton.bones : getBones(source),
@@ -149,8 +149,8 @@ class SkeletonUtils {
   static retargetClip(target, source, clip, [options]) {
     options = options ?? {};
 
-    options.useFirstFramePosition = options.useFirstFramePosition != null ? options.useFirstFramePosition : false;
-    options.fps = options.fps != null ? options.fps : 30;
+    options.useFirstFramePosition = options.useFirstFramePosition ?? false;
+    options.fps = options.fps ?? 30;
     options.names = options.names ?? [];
 
     if (!source.isObject3D) {
@@ -223,11 +223,11 @@ class SkeletonUtils {
       if (boneData) {
         if (boneData.pos) {
           convertedTracks.add(VectorKeyframeTrack(
-              '.bones[' + boneData.bone.name + '].position', boneData.pos.times, boneData.pos.values, null));
+              '.bones[${boneData.bone.name}].position', boneData.pos.times, boneData.pos.values, null));
         }
 
         convertedTracks.add(QuaternionKeyframeTrack(
-            '.bones[' + boneData.bone.name + '].quaternion', boneData.quat.times, boneData.quat.values, null));
+            '.bones[${boneData.bone.name}].quaternion', boneData.quat.times, boneData.quat.values, null));
       }
     }
 
@@ -253,7 +253,7 @@ class SkeletonUtils {
         targetDir = Vector2(),
         sourceDir = Vector2();
 
-    options.hip = options.hip != null ? options.hip : 'hip';
+    options.hip = options.hip ?? 'hip';
     options.names = options.names ?? {};
 
     if (!source.isObject3D) {
@@ -389,8 +389,8 @@ class SkeletonUtils {
   }
 
   static clone(source) {
-    var sourceLookup = Map();
-    var cloneLookup = Map();
+    var sourceLookup = {};
+    var cloneLookup = {};
 
     var clone = source.clone();
 
@@ -426,13 +426,13 @@ class SkeletonUtils {
     callback(a, b);
 
     for (var i = 0; i < a.children.length; i++) {
-      var _bc;
+      var bc;
 
       if (b != null && i < b.children.length) {
-        _bc = b.children[i];
+        bc = b.children[i];
       }
 
-      parallelTraverse(a.children[i], _bc, callback);
+      parallelTraverse(a.children[i], bc, callback);
     }
   }
 }

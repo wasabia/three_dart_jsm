@@ -7,11 +7,7 @@ class TessellateModifier {
   num maxIterations = 6.0;
   num maxFaces = double.infinity;
 
-  TessellateModifier({maxEdgeLength = 0.1, maxIterations = 6, maxFaces = double.infinity}) {
-    this.maxEdgeLength = maxEdgeLength;
-    this.maxIterations = maxIterations;
-    this.maxFaces = maxFaces;
-  }
+  TessellateModifier({this.maxEdgeLength = 0.1, this.maxIterations = 6, this.maxFaces = double.infinity});
 
   modify(BufferGeometry geometry) {
     if (geometry.index != null) {
@@ -21,7 +17,7 @@ class TessellateModifier {
     //
 
     var maxIterations = this.maxIterations;
-    var maxEdgeLengthSquared = this.maxEdgeLength * this.maxEdgeLength;
+    var maxEdgeLengthSquared = maxEdgeLength * maxEdgeLength;
 
     var va = Vector3.init();
     var vb = Vector3.init();
@@ -74,7 +70,7 @@ class TessellateModifier {
     var iteration = 0;
     var tessellating = true;
 
-    Function addTriangle = (a, b, c) {
+    void addTriangle(int a, int b, int c) {
       var v1 = vs[a];
       var v2 = vs[b];
       var v3 = vs[c];
@@ -122,7 +118,7 @@ class TessellateModifier {
         uv2s2.push(u22.x, u22.y);
         uv2s2.push(u23.x, u23.y);
       }
-    };
+    }
 
     while (tessellating && iteration < maxIterations) {
       iteration++;

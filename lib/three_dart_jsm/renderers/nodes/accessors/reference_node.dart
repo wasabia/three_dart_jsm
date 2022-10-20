@@ -1,4 +1,3 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ReferenceNode extends Node {
@@ -6,15 +5,12 @@ class ReferenceNode extends Node {
   late dynamic object;
   late dynamic node;
 
-  ReferenceNode(property, inputType, [object]) : super() {
-    this.property = property;
+  ReferenceNode(this.property, inputType, [this.object]) : super() {
     this.inputType = inputType;
-
-    this.object = object;
 
     node = null;
 
-    updateType = NodeUpdateType.Object;
+    updateType = NodeUpdateType.object;
 
     setNodeType(inputType);
   }

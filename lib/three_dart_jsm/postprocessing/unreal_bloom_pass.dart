@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 
@@ -14,8 +11,8 @@ import 'Pass.dart';
 /// Reference:
 /// - https://docs.unrealengine.com/latest/INT/Engine/Rendering/PostProcessEffects/Bloom/
 class UnrealBloomPass extends Pass {
-  static Vector2 BlurDirectionX = Vector2(1.0, 0.0);
-  static Vector2 BlurDirectionY = Vector2(0.0, 1.0);
+  static Vector2 blurDirectionX = Vector2(1.0, 0.0);
+  static Vector2 blurDirectionY = Vector2(0.0, 1.0);
 
   late Vector2 resolution;
   late num strength;
@@ -37,10 +34,8 @@ class UnrealBloomPass extends Pass {
   late num oldClearAlpha;
   late MeshBasicMaterial basic;
 
-  UnrealBloomPass(Vector2? resolution, num? strength, double radius, double threshold) : super() {
+  UnrealBloomPass(Vector2? resolution, num? strength, this.radius, this.threshold) : super() {
     this.strength = strength ?? 1.0;
-    this.radius = radius;
-    this.threshold = threshold;
     this.resolution = (resolution != null) ? Vector2(resolution.x, resolution.y) : Vector2(256, 256);
 
     uniforms = {
@@ -84,11 +79,7 @@ class UnrealBloomPass extends Pass {
 
     // luminosity high pass material
 
-    if (LuminosityHighPassShader == null) {
-      print('THREE.UnrealBloomPass relies on LuminosityHighPassShader');
-    }
-
-    var highPassShader = LuminosityHighPassShader;
+    var highPassShader = luminosityHighPassShader;
     highPassUniforms = UniformsUtils.clone(highPassShader["uniforms"]);
 
     highPassUniforms['luminosityThreshold']["value"] = threshold;
@@ -134,12 +125,6 @@ class UnrealBloomPass extends Pass {
     compositeMaterial.uniforms['bloomTintColors']["value"] = bloomTintColors;
 
     // copy material
-    if (CopyShader == null) {
-      print('THREE.UnrealBloomPass relies on CopyShader');
-    }
-
-    var copyShader = CopyShader;
-
     copyUniforms = UniformsUtils.clone(copyShader["uniforms"]);
     copyUniforms['opacity']["value"] = 1.0;
 
@@ -234,13 +219,13 @@ class UnrealBloomPass extends Pass {
       fsQuad.material = separableBlurMaterials[i];
 
       separableBlurMaterials[i].uniforms['colorTexture']["value"] = inputRenderTarget.texture;
-      separableBlurMaterials[i].uniforms['direction']["value"] = UnrealBloomPass.BlurDirectionX;
+      separableBlurMaterials[i].uniforms['direction']["value"] = UnrealBloomPass.blurDirectionX;
       renderer.setRenderTarget(renderTargetsHorizontal[i]);
       renderer.clear(null, null, null);
       fsQuad.render(renderer);
 
       separableBlurMaterials[i].uniforms['colorTexture']["value"] = renderTargetsHorizontal[i].texture;
-      separableBlurMaterials[i].uniforms['direction']["value"] = UnrealBloomPass.BlurDirectionY;
+      separableBlurMaterials[i].uniforms['direction']["value"] = UnrealBloomPass.blurDirectionY;
       renderer.setRenderTarget(renderTargetsVertical[i]);
       renderer.clear(null, null, null);
       fsQuad.render(renderer);

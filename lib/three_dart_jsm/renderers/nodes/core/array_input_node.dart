@@ -7,6 +7,7 @@ class ArrayInputNode extends InputNode {
     this.nodes = nodes ?? [];
   }
 
+  @override
   getNodeType([builder, output]) {
     return nodes[0].getNodeType(builder);
   }

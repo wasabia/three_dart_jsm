@@ -36,10 +36,8 @@ class NodeBuilder {
   late dynamic shaderStage;
   late dynamic node;
 
-  NodeBuilder(object, renderer, parser) {
-    this.object = object;
+  NodeBuilder(this.object, this.renderer, parser) {
     material = object.material;
-    this.renderer = renderer;
     this.parser = parser ?? WGSLNodeParser();
 
     nodes = [];
@@ -92,7 +90,7 @@ class NodeBuilder {
     if (!nodes.contains(node)) {
       var updateType = node.getUpdateType(this);
 
-      if (updateType != NodeUpdateType.None) {
+      if (updateType != NodeUpdateType.none) {
         updateNodes.add(node);
       }
 
@@ -324,7 +322,7 @@ class NodeBuilder {
       var codes = this.codes[shaderStage];
       var index = codes.length;
 
-      nodeCode = NodeCode('nodeCode' + index, type);
+      nodeCode = NodeCode('nodeCode$index', type);
 
       codes.add(nodeCode);
 

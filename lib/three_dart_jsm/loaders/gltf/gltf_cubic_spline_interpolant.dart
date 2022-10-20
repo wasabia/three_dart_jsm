@@ -1,22 +1,22 @@
-part of gltf_loader;
+import 'package:three_dart/three_dart.dart';
 
 /*********************************/
 /********** INTERPOLATION ********/
 
-/*********************************/
+/// *******************************/
 
 // Spline Interpolation
 // Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
 class GLTFCubicSplineInterpolant extends Interpolant {
   GLTFCubicSplineInterpolant(parameterPositions, sampleValues, sampleSize, resultBuffer)
-      : super(parameterPositions, sampleValues, sampleSize, resultBuffer) {}
+      : super(parameterPositions, sampleValues, sampleSize, resultBuffer);
 
   copySampleValue(index) {
     // Copies a sample value to the result buffer. See description of glTF
     // CUBICSPLINE values layout in interpolate() function below.
 
-    var result = this.resultBuffer,
-        values = this.sampleValues,
+    var result = resultBuffer,
+        values = sampleValues,
         valueSize = this.valueSize,
         offset = index * valueSize * 3 + valueSize;
 
@@ -35,10 +35,11 @@ class GLTFCubicSplineInterpolant extends Interpolant {
     return copySampleValue(v1);
   }
 
+  @override
   interpolate(i1, t0, t, t1) {
-    var result = this.resultBuffer;
-    var values = this.sampleValues;
-    var stride = this.valueSize;
+    var result = resultBuffer;
+    var values = sampleValues;
+    var stride = valueSize;
 
     var stride2 = stride * 2;
     var stride3 = stride * 3;

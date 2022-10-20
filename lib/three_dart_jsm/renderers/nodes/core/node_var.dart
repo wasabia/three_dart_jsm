@@ -1,9 +1,6 @@
 class NodeVar {
-  late String name;
-  late String type;
+  String name;
+  String type;
 
-  NodeVar(name, type) {
-    this.name = name;
-    this.type = type;
-  }
+  NodeVar(this.name, this.type);
 }

@@ -1,4 +1,4 @@
-part of three_webgpu;
+import 'index.dart';
 
 class WebGPUSampler extends WebGPUBinding {
   bool isSampler = true;
@@ -6,16 +6,12 @@ class WebGPUSampler extends WebGPUBinding {
   late dynamic texture;
   late dynamic samplerGPU;
 
-  WebGPUSampler(name, texture) : super(name) {
-    this.texture = texture;
-
-    this.type = GPUBindingType.Sampler;
-    // this.visibility = GPUShaderStage.Fragment;
-
-    this.samplerGPU = null; // set by the renderer
+  WebGPUSampler(name, this.texture) : super(name) {
+    type = GPUBindingType.sampler;
+    samplerGPU = null;
   }
 
   getTexture() {
-    return this.texture;
+    return texture;
   }
 }

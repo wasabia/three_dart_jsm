@@ -1,4 +1,6 @@
-part of three_webgpu;
+import 'dart:typed_data';
+
+import 'index.dart';
 
 class WebGPUUniformBuffer extends WebGPUBinding {
   late int bytesPerElement;
@@ -6,23 +8,21 @@ class WebGPUUniformBuffer extends WebGPUBinding {
   dynamic buffer;
   // GPUBuffer? bufferGPU;
 
-  WebGPUUniformBuffer(name, [buffer]) : super(name) {
-    this.bytesPerElement = Float32List.bytesPerElement;
-    this.type = GPUBindingType.UniformBuffer;
+  WebGPUUniformBuffer(name, [this.buffer]) : super(name) {
+    bytesPerElement = Float32List.bytesPerElement;
+    type = GPUBindingType.uniformBuffer;
+
     // this.visibility = GPUShaderStage.Vertex | GPUShaderStage.Fragment;
-
     // this.usage = GPUBufferUsage.Uniform | GPUBufferUsage.Storage | GPUBufferUsage.CopyDst;
-
-    this.buffer = buffer;
     // this.bufferGPU = null; // set by the renderer
   }
 
   getByteLength() {
-    return getFloatLength(this.buffer.byteLength);
+    return getFloatLength(buffer.byteLength);
   }
 
   getBuffer() {
-    return this.buffer;
+    return buffer;
   }
 
   update() {

@@ -1,19 +1,18 @@
-part of three_webgpu;
+import 'index.dart';
 
 class WebGPUStorageBuffer extends WebGPUBinding {
   late int usage;
   late dynamic attribute;
   late dynamic bufferGPU;
 
-  WebGPUStorageBuffer(name, attribute) : super(name) {
-    this.type = GPUBindingType.StorageBuffer;
+  WebGPUStorageBuffer(name, this.attribute) : super(name) {
+    type = GPUBindingType.storageBuffer;
 
     // this.usage = GPUBufferUsage.Uniform |
     //     GPUBufferUsage.Vertex |
     //     GPUBufferUsage.Storage |
     //     GPUBufferUsage.CopyDst;
 
-    this.attribute = attribute;
-    this.bufferGPU = null; // set by the renderer
+    bufferGPU = null; // set by the renderer
   }
 }

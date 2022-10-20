@@ -1,14 +1,11 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class VarNode extends Node {
   late dynamic node;
   String? name;
 
-  VarNode(node, [name, nodeType]) : super(nodeType) {
+  VarNode(this.node, [this.name, nodeType]) : super(nodeType) {
     generateLength = 1;
-    this.node = node;
-    this.name = name;
   }
 
   @override

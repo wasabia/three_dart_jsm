@@ -40,7 +40,7 @@ class RenderableObject extends Object3D {
 
 class RenderableFace extends RenderableObject {
   RenderableFace({
-    this.id = 0,
+    id = 0,
     RenderableVertex? v1,
     RenderableVertex? v2,
     RenderableVertex? v3,
@@ -49,10 +49,11 @@ class RenderableFace extends RenderableObject {
     Color? color,
     material,
     List<Vector2>? uvs,
-    this.z = 0,
+    z = 0,
     this.vertexNormalsLength = 0,
-    this.renderOrder = 0,
+    renderOrder = 0,
   }) {
+    this.id = id;
     this.v1 = v1 ?? RenderableVertex();
     this.v2 = v2 ?? RenderableVertex();
     this.v3 = v3 ?? RenderableVertex();
@@ -60,9 +61,10 @@ class RenderableFace extends RenderableObject {
     this.color = color ?? Color();
     this.vertexNormalsModel = vertexNormalsModel ?? [Vector3(), Vector3(), Vector3()];
     this.uvs = uvs ?? [Vector2(), Vector2(), Vector2()];
+    this.z = z;
+    this.renderOrder = renderOrder;
   }
 
-  int id;
   late RenderableVertex v1;
   late RenderableVertex v2;
   late RenderableVertex v3;
@@ -72,8 +74,6 @@ class RenderableFace extends RenderableObject {
   late Color color;
   //Material? material;
   late List<Vector2> uvs;
-  num z;
-  int renderOrder;
 }
 
 class RenderableVertex extends RenderableObject {
@@ -81,77 +81,75 @@ class RenderableVertex extends RenderableObject {
     Vector3? position,
     Vector3? positionWorld,
     Vector4? positionScreen,
-    this.visible = true,
+    visible = true,
   }) {
+    this.visible = visible;
     this.position = position ?? Vector3();
     this.positionWorld = positionWorld ?? Vector3();
     this.positionScreen = positionScreen ?? Vector4();
   }
 
-  late Vector3 position;
   late Vector3 positionWorld;
   late Vector4 positionScreen;
-  bool visible;
 
   @override
-  Object3D copy(Object3D object, [bool? temp]) {
-    if (object is RenderableVertex) {
-      positionWorld.copy(object.positionWorld);
-      positionScreen.copy(object.positionScreen);
+  Object3D copy(Object3D source, [bool? recursive]) {
+    if (source is RenderableVertex) {
+      positionWorld.copy(source.positionWorld);
+      positionScreen.copy(source.positionScreen);
     }
-    return object;
+    return source;
   }
 }
 
 class RenderableLine extends RenderableObject {
   RenderableLine({
-    this.id = 0,
+    id = 0,
     RenderableVertex? v1,
     RenderableVertex? v2,
     List<Color>? vertexColors,
-    this.material,
-    this.z = 0,
-    this.renderOrder = 0,
+    material,
+    z = 0,
+    renderOrder = 0,
   }) {
     this.v1 = v1 ?? RenderableVertex();
     this.v2 = v2 ?? RenderableVertex();
     this.vertexColors = vertexColors ?? [Color(), Color()];
+    this.id = id;
+    this.material = material;
+    this.z = z;
+    this.renderOrder = renderOrder;
   }
 
-  int id;
   late RenderableVertex v1;
   late RenderableVertex v2;
   late List<Color> vertexColors;
-  dynamic material;
-  num z;
-  int renderOrder;
 }
 
 class RenderableSprite extends RenderableObject {
   RenderableSprite({
-    this.id = 0,
-    this.object,
+    id = 0,
+    object,
+    z = 0,
+    material,
+    renderOrder = 0,
     this.x = 0,
     this.y = 0,
-    this.z = 0,
     Euler? rotation,
     Vector3? scale,
-    this.material,
-    this.renderOrder = 0,
   }) {
     this.scale = scale ?? Vector3();
     this.rotation = rotation ?? Euler();
+
+    this.id = id;
+    this.object = object;
+    this.z = z;
+    this.material = material;
+    this.renderOrder = renderOrder;
   }
 
-  int id;
-  Object3D? object;
   num x;
   num y;
-  num z;
-  late Euler rotation;
-  late Vector3 scale;
-  dynamic material;
-  int renderOrder;
 }
 
 class RenderData extends RenderableObject {
@@ -162,10 +160,10 @@ class RenderData extends RenderableObject {
 
 class Projector {
   //RenderList renderList = RenderList();
-  RenderData _renderData = RenderData();
-  Frustum _frustum = Frustum();
+  final RenderData _renderData = RenderData();
+  final Frustum _frustum = Frustum();
   late int _objectCount;
-  List<RenderableObject> _objectPool = [];
+  final List<RenderableObject> _objectPool = [];
   int _objectPoolLength = 0;
 
   late RenderableObject _object;
@@ -183,19 +181,19 @@ class Projector {
   int _spritePoolLength = 0;
   Matrix4 _modelMatrix = Matrix4();
 
-  Vector3 _vector3 = Vector3();
-  Vector4 _vector4 = Vector4();
-  Box3 _clipBox = Box3(Vector3(-1, -1, -1), Vector3(1, 1, 1));
-  Box3 _boundingBox = Box3();
-  List<Vector3> _points3 = List.filled(3, Vector3());
-  Matrix4 _viewMatrix = Matrix4();
-  Matrix4 _viewProjectionMatrix = Matrix4();
-  Matrix4 _modelViewProjectionMatrix = Matrix4();
+  final Vector3 _vector3 = Vector3();
+  final Vector4 _vector4 = Vector4();
+  final Box3 _clipBox = Box3(Vector3(-1, -1, -1), Vector3(1, 1, 1));
+  final Box3 _boundingBox = Box3();
+  final List<Vector3> _points3 = List.filled(3, Vector3());
+  final Matrix4 _viewMatrix = Matrix4();
+  final Matrix4 _viewProjectionMatrix = Matrix4();
+  final Matrix4 _modelViewProjectionMatrix = Matrix4();
 
-  List<RenderableVertex> _vertexPool = [];
-  List<RenderableFace> _facePool = [];
-  List<RenderableLine> _linePool = [];
-  List<RenderableSprite> _spritePool = []; //
+  final List<RenderableVertex> _vertexPool = [];
+  final List<RenderableFace> _facePool = [];
+  final List<RenderableLine> _linePool = [];
+  final List<RenderableSprite> _spritePool = []; //
 
   List<double> normals = [];
   List<double> colors = [];
@@ -532,24 +530,24 @@ class Projector {
     return _renderData;
   }
 
-  void pushPoint(Vector4 _vector4, Object3D object, Camera camera) {
-    double invW = 1 / _vector4.w;
-    _vector4.z *= invW;
-    if (_vector4.z >= -1 && _vector4.z <= 1) {
+  void pushPoint(Vector4 vector4, Object3D object, Camera camera) {
+    double invW = 1 / vector4.w;
+    vector4.z *= invW;
+    if (vector4.z >= -1 && vector4.z <= 1) {
       _sprite = getNextSpriteInPool();
       _sprite.id = object.id;
-      _sprite.x = _vector4.x * invW;
-      _sprite.y = _vector4.y * invW;
-      _sprite.z = _vector4.z;
+      _sprite.x = vector4.x * invW;
+      _sprite.y = vector4.y * invW;
+      _sprite.z = vector4.z;
       _sprite.renderOrder = object.renderOrder;
       _sprite.object = object;
       _sprite.rotation = object.rotation;
       _sprite.scale.x = object.scale.x *
           Math.abs(_sprite.x -
-              (_vector4.x + camera.projectionMatrix.elements[0]) / (_vector4.w + camera.projectionMatrix.elements[12]));
+              (vector4.x + camera.projectionMatrix.elements[0]) / (vector4.w + camera.projectionMatrix.elements[12]));
       _sprite.scale.y = object.scale.y *
           Math.abs(_sprite.y -
-              (_vector4.y + camera.projectionMatrix.elements[5]) / (_vector4.w + camera.projectionMatrix.elements[13]));
+              (vector4.y + camera.projectionMatrix.elements[5]) / (vector4.w + camera.projectionMatrix.elements[13]));
       _sprite.material = object.material;
       _renderData.elements.add(_sprite);
     }

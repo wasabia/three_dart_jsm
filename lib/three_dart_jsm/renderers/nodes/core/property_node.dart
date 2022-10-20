@@ -1,12 +1,9 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class PropertyNode extends Node {
-  late String? name;
+  String? name;
 
-  PropertyNode([name, nodeType = 'vec4']) : super(nodeType) {
-    this.name = name;
-  }
+  PropertyNode([this.name, nodeType = 'vec4']) : super(nodeType);
 
   @override
   getHash([builder]) {

@@ -1,13 +1,13 @@
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ModelNode extends Object3DNode {
-  static const String VIEW_MATRIX = 'viewMatrix';
-  static const String NORMAL_MATRIX = 'normalMatrix';
-  static const String WORLD_MATRIX = 'worldMatrix';
-  static const String POSITION = 'position';
-  static const String VIEW_POSITION = 'viewPosition';
+  static const String viewMatrix = 'viewMatrix';
+  static const String normalMatrix = 'normalMatrix';
+  static const String worldMatrix = 'worldMatrix';
+  static const String position = 'position';
+  static const String viewPosition = 'viewPosition';
 
-  ModelNode([scope = ModelNode.VIEW_MATRIX]) : super(scope) {
+  ModelNode([scope = ModelNode.viewMatrix]) : super(scope) {
     generateLength = 1;
   }
 }

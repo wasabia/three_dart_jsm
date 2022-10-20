@@ -1,13 +1,13 @@
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
-var getGeometryRoughness = ShaderNode(() {
+var getGeometryRoughness = shaderNode(() {
   var dxy = max(abs(dFdx(normalGeometry)), abs(dFdy(normalGeometry)));
   var geometryRoughness = max(max(dxy.x, dxy.y), dxy.z);
 
   return geometryRoughness;
 });
 
-var getRoughness = ShaderNode((inputs) {
+var getRoughness = shaderNode((inputs) {
   var roughness = inputs.roughness;
 
   var geometryRoughness = getGeometryRoughness();

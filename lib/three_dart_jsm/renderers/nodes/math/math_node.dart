@@ -3,54 +3,54 @@ import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 class MathNode extends TempNode {
   // 1 input
 
-  static const String RAD = 'radians';
-  static const String DEG = 'degrees';
-  static const String EXP = 'exp';
-  static const String EXP2 = 'exp2';
-  static const String LOG = 'log';
-  static const String LOG2 = 'log2';
-  static const String SQRT = 'sqrt';
-  static const String INV_SQRT = 'inversesqrt';
-  static const String FLOOR = 'floor';
-  static const String CEIL = 'ceil';
-  static const String NORMALIZE = 'normalize';
-  static const String FRACT = 'fract';
-  static const String SIN = 'sin';
-  static const String COS = 'cos';
-  static const String TAN = 'tan';
-  static const String ASIN = 'asin';
-  static const String ACOS = 'acos';
-  static const String ATAN = 'atan';
-  static const String ABS = 'abs';
-  static const String SIGN = 'sign';
-  static const String LENGTH = 'length';
-  static const String NEGATE = 'negate';
-  static const String INVERT = 'invert';
-  static const String DFDX = 'dFdx';
-  static const String DFDY = 'dFdy';
-  static const String SATURATE = 'saturate';
-  static const String ROUND = 'round';
+  static const String rad = 'radians';
+  static const String deg = 'degrees';
+  static const String exp = 'exp';
+  static const String exp2 = 'exp2';
+  static const String log = 'log';
+  static const String log2 = 'log2';
+  static const String sqrt = 'sqrt';
+  static const String invSort = 'inversesqrt';
+  static const String floor = 'floor';
+  static const String ceil = 'ceil';
+  static const String normalize = 'normalize';
+  static const String fract = 'fract';
+  static const String sin = 'sin';
+  static const String cos = 'cos';
+  static const String tan = 'tan';
+  static const String asin = 'asin';
+  static const String acos = 'acos';
+  static const String atan = 'atan';
+  static const String abs = 'abs';
+  static const String sign = 'sign';
+  static const String length = 'length';
+  static const String negate = 'negate';
+  static const String invert = 'invert';
+  static const String dfdx = 'dFdx';
+  static const String dfdy = 'dFdy';
+  static const String saturate = 'saturate';
+  static const String round = 'round';
 
   // 2 inputs
 
-  static const String MIN = 'min';
-  static const String MAX = 'max';
-  static const String MOD = 'mod';
-  static const String STEP = 'step';
-  static const String REFLECT = 'reflect';
-  static const String DISTANCE = 'distance';
-  static const String DOT = 'dot';
-  static const String CROSS = 'cross';
-  static const String POW = 'pow';
-  static const String TRANSFORM_DIRECTION = 'transformDirection';
+  static const String min = 'min';
+  static const String max = 'max';
+  static const String mod = 'mod';
+  static const String step = 'step';
+  static const String reflect = 'reflect';
+  static const String distance = 'distance';
+  static const String dot = 'dot';
+  static const String cross = 'cross';
+  static const String pow = 'pow';
+  static const String transformDirection = 'transformDirection';
 
   // 3 inputs
 
-  static const String MIX = 'mix';
-  static const String CLAMP = 'clamp';
-  static const String REFRACT = 'refract';
-  static const String SMOOTHSTEP = 'smoothstep';
-  static const String FACEFORWARD = 'faceforward';
+  static const String mix = 'mix';
+  static const String clamp = 'clamp';
+  static const String refract = 'refract';
+  static const String smoothStep = 'smoothstep';
+  static const String faceForward = 'faceforward';
 
   late String method;
   late dynamic aNode;
@@ -83,9 +83,9 @@ class MathNode extends TempNode {
   getNodeType([builder, output]) {
     var method = this.method;
 
-    if (method == MathNode.LENGTH || method == MathNode.DISTANCE || method == MathNode.DOT) {
+    if (method == MathNode.length || method == MathNode.distance || method == MathNode.dot) {
       return 'float';
-    } else if (method == MathNode.CROSS) {
+    } else if (method == MathNode.cross) {
       return 'vec3';
     } else {
       return getInputType(builder);
@@ -105,7 +105,7 @@ class MathNode extends TempNode {
 
     var isWebGL = builder.renderer.isWebGLRenderer == true;
 
-    if (isWebGL && (method == MathNode.DFDX || method == MathNode.DFDY) && output == 'vec3') {
+    if (isWebGL && (method == MathNode.dfdx || method == MathNode.dfdy) && output == 'vec3') {
       // Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
 
       return JoinNode([
@@ -113,7 +113,7 @@ class MathNode extends TempNode {
         MathNode(method, SplitNode(a, 'y')),
         MathNode(method, SplitNode(a, 'z'))
       ]).build(builder);
-    } else if (method == MathNode.TRANSFORM_DIRECTION) {
+    } else if (method == MathNode.transformDirection) {
       // dir can be either a direction vector or a normal vector
       // upper-left 3x3 of matrix is assumed to be orthogonal
 
@@ -128,31 +128,31 @@ class MathNode extends TempNode {
 
       var mulNode = SplitNode(OperatorNode('*', tA, tB), 'xyz');
 
-      return MathNode(MathNode.NORMALIZE, mulNode).build(builder);
-    } else if (method == MathNode.SATURATE) {
+      return MathNode(MathNode.normalize, mulNode).build(builder);
+    } else if (method == MathNode.saturate) {
       return "clamp( ${a.build(builder, inputType)}, 0.0, 1.0 )";
-    } else if (method == MathNode.NEGATE) {
-      return '${'( -' + a.build(builder, inputType)} )';
-    } else if (method == MathNode.INVERT) {
-      return '${'( 1.0 - ' + a.build(builder, inputType)} )';
+    } else if (method == MathNode.negate) {
+      return '( -${a.build(builder, inputType)} )';
+    } else if (method == MathNode.invert) {
+      return '( 1.0 - ${a.build(builder, inputType)} )';
     } else {
       var params = [];
 
-      if (method == MathNode.CROSS) {
+      if (method == MathNode.cross) {
         params.addAll([a.build(builder, type), b.build(builder, type)]);
-      } else if (method == MathNode.STEP) {
+      } else if (method == MathNode.step) {
         params.addAll([
           a.build(builder, builder.getTypeLength(a.getNodeType(builder)) == 1 ? 'float' : inputType),
           b.build(builder, inputType)
         ]);
-      } else if ((isWebGL && (method == MathNode.MIN || method == MathNode.MAX)) || method == MathNode.MOD) {
+      } else if ((isWebGL && (method == MathNode.min || method == MathNode.max)) || method == MathNode.mod) {
         params.addAll([
           a.build(builder, inputType),
           b.build(builder, builder.getTypeLength(b.getNodeType(builder)) == 1 ? 'float' : inputType)
         ]);
-      } else if (method == MathNode.REFRACT) {
+      } else if (method == MathNode.refract) {
         params.addAll([a.build(builder, inputType), b.build(builder, inputType), c.build(builder, 'float')]);
-      } else if (method == MathNode.MIX) {
+      } else if (method == MathNode.mix) {
         params.addAll([
           a.build(builder, inputType),
           b.build(builder, inputType),

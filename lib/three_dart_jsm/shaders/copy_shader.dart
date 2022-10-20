@@ -1,6 +1,6 @@
 /// Full-screen textured quad shader
 
-Map<String, dynamic> CopyShader = {
+Map<String, dynamic> copyShader = {
   "uniforms": {
     'tDiffuse': {"value": null},
     'opacity': {"value": 1.0}

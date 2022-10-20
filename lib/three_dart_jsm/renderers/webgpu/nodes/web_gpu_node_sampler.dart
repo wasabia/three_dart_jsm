@@ -1,13 +1,12 @@
-part of three_webgpu;
+import '../index.dart';
 
 class WebGPUNodeSampler extends WebGPUSampler {
   late dynamic textureNode;
 
-  WebGPUNodeSampler(name, textureNode) : super(name, textureNode.value) {
-    this.textureNode = textureNode;
-  }
+  WebGPUNodeSampler(name, this.textureNode) : super(name, textureNode.value);
 
+  @override
   getTexture() {
-    return this.textureNode.value;
+    return textureNode.value;
   }
 }

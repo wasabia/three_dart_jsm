@@ -1,17 +1,16 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class CameraNode extends Object3DNode {
-  static const String PROJECTION_MATRIX = 'projectionMatrix';
-  static const String VIEW_MATRIX = 'viewMatrix';
-  static const String NORMAL_MATRIX = 'normalMatrix';
-  static const String WORLD_MATRIX = 'worldMatrix';
-  static const String POSITION = 'position';
-  static const String VIEW_POSITION = 'viewPosition';
+  static const String projectionMatrix = 'projectionMatrix';
+  static const String viewMatrix = 'viewMatrix';
+  static const String normalMatrix = 'normalMatrix';
+  static const String worldMatrix = 'worldMatrix';
+  static const String position = 'position';
+  static const String viewPosition = 'viewPosition';
 
   late dynamic _inputNode;
 
-  CameraNode([scope = CameraNode.POSITION]) : super(scope) {
+  CameraNode([scope = CameraNode.position]) : super(scope) {
     generateLength = 1;
     _inputNode = null;
   }
@@ -20,7 +19,7 @@ class CameraNode extends Object3DNode {
   getNodeType([builder, output]) {
     var scope = this.scope;
 
-    if (scope == CameraNode.PROJECTION_MATRIX) {
+    if (scope == CameraNode.projectionMatrix) {
       return 'mat4';
     }
 
@@ -33,9 +32,9 @@ class CameraNode extends Object3DNode {
     var inputNode = _inputNode;
     var scope = this.scope;
 
-    if (scope == CameraNode.PROJECTION_MATRIX) {
+    if (scope == CameraNode.projectionMatrix) {
       inputNode.value = camera.projectionMatrix;
-    } else if (scope == CameraNode.VIEW_MATRIX) {
+    } else if (scope == CameraNode.viewMatrix) {
       inputNode.value = camera.matrixWorldInverse;
     } else {
       super.update(frame);
@@ -46,7 +45,7 @@ class CameraNode extends Object3DNode {
   generate([builder, output]) {
     var scope = this.scope;
 
-    if (scope == CameraNode.PROJECTION_MATRIX) {
+    if (scope == CameraNode.projectionMatrix) {
       _inputNode = Matrix4Node(null);
     }
 

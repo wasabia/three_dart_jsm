@@ -1,9 +1,6 @@
 class NodeVary {
-  late dynamic name;
-  late dynamic type;
+  dynamic name;
+  dynamic type;
 
-  NodeVary(name, type) {
-    this.name = name;
-    this.type = type;
-  }
+  NodeVary(this.name, this.type);
 }

@@ -1,11 +1,14 @@
-part of gltf_loader;
+import 'dart:async';
+import 'dart:typed_data';
+import 'package:three_dart/three_dart.dart';
+import 'index.dart';
 
 /*********************************/
 /********** EXTENSIONS ***********/
 
-/*********************************/
+/// *******************************/
 
-Map<String, String> EXTENSIONS = {
+Map<String, String> gltfExtensions = {
   "KHR_BINARY_GLTF": 'KHR_binary_glTF',
   "KHR_DRACO_MESH_COMPRESSION": 'KHR_draco_mesh_compression',
   "KHR_LIGHTS_PUNCTUAL": 'KHR_lights_punctual',
@@ -27,7 +30,6 @@ Map<String, String> EXTENSIONS = {
 
 class GLTFExtension {
   late String name;
-  Function? _markDefs;
   Function? loadMesh;
   Function? loadMaterial;
   Function? getMaterialType;
@@ -44,32 +46,31 @@ class GLTFExtension {
 class GLTFMaterialsSpecularExtension extends GLTFExtension {
   late dynamic parser;
 
-  GLTFMaterialsSpecularExtension(parser) {
-    this.parser = parser;
-    this.name = EXTENSIONS["KHR_MATERIALS_SPECULAR"]!;
+  GLTFMaterialsSpecularExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_SPECULAR"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) async {
+    extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
       List<Future> pending = [];
 
-      var extension = materialDef["extensions"][this.name];
+      var extension = materialDef["extensions"][name];
 
-      materialParams.specularIntensity = extension.specularFactor != null ? extension.specularFactor : 1.0;
+      materialParams.specularIntensity = extension.specularFactor ?? 1.0;
 
       if (extension.specularTexture != null) {
         pending.add(parser.assignTexture(materialParams, 'specularIntensityMap', extension.specularTexture));
@@ -95,14 +96,13 @@ class GLTFMaterialsSpecularExtension extends GLTFExtension {
 ///
 class GLTFTextureDDSExtension extends GLTFExtension {
   late dynamic ddsLoader;
-  String name = EXTENSIONS["MSFT_TEXTURE_DDS"]!;
 
-  GLTFTextureDDSExtension(ddsLoader) {
-    if (!ddsLoader) {
+  GLTFTextureDDSExtension(this.ddsLoader) {
+    name = gltfExtensions["MSFT_TEXTURE_DDS"]!;
+
+    if (ddsLoader == null) {
       throw ('THREE.GLTFLoader: Attempting to load .dds texture without importing DDSLoader');
     }
-
-    this.ddsLoader = ddsLoader;
   }
 }
 
@@ -111,31 +111,16 @@ class GLTFTextureDDSExtension extends GLTFExtension {
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_lights_punctual
 class GLTFLightsExtension extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["KHR_LIGHTS_PUNCTUAL"]!;
+
   late dynamic cache;
 
-  GLTFLightsExtension(parser) {
-    this.parser = parser;
+  GLTFLightsExtension(this.parser) {
+    name = gltfExtensions["KHR_LIGHTS_PUNCTUAL"]!;
 
     // Object3D instance caches
-    this.cache = {"refs": {}, "uses": {}};
+    cache = {"refs": {}, "uses": {}};
 
-    this._markDefs = () {
-      var parser = this.parser;
-      var nodeDefs = this.parser.json["nodes"] ?? [];
-
-      for (var nodeIndex = 0, nodeLength = nodeDefs.length; nodeIndex < nodeLength; nodeIndex++) {
-        var nodeDef = nodeDefs[nodeIndex];
-
-        if (nodeDef["extensions"] != null &&
-            nodeDef["extensions"][this.name] != null &&
-            nodeDef["extensions"][this.name]["light"] != null) {
-          parser._addNodeRef(this.cache, nodeDef["extensions"][this.name]["light"]);
-        }
-      }
-    };
-
-    this.createNodeAttachment = (nodeIndex) {
+    createNodeAttachment = (nodeIndex) {
       var self = this;
       var parser = this.parser;
       var json = parser.json;
@@ -143,31 +128,31 @@ class GLTFLightsExtension extends GLTFExtension {
 
       // var lightDef = ( nodeDef.extensions && nodeDef.extensions[ this.name ] ) ?? {};
       var lightDef = {};
-      if (nodeDef["extensions"] != null && nodeDef["extensions"][this.name] != null) {
-        lightDef = nodeDef["extensions"][this.name];
+      if (nodeDef["extensions"] != null && nodeDef["extensions"][name] != null) {
+        lightDef = nodeDef["extensions"][name];
       }
 
       var lightIndex = lightDef["light"];
 
       if (lightIndex == null) return null;
 
-      final _light = this._loadLight(lightIndex);
+      final light = _loadLight(lightIndex);
 
-      return parser._getNodeRef(self.cache, lightIndex, _light);
+      return parser._getNodeRef(self.cache, lightIndex, light);
     };
   }
 
   _loadLight(lightIndex) {
     var parser = this.parser;
-    String cacheKey = 'light:${lightIndex}';
+    String cacheKey = 'light:$lightIndex';
     var dependency = parser.cache.get(cacheKey);
 
     if (dependency != null) return dependency;
 
     var json = parser.json;
-    var extensions = Map<String, dynamic>();
-    if (json["extensions"] != null && json["extensions"][this.name] != null) {
-      extensions = json["extensions"][this.name];
+    var extensions = <String, dynamic>{};
+    if (json["extensions"] != null && json["extensions"][name] != null) {
+      extensions = json["extensions"][name];
     }
     // var extensions = ( json["extensions"] != null && json["extensions"][ this.name ]) ?? Map<String, dynamic>();
     var lightDefs = extensions["lights"] ?? [];
@@ -178,7 +163,7 @@ class GLTFLightsExtension extends GLTFExtension {
 
     if (lightDef["color"] != null) color.fromArray(lightDef["color"]);
 
-    var range = lightDef["range"] != null ? lightDef["range"] : 0;
+    var range = lightDef["range"] ?? 0;
 
     switch (lightDef["type"]) {
       case 'directional':
@@ -197,10 +182,8 @@ class GLTFLightsExtension extends GLTFExtension {
         lightNode.distance = range;
         // Handle spotlight properties.
         lightDef["spot"] = lightDef["spot"] ?? {};
-        lightDef["spot"]["innerConeAngle"] =
-            lightDef["spot"]["innerConeAngle"] != null ? lightDef["spot"]["innerConeAngle"] : 0;
-        lightDef["spot"]["outerConeAngle"] =
-            lightDef["spot"]["outerConeAngle"] != null ? lightDef["spot"]["outerConeAngle"] : Math.pi / 4.0;
+        lightDef["spot"]["innerConeAngle"] = lightDef["spot"]["innerConeAngle"] ?? 0;
+        lightDef["spot"]["outerConeAngle"] = lightDef["spot"]["outerConeAngle"] ?? Math.pi / 4.0;
         lightNode.angle = lightDef["spot"]["outerConeAngle"];
         lightNode.penumbra = 1.0 - lightDef["spot"]["innerConeAngle"] / lightDef["spot"]["outerConeAngle"];
         lightNode.target.position.set(0, 0, -1);
@@ -219,7 +202,7 @@ class GLTFLightsExtension extends GLTFExtension {
 
     if (lightDef["intensity"] != null) lightNode.intensity = lightDef["intensity"];
 
-    lightNode.name = parser.createUniqueName(lightDef["name"] ?? ('light_' + lightIndex));
+    lightNode.name = parser.createUniqueName(lightDef["name"] ?? 'light_$lightIndex');
 
     // dependency = Promise.resolve( lightNode );
     dependency = lightNode;
@@ -234,10 +217,9 @@ class GLTFLightsExtension extends GLTFExtension {
 ///
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_unlit
 class GLTFMaterialsUnlitExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_MATERIALS_UNLIT"]!;
-
   GLTFMaterialsUnlitExtension() {
-    this.getMaterialType = (materialIndex) {
+    name = gltfExtensions["KHR_MATERIALS_UNLIT"]!;
+    getMaterialType = (materialIndex) {
       return MeshBasicMaterial;
     };
   }
@@ -250,17 +232,15 @@ class GLTFMaterialsUnlitExtension extends GLTFExtension {
 
     Map<String, dynamic> metallicRoughness = materialDef["pbrMetallicRoughness"];
 
-    if (metallicRoughness != null) {
-      if (metallicRoughness["baseColorFactor"] is List) {
-        List<double> array = List<double>.from(metallicRoughness["baseColorFactor"].map((e) => e.toDouble()).toList());
+    if (metallicRoughness["baseColorFactor"] is List) {
+      List<double> array = List<double>.from(metallicRoughness["baseColorFactor"].map((e) => e.toDouble()).toList());
 
-        materialParams["color"].fromArray(array);
-        materialParams["opacity"] = array[3];
-      }
+      materialParams["color"].fromArray(array);
+      materialParams["opacity"] = array[3];
+    }
 
-      if (metallicRoughness["baseColorTexture"] != null) {
-        pending.add(parser.assignTexture(materialParams, 'map', metallicRoughness["baseColorTexture"]));
-      }
+    if (metallicRoughness["baseColorTexture"] != null) {
+      pending.add(parser.assignTexture(materialParams, 'map', metallicRoughness["baseColorTexture"]));
     }
 
     return Future.wait(pending);
@@ -272,31 +252,30 @@ class GLTFMaterialsUnlitExtension extends GLTFExtension {
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_materials_clearcoat
 class GLTFMaterialsClearcoatExtension extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["KHR_MATERIALS_CLEARCOAT"]!;
 
-  GLTFMaterialsClearcoatExtension(parser) {
-    this.parser = parser;
+  GLTFMaterialsClearcoatExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_CLEARCOAT"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name]) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name]) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) async {
+    extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
       Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
       List<Future> pending = [];
 
-      Map<String, dynamic> exten = materialDef["extensions"][this.name];
+      Map<String, dynamic> exten = materialDef["extensions"][name];
 
       if (exten["clearcoatFactor"] != null) {
         materialParams.clearcoat = exten["clearcoatFactor"];
@@ -335,24 +314,23 @@ class GLTFMaterialsClearcoatExtension extends GLTFExtension {
 class GLTFMaterialsSheenExtension extends GLTFExtension {
   late dynamic parser;
 
-  GLTFMaterialsSheenExtension(parser) {
-    this.parser = parser;
-    this.name = EXTENSIONS["KHR_MATERIALS_SHEEN"]!;
+  GLTFMaterialsSheenExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_SHEEN"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) {
+    extendMaterialParams = (materialIndex, materialParams) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
@@ -362,7 +340,7 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
       materialParams.sheenRoughness = 0;
       materialParams.sheen = 1;
 
-      Map extension = materialDef["extensions"][this.name];
+      Map extension = materialDef["extensions"][name];
 
       if (extension["sheenColorFactor"] != null) {
         materialParams.sheenColor.fromArray(extension["sheenColorFactor"]);
@@ -392,31 +370,30 @@ class GLTFMaterialsSheenExtension extends GLTFExtension {
 /// Draft: https://github.com/KhronosGroup/glTF/pull/1698
 class GLTFMaterialsTransmissionExtension extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["KHR_MATERIALS_TRANSMISSION"]!;
 
-  GLTFMaterialsTransmissionExtension(parser) {
-    this.parser = parser;
+  GLTFMaterialsTransmissionExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_TRANSMISSION"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) async {
+    extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
       Map<String, dynamic> materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
       List<Future> pending = [];
 
-      Map<String, dynamic> exten = materialDef["extensions"][this.name];
+      Map<String, dynamic> exten = materialDef["extensions"][name];
 
       if (exten["transmissionFactor"] != null) {
         materialParams.transmission = exten["transmissionFactor"];
@@ -437,30 +414,29 @@ class GLTFMaterialsTransmissionExtension extends GLTFExtension {
 class GLTFMaterialsIorExtension extends GLTFExtension {
   late dynamic parser;
 
-  GLTFMaterialsIorExtension(parser) {
-    this.parser = parser;
-    this.name = EXTENSIONS["KHR_MATERIALS_IOR"]!;
+  GLTFMaterialsIorExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_IOR"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) {
+    extendMaterialParams = (materialIndex, materialParams) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
-      var extension = materialDef["extensions"][this.name];
+      var extension = materialDef["extensions"][name];
 
-      materialParams.ior = extension.ior != null ? extension.ior : 1.5;
+      materialParams.ior = extension.ior ?? 1.5;
 
       return null;
     };
@@ -473,32 +449,31 @@ class GLTFMaterialsIorExtension extends GLTFExtension {
 class GLTFMaterialsVolumeExtension extends GLTFExtension {
   late dynamic parser;
 
-  GLTFMaterialsVolumeExtension(parser) {
-    this.parser = parser;
-    this.name = EXTENSIONS["KHR_MATERIALS_VOLUME"]!;
+  GLTFMaterialsVolumeExtension(this.parser) {
+    name = gltfExtensions["KHR_MATERIALS_VOLUME"]!;
 
-    this.getMaterialType = (materialIndex) {
+    getMaterialType = (materialIndex) {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) return null;
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) return null;
 
       return MeshPhysicalMaterial;
     };
 
-    this.extendMaterialParams = (materialIndex, materialParams) async {
+    extendMaterialParams = (materialIndex, materialParams) async {
       var parser = this.parser;
       var materialDef = parser.json["materials"][materialIndex];
 
-      if (materialDef["extensions"] == null || materialDef["extensions"][this.name] == null) {
+      if (materialDef["extensions"] == null || materialDef["extensions"][name] == null) {
         return null;
       }
 
       List<Future> pending = [];
 
-      var extension = materialDef["extensions"][this.name];
+      var extension = materialDef["extensions"][name];
 
-      materialParams.thickness = extension.thicknessFactor != null ? extension.thicknessFactor : 0;
+      materialParams.thickness = extension.thicknessFactor ?? 0;
 
       if (extension.thicknessTexture != null) {
         pending.add(parser.assignTexture(materialParams, 'thicknessMap', extension.thicknessTexture));
@@ -519,11 +494,10 @@ class GLTFMaterialsVolumeExtension extends GLTFExtension {
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_basisu
 class GLTFTextureBasisUExtension extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["KHR_TEXTURE_BASISU"]!;
 
-  GLTFTextureBasisUExtension(parser) {
-    this.parser = parser;
-    this.loadTexture = loadTexture2;
+  GLTFTextureBasisUExtension(this.parser) {
+    name = gltfExtensions["KHR_TEXTURE_BASISU"]!;
+    loadTexture = loadTexture2;
   }
 
   loadTexture2(textureIndex) {
@@ -532,15 +506,15 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
 
     Map<String, dynamic> textureDef = json["textures"][textureIndex];
 
-    if (textureDef["extensions"] == null || textureDef["extensions"][this.name] == null) {
+    if (textureDef["extensions"] == null || textureDef["extensions"][name] == null) {
       return null;
     }
 
-    var extension = textureDef["extensions"][this.name];
+    var extension = textureDef["extensions"][name];
     var loader = parser.options["ktx2Loader"];
 
     if (loader == null) {
-      if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(this.name) >= 0) {
+      if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(name) >= 0) {
         throw ('THREE.GLTFLoader: setKTX2Loader must be called before loading KTX2 textures');
       } else {
         // Assumes that the extension is optional and that a fallback texture is present
@@ -557,14 +531,14 @@ class GLTFTextureBasisUExtension extends GLTFExtension {
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_texture_webp
 class GLTFTextureWebPExtension extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["EXT_TEXTURE_WEBP"]!;
+
   bool? isSupported;
 
-  GLTFTextureWebPExtension(parser) {
-    this.parser = parser;
+  GLTFTextureWebPExtension(this.parser) {
+    name = gltfExtensions["EXT_TEXTURE_WEBP"]!;
 
-    this.isSupported = null;
-    this.loadTexture = loadTexture2;
+    isSupported = null;
+    loadTexture = loadTexture2;
   }
 
   loadTexture2(textureIndex) {
@@ -582,7 +556,7 @@ class GLTFTextureWebPExtension extends GLTFExtension {
     var source = json["images"][exten["source"]];
     var loader = source.uri ? parser.options.manager.getHandler(source.uri) : parser.textureLoader;
 
-    final isSupported = this.detectSupport();
+    final isSupported = detectSupport();
 
     if (isSupported) return parser.loadTextureImage(textureIndex, source, loader);
 
@@ -617,23 +591,22 @@ class GLTFTextureWebPExtension extends GLTFExtension {
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Vendor/EXT_meshopt_compression
 class GLTFMeshoptCompression extends GLTFExtension {
   late dynamic parser;
-  String name = EXTENSIONS["EXT_MESHOPT_COMPRESSION"]!;
 
-  GLTFMeshoptCompression(parser) {
-    this.parser = parser;
+  GLTFMeshoptCompression(this.parser) {
+    name = gltfExtensions["EXT_MESHOPT_COMPRESSION"]!;
 
-    this.loadBufferView = (index) async {
-      Map<String, dynamic> json = this.parser.json;
+    loadBufferView = (index) async {
+      Map<String, dynamic> json = parser.json;
       Map<String, dynamic> bufferView = json["bufferViews"][index];
 
-      if (bufferView["extensions"] != null && bufferView["extensions"][this.name] != null) {
-        var extensionDef = bufferView["extensions"][this.name];
+      if (bufferView["extensions"] != null && bufferView["extensions"][name] != null) {
+        var extensionDef = bufferView["extensions"][name];
 
-        var buffer = await this.parser.getDependency('buffer', extensionDef.buffer);
-        var decoder = this.parser.options.meshoptDecoder;
+        var buffer = await parser.getDependency('buffer', extensionDef.buffer);
+        var decoder = parser.options.meshoptDecoder;
 
         if (!decoder || !decoder.supported) {
-          if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(this.name) >= 0) {
+          if (json["extensionsRequired"] != null && json["extensionsRequired"].indexOf(name) >= 0) {
             throw ('THREE.GLTFLoader: setMeshoptDecoder must be called before loading compressed files');
           } else {
             // Assumes that the extension is optional and that fallback buffer data is present
@@ -660,34 +633,35 @@ class GLTFMeshoptCompression extends GLTFExtension {
 }
 
 /* BINARY EXTENSION */
-var BINARY_EXTENSION_HEADER_MAGIC = 'glTF';
-var BINARY_EXTENSION_HEADER_LENGTH = 12;
-var BINARY_EXTENSION_CHUNK_TYPES = {"JSON": 0x4E4F534A, "BIN": 0x004E4942};
+var binaryExtensionHeaderMagic = 'glTF';
+var binaryExtensionHeaderLength = 12;
+var binaryExtensionChunksTypes = {"JSON": 0x4E4F534A, "BIN": 0x004E4942};
 
 class GLTFBinaryExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_BINARY_GLTF"]!;
-  dynamic? content;
-  dynamic? body;
+  dynamic content;
+  dynamic body;
+
   late Map<String, dynamic> header;
 
   GLTFBinaryExtension(ByteBuffer data) {
+    name = gltfExtensions["KHR_BINARY_GLTF"]!;
     // var headerView = new DataView( data, 0, BINARY_EXTENSION_HEADER_LENGTH );
-    var headerView = ByteData.view(data, 0, BINARY_EXTENSION_HEADER_LENGTH);
+    var headerView = ByteData.view(data, 0, binaryExtensionHeaderLength);
 
-    this.header = {
+    header = {
       "magic": LoaderUtils.decodeText(data.asUint8List(0, 4)),
       "version": headerView.getUint32(4, Endian.host),
       "length": headerView.getUint32(8, Endian.host)
     };
 
-    if (this.header["magic"] != BINARY_EXTENSION_HEADER_MAGIC) {
+    if (header["magic"] != binaryExtensionHeaderMagic) {
       throw ('THREE.GLTFLoader: Unsupported glTF-Binary header.');
-    } else if (this.header["version"] < 2.0) {
+    } else if (header["version"] < 2.0) {
       throw ('THREE.GLTFLoader: Legacy binary file detected.');
     }
 
     // var chunkView = new DataView( data, BINARY_EXTENSION_HEADER_LENGTH );
-    var chunkView = ByteData.view(data, BINARY_EXTENSION_HEADER_LENGTH);
+    var chunkView = ByteData.view(data, binaryExtensionHeaderLength);
     var chunkIndex = 0;
 
     while (chunkIndex < chunkView.lengthInBytes) {
@@ -697,13 +671,13 @@ class GLTFBinaryExtension extends GLTFExtension {
       var chunkType = chunkView.getUint32(chunkIndex, Endian.host);
       chunkIndex += 4;
 
-      if (chunkType == BINARY_EXTENSION_CHUNK_TYPES["JSON"]) {
-        var contentArray = Uint8List.view(data, BINARY_EXTENSION_HEADER_LENGTH + chunkIndex, chunkLength);
-        this.content = LoaderUtils.decodeText(contentArray);
-      } else if (chunkType == BINARY_EXTENSION_CHUNK_TYPES["BIN"]) {
-        var byteOffset = BINARY_EXTENSION_HEADER_LENGTH + chunkIndex;
+      if (chunkType == binaryExtensionChunksTypes["JSON"]) {
+        var contentArray = Uint8List.view(data, binaryExtensionHeaderLength + chunkIndex, chunkLength);
+        content = LoaderUtils.decodeText(contentArray);
+      } else if (chunkType == binaryExtensionChunksTypes["BIN"]) {
+        var byteOffset = binaryExtensionHeaderLength + chunkIndex;
 
-        this.body = Uint8List.view(data).sublist(byteOffset, byteOffset + chunkLength).buffer;
+        body = Uint8List.view(data).sublist(byteOffset, byteOffset + chunkLength).buffer;
       }
 
       // Clients must ignore chunks with unknown types.
@@ -711,7 +685,7 @@ class GLTFBinaryExtension extends GLTFExtension {
       chunkIndex += chunkLength;
     }
 
-    if (this.content == null) {
+    if (content == null) {
       throw ('THREE.GLTFLoader: JSON content not found.');
     }
   }
@@ -721,41 +695,40 @@ class GLTFBinaryExtension extends GLTFExtension {
 ///
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_draco_mesh_compression
 class GLTFDracoMeshCompressionExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]!;
   late dynamic json;
   late dynamic dracoLoader;
 
-  GLTFDracoMeshCompressionExtension(json, dracoLoader) {
+  GLTFDracoMeshCompressionExtension(this.json, this.dracoLoader) {
+    name = gltfExtensions["KHR_DRACO_MESH_COMPRESSION"]!;
+
     if (dracoLoader == null) {
       throw ('THREE.GLTFLoader: No DRACOLoader instance provided.');
     }
 
-    this.json = json;
-    this.dracoLoader = dracoLoader;
-    this.dracoLoader.preload();
+    dracoLoader.preload();
   }
 
   decodePrimitive(primitive, parser) async {
     var json = this.json;
     var dracoLoader = this.dracoLoader;
-    var bufferViewIndex = primitive["extensions"][this.name]["bufferView"];
-    var gltfAttributeMap = primitive["extensions"][this.name]["attributes"];
+    var bufferViewIndex = primitive["extensions"][name]["bufferView"];
+    var gltfAttributeMap = primitive["extensions"][name]["attributes"];
     var threeAttributeMap = {};
     var attributeNormalizedMap = {};
     var attributeTypeMap = {};
 
-    gltfAttributeMap.forEach((attributeName, _value) {
-      var threeAttributeName = ATTRIBUTES[attributeName] ?? attributeName.toLowerCase();
+    gltfAttributeMap.forEach((attributeName, value) {
+      var threeAttributeName = webGlAttributes[attributeName] ?? attributeName.toLowerCase();
 
       threeAttributeMap[threeAttributeName] = gltfAttributeMap[attributeName];
     });
 
-    primitive["attributes"].forEach((attributeName, _value) {
-      var threeAttributeName = ATTRIBUTES[attributeName] ?? attributeName.toLowerCase();
+    primitive["attributes"].forEach((attributeName, value) {
+      var threeAttributeName = webGlAttributes[attributeName] ?? attributeName.toLowerCase();
 
       if (gltfAttributeMap[attributeName] != null) {
         var accessorDef = json["accessors"][primitive["attributes"][attributeName]];
-        var componentType = WEBGL_COMPONENT_TYPES[accessorDef["componentType"]];
+        var componentType = webGlComponentTypes[accessorDef["componentType"]];
 
         attributeTypeMap[threeAttributeName] = componentType;
         attributeNormalizedMap[threeAttributeName] = accessorDef["normalized"] == true;
@@ -767,7 +740,7 @@ class GLTFDracoMeshCompressionExtension extends GLTFExtension {
     var completer = Completer<dynamic>();
 
     dracoLoader.decodeDracoFile(bufferView, (geometry) {
-      geometry.attributes.forEach((attributeName, _value) {
+      geometry.attributes.forEach((attributeName, value) {
         var attribute = geometry.attributes[attributeName];
         var normalized = attributeNormalizedMap[attributeName];
 
@@ -785,7 +758,9 @@ class GLTFDracoMeshCompressionExtension extends GLTFExtension {
 ///
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_texture_transform
 class GLTFTextureTransformExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_TEXTURE_TRANSFORM"]!;
+  GLTFTextureTransformExtension() {
+    name = gltfExtensions["KHR_TEXTURE_TRANSFORM"]!;
+  }
 
   extendTexture(texture, transform) {
     texture = texture.clone();
@@ -803,7 +778,7 @@ class GLTFTextureTransformExtension extends GLTFExtension {
     }
 
     if (transform.texCoord != null) {
-      print('THREE.GLTFLoader: Custom UV sets in ${this.name} extension not yet supported.');
+      print('THREE.GLTFLoader: Custom UV sets in $name extension not yet supported.');
     }
 
     texture.needsUpdate = true;
@@ -813,8 +788,6 @@ class GLTFTextureTransformExtension extends GLTFExtension {
 }
 
 class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]!;
-
   List<String> specularGlossinessParams = [
     'color',
     'map',
@@ -842,13 +815,14 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
   ];
 
   GLTFMaterialsPbrSpecularGlossinessExtension() {
-    this.getMaterialType = (materialIndex) {
+    name = gltfExtensions["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]!;
+    getMaterialType = (materialIndex) {
       return GLTFMeshStandardSGMaterial;
     };
   }
 
   extendParams(materialParams, materialDef, parser) async {
-    var pbrSpecularGlossiness = materialDef.extensions[this.name];
+    var pbrSpecularGlossiness = materialDef.extensions[name];
 
     materialParams.color = Color(1.0, 1.0, 1.0);
     materialParams.opacity = 1.0;
@@ -867,8 +841,7 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
     }
 
     materialParams.emissive = Color(0.0, 0.0, 0.0);
-    materialParams.glossiness =
-        pbrSpecularGlossiness.glossinessFactor != null ? pbrSpecularGlossiness.glossinessFactor : 1.0;
+    materialParams.glossiness = pbrSpecularGlossiness.glossinessFactor ?? 1.0;
     materialParams.specular = Color(1.0, 1.0, 1.0);
 
     if (pbrSpecularGlossiness.specularFactor is List) {
@@ -890,22 +863,22 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
 
     material.color = materialParams.color;
 
-    material.map = materialParams.map == null ? null : materialParams.map;
+    material.map = materialParams.map;
 
     material.lightMap = null;
     material.lightMapIntensity = 1.0;
 
-    material.aoMap = materialParams.aoMap == null ? null : materialParams.aoMap;
+    material.aoMap = materialParams.aoMap;
     material.aoMapIntensity = 1.0;
 
     material.emissive = materialParams.emissive;
     material.emissiveIntensity = 1.0;
-    material.emissiveMap = materialParams.emissiveMap == null ? null : materialParams.emissiveMap;
+    material.emissiveMap = materialParams.emissiveMap;
 
-    material.bumpMap = materialParams.bumpMap == null ? null : materialParams.bumpMap;
+    material.bumpMap = materialParams.bumpMap;
     material.bumpScale = 1;
 
-    material.normalMap = materialParams.normalMap == null ? null : materialParams.normalMap;
+    material.normalMap = materialParams.normalMap;
     material.normalMapType = TangentSpaceNormalMap;
 
     if (materialParams.normalScale) material.normalScale = materialParams.normalScale;
@@ -914,15 +887,15 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
     material.displacementScale = 1;
     material.displacementBias = 0;
 
-    material.specularMap = materialParams.specularMap == null ? null : materialParams.specularMap;
+    material.specularMap = materialParams.specularMap;
     material.specular = materialParams.specular;
 
-    material.glossinessMap = materialParams.glossinessMap == null ? null : materialParams.glossinessMap;
+    material.glossinessMap = materialParams.glossinessMap;
     material.glossiness = materialParams.glossiness;
 
     material.alphaMap = null;
 
-    material.envMap = materialParams.envMap == null ? null : materialParams.envMap;
+    material.envMap = materialParams.envMap;
     material.envMapIntensity = 1.0;
 
     return material;
@@ -933,5 +906,7 @@ class GLTFMaterialsPbrSpecularGlossinessExtension extends GLTFExtension {
 ///
 /// Specification: https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_mesh_quantization
 class GLTFMeshQuantizationExtension extends GLTFExtension {
-  String name = EXTENSIONS["KHR_MESH_QUANTIZATION"]!;
+  GLTFMeshQuantizationExtension() {
+    name = gltfExtensions["KHR_MESH_QUANTIZATION"]!;
+  }
 }

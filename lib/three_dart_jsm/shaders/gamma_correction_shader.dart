@@ -1,7 +1,7 @@
 /// Gamma Correction Shader
 /// http://en.wikipedia.org/wiki/gamma_correction
 
-var GammaCorrectionShader = {
+var gammaCorrectionShader = {
   "uniforms": {'tDiffuse': {}},
   "vertexShader": [
     'varying vec2 vUv;',

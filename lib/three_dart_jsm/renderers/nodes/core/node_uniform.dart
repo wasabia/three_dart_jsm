@@ -1,15 +1,10 @@
 class NodeUniform {
-  late String name;
-  late String type;
-  late dynamic node;
-  late dynamic needsUpdate;
+  String name;
+  String type;
+  dynamic node;
+  dynamic needsUpdate;
 
-  NodeUniform(name, type, node, [needsUpdate]) {
-    this.name = name;
-    this.type = type;
-    this.node = node;
-    this.needsUpdate = needsUpdate;
-  }
+  NodeUniform(this.name, this.type, this.node, [this.needsUpdate]);
 
   get value {
     return node.value;

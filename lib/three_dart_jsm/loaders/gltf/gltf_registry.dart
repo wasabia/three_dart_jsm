@@ -1,11 +1,9 @@
-part of gltf_loader;
-
 /* GLTFREGISTRY */
 
 class GLTFRegistry {
   var objects = {};
 
-  GLTFRegistry() {}
+  GLTFRegistry();
 
   get(key) {
     return objects[key];

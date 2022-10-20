@@ -1,15 +1,12 @@
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class TextureNode extends InputNode {
-  @override
-  late dynamic value;
   late UVNode uv;
   late dynamic bias;
 
-  TextureNode([value, uv, bias]) : super('texture') {
+  TextureNode([value, uv, this.bias]) : super('texture') {
     this.value = value;
     this.uv = uv ?? UVNode();
-    this.bias = bias;
   }
 
   @override

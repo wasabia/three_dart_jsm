@@ -5,7 +5,7 @@ import 'package:three_dart/three3d/math/index.dart';
 /// - WebGL port by @supereggbert
 /// http://www.glge.org/demos/fxaa/
 
-Map<String, dynamic> FXAAShader = {
+Map<String, dynamic> fxaaShader = {
   "uniforms": {
     'tDiffuse': {},
     'resolution': {"value": Vector2(1 / 1024, 1 / 512)}
@@ -29,7 +29,7 @@ Map<String, dynamic> FXAAShader = {
     '// FXAA 3.11 implementation by NVIDIA, ported to WebGL by Agost Biro (biro@archilogic.com)',
     '',
     '//----------------------------------------------------------------------------------',
-    '// File:        es3-kepler\FXAA\assets\shaders/FXAA_DefaultES.frag',
+    '// File:        es3-kepler\\FXAA\\assets\\shaders/FXAA_DefaultES.frag',
     '// SDK Version: v3.00',
     '// Email:       gameworks@nvidia.com',
     '// Site:        http://developer.nvidia.com/',

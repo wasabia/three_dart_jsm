@@ -10,17 +10,13 @@ class GlitchPass extends Pass {
   num curF = 0;
   late num randX;
 
-  GlitchPass(dt_size) : super() {
-    if (DigitalGlitch == null) {
-      print('THREE.GlitchPass relies on DigitalGlitch');
-    }
-
-    var shader = DigitalGlitch;
+  GlitchPass(dtSize) : super() {
+    var shader = digitalGlitch;
     uniforms = UniformsUtils.clone(shader["uniforms"]);
 
-    dt_size ??= 64;
+    dtSize ??= 64;
 
-    uniforms['tDisp']["value"] = generateHeightmap(dt_size);
+    uniforms['tDisp']["value"] = generateHeightmap(dtSize);
 
     material = ShaderMaterial(
         {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});

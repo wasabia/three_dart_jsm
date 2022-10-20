@@ -1,20 +1,18 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
-var _clearAlpha;
-var _clearColor = Color();
+import 'index.dart';
 
 class WebGPUBackground {
   late WebGPURenderer renderer;
   late bool forceClear;
 
-  WebGPUBackground(renderer) {
-    this.renderer = renderer;
-
-    this.forceClear = false;
+  WebGPUBackground(this.renderer) {
+    forceClear = false;
   }
 
   clear() {
-    this.forceClear = true;
+    forceClear = true;
   }
 
   update(scene) {
@@ -25,13 +23,9 @@ class WebGPUBackground {
     if (background == null) {
       // no background settings, use clear color configuration from the renderer
 
-      _clearColor.copy(renderer._clearColor);
-      _clearAlpha = renderer._clearAlpha;
     } else if (background.isColor == true) {
       // background is an opaque color
 
-      _clearColor.copy(background);
-      _clearAlpha = 1;
       forceClear = true;
     } else {
       console.error('THREE.WebGPURenderer: Unsupported background configuration.', background);

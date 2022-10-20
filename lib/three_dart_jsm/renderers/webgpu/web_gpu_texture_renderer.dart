@@ -1,25 +1,23 @@
-part of three_webgpu;
+import 'package:three_dart/three_dart.dart';
 
 class WebGPUTextureRenderer {
   late dynamic renderer;
   late WebGLRenderTarget renderTarget;
 
-  WebGPUTextureRenderer(renderer, [options]) {
+  WebGPUTextureRenderer(this.renderer, [options]) {
     options ??= {};
-
-    this.renderer = renderer;
 
     // @TODO: Consider to introduce WebGPURenderTarget or rename WebGLRenderTarget to just RenderTarget
 
-    this.renderTarget = WebGLRenderTarget(1, 1, options);
+    renderTarget = WebGLRenderTarget(1, 1, options);
   }
 
   getTexture() {
-    return this.renderTarget.texture;
+    return renderTarget.texture;
   }
 
   setSize(width, height) {
-    this.renderTarget.setSize(width, height);
+    renderTarget.setSize(width, height);
   }
 
   render(scene, camera) {

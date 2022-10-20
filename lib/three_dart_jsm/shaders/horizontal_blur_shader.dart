@@ -6,7 +6,7 @@
 /// - standard deviation 2.7
 /// - "h" and "v" parameters should be set to "1 / width" and "1 / height"
 
-Map<String, dynamic> HorizontalBlurShader = {
+Map<String, dynamic> horizontalBlurShader = {
   "uniforms": {
     'tDiffuse': {},
     'h': {"value": 1.0 / 512.0}

@@ -1,4 +1,3 @@
-import 'package:three_dart/three3d/math/math.dart';
 import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ExpressionNode extends TempNode {
@@ -6,10 +5,8 @@ class ExpressionNode extends TempNode {
 
   String? name;
 
-  ExpressionNode([snipped = '', nodeType = 'void']) : super(nodeType) {
+  ExpressionNode([this.snipped = '', nodeType = 'void']) : super(nodeType) {
     generateLength = 1;
-
-    this.snipped = snipped;
   }
 
   @override

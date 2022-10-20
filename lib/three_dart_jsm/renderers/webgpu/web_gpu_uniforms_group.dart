@@ -1,4 +1,7 @@
-part of three_webgpu;
+import 'package:flutter_gl/native-array/index.dart';
+import 'package:three_dart/extra/console.dart';
+
+import 'index.dart';
 
 class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   late List uniforms;
@@ -6,30 +9,31 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   WebGPUUniformsGroup(name) : super(name) {
     // the order of uniforms in this array must match the order of uniforms in the shader
 
-    this.uniforms = [];
+    uniforms = [];
   }
 
   addUniform(uniform) {
-    this.uniforms.add(uniform);
+    uniforms.add(uniform);
 
     return this;
   }
 
   removeUniform(uniform) {
-    var index = this.uniforms.indexOf(uniform);
+    var index = uniforms.indexOf(uniform);
 
     if (index != -1) {
-      this.uniforms.removeAt(index);
+      uniforms.removeAt(index);
     }
 
     return this;
   }
 
+  @override
   getBuffer() {
     var buffer = this.buffer;
 
     if (buffer == null) {
-      var byteLength = this.getByteLength();
+      var byteLength = getByteLength();
 
       buffer = Float32Array(byteLength ~/ 4);
 
@@ -39,43 +43,45 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     return buffer;
   }
 
+  @override
   getByteLength() {
     int offset = 0; // global buffer offset in bytes
 
-    for (var i = 0, l = this.uniforms.length; i < l; i++) {
-      var uniform = this.uniforms[i];
+    for (var i = 0, l = uniforms.length; i < l; i++) {
+      var uniform = uniforms[i];
 
       // offset within a single chunk in bytes
 
-      var chunkOffset = offset % GPUChunkSize;
-      var remainingSizeInChunk = GPUChunkSize - chunkOffset;
+      var chunkOffset = offset % gpuChunkSize;
+      var remainingSizeInChunk = gpuChunkSize - chunkOffset;
 
       // conformance tests
 
       if (chunkOffset != 0 && (remainingSizeInChunk - uniform.boundary) < 0) {
         // check for chunk overflow
 
-        offset += (GPUChunkSize - chunkOffset);
+        offset += (gpuChunkSize - chunkOffset);
       } else if (chunkOffset % uniform.boundary != 0) {
         // check for correct alignment
 
         offset += (chunkOffset % uniform.boundary).toInt();
       }
 
-      uniform.offset = (offset ~/ this.bytesPerElement);
+      uniform.offset = (offset ~/ bytesPerElement);
 
-      int _v = (uniform.itemSize * this.bytesPerElement).toInt();
-      offset += _v;
+      int v = (uniform.itemSize * bytesPerElement).toInt();
+      offset += v;
     }
 
     return offset;
   }
 
+  @override
   update() {
     var updated = false;
 
-    for (var uniform in this.uniforms) {
-      if (this.updateByType(uniform) == true) {
+    for (var uniform in uniforms) {
+      if (updateByType(uniform) == true) {
         updated = true;
       }
     }
@@ -84,13 +90,13 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   }
 
   updateByType(uniform) {
-    if (uniform is FloatUniform) return this.updateNumber(uniform);
-    if (uniform is Vector2Uniform) return this.updateVector2(uniform);
-    if (uniform is Vector3Uniform) return this.updateVector3(uniform);
-    if (uniform is Vector4Uniform) return this.updateVector4(uniform);
-    if (uniform is ColorUniform) return this.updateColor(uniform);
-    if (uniform is Matrix3Uniform) return this.updateMatrix3(uniform);
-    if (uniform is Matrix4Uniform) return this.updateMatrix4(uniform);
+    if (uniform is FloatUniform) return updateNumber(uniform);
+    if (uniform is Vector2Uniform) return updateVector2(uniform);
+    if (uniform is Vector3Uniform) return updateVector3(uniform);
+    if (uniform is Vector4Uniform) return updateVector4(uniform);
+    if (uniform is ColorUniform) return updateColor(uniform);
+    if (uniform is Matrix3Uniform) return updateMatrix3(uniform);
+    if (uniform is Matrix4Uniform) return updateMatrix4(uniform);
 
     console.error('THREE.WebGPUUniformsGroup: Unsupported uniform type.', uniform);
   }
@@ -98,7 +104,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateNumber(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var v = uniform.getValue();
     var offset = uniform.offset;
 
@@ -113,7 +119,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateVector2(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var v = uniform.getValue();
     var offset = uniform.offset;
 
@@ -130,7 +136,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateVector3(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var v = uniform.getValue();
     var offset = uniform.offset;
 
@@ -148,7 +154,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateVector4(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var v = uniform.getValue();
     var offset = uniform.offset;
 
@@ -167,7 +173,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateColor(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var c = uniform.getValue();
     var offset = uniform.offset;
 
@@ -185,7 +191,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateMatrix3(uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var e = uniform.getValue().elements;
     var offset = uniform.offset;
 
@@ -217,7 +223,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   updateMatrix4(Matrix4Uniform uniform) {
     var updated = false;
 
-    var a = this.buffer;
+    var a = buffer;
     var e = uniform.getValue().elements;
     var offset = uniform.offset;
 

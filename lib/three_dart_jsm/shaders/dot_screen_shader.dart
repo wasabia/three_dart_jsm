@@ -4,7 +4,7 @@ import 'package:three_dart/three3d/math/index.dart';
 /// based on glfx.js sepia shader
 /// https://github.com/evanw/glfx.js
 
-Map<String, dynamic> DotScreenShader = {
+Map<String, dynamic> dotScreenShader = {
   "uniforms": {
     'tDiffuse': {},
     'tSize': {"value": Vector2(256, 256)},

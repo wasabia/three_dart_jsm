@@ -16,7 +16,7 @@
 /// This version is provided under a Creative Commons Attribution 3.0 License
 /// http://creativecommons.org/licenses/by/3.0/
 
-Map<String, dynamic> FilmShader = {
+Map<String, dynamic> filmShader = {
   "uniforms": {
     'tDiffuse': {},
     'time': {"value": 0.0},

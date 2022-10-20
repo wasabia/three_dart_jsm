@@ -6,7 +6,7 @@
 /// amount: shift distance (1 is width of input)
 /// angle: shift angle in radians
 
-Map<String, dynamic> DigitalGlitch = {
+Map<String, dynamic> digitalGlitch = {
   "uniforms": {
     'tDiffuse': {}, //diffuse texture
     'tDisp': {}, //displacement texture for digital glitch squares

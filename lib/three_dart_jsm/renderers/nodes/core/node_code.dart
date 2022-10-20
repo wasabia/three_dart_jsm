@@ -3,9 +3,5 @@ class NodeCode {
   late String type;
   late String code;
 
-  NodeCode(name, type, [code = '']) {
-    this.name = name;
-    this.type = type;
-    this.code = code;
-  }
+  NodeCode(this.name, this.type, [this.code = '']);
 }

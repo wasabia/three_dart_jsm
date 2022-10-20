@@ -1,32 +1,33 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
+
+import '../../nodes/index.dart';
+import '../index.dart';
 
 class WebGPUNodes {
   late WebGPURenderer renderer;
   late NodeFrame nodeFrame;
   late WeakMap builders;
 
-  WebGPUNodes(renderer) {
-    this.renderer = renderer;
-
-    this.nodeFrame = NodeFrame();
-
-    this.builders = WeakMap();
+  WebGPUNodes(this.renderer) {
+    nodeFrame = NodeFrame();
+    builders = WeakMap();
   }
 
   get(object, [lightNode]) {
-    var nodeBuilder = this.builders.get(object);
+    var nodeBuilder = builders.get(object);
 
     if (nodeBuilder == undefined) {
-      nodeBuilder = WebGPUNodeBuilder(object, this.renderer, lightNode).build();
+      nodeBuilder = WebGPUNodeBuilder(object, renderer, lightNode).build();
 
-      this.builders.set(object, nodeBuilder);
+      builders.set(object, nodeBuilder);
     }
 
     return nodeBuilder;
   }
 
   remove(object) {
-    this.builders.delete(object);
+    builders.delete(object);
   }
 
   updateFrame() {
@@ -37,7 +38,7 @@ class WebGPUNodes {
     var renderer = this.renderer;
     var material = object.material;
 
-    var nodeBuilder = this.get(object, lightNode);
+    var nodeBuilder = get(object, lightNode);
     var nodeFrame = this.nodeFrame;
 
     nodeFrame.material = material;
@@ -51,6 +52,6 @@ class WebGPUNodes {
   }
 
   dispose() {
-    this.builders = WeakMap();
+    builders = WeakMap();
   }
 }
