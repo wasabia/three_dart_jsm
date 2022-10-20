@@ -1,6 +1,6 @@
 export './core/constants.dart';
 
-export './core/Node.dart';
+export './core/node.dart';
 export './core/input_node.dart';
 export './core/code_node.dart';
 export './inputs/color_node.dart';

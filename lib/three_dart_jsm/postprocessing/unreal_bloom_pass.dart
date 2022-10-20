@@ -1,7 +1,7 @@
 import 'package:three_dart/three_dart.dart';
 import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
 
-import 'Pass.dart';
+import 'pass.dart';
 
 /// UnrealBloomPass is inspired by the bloom pass of Unreal Engine. It creates a
 /// mip map chain of bloom textures and blurs them with different radii. Because

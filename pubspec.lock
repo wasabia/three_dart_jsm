@@ -269,9 +269,9 @@ packages:
   three_dart:
     dependency: "direct main"
     description:
-      path: "../three_dart"
-      relative: true
-    source: path
+      name: three_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "0.0.15"
   typed_data:
     dependency: transitive
