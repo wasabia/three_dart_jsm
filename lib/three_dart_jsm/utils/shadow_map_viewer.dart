@@ -2,32 +2,30 @@ part of jsm_utils;
 
 // import { UnpackDepthRGBAShader } from '../shaders/UnpackDepthRGBAShader.js';
 
-/**
- * This is a helper for visualising a given light's shadow map.
- * It works for shadow casting lights: DirectionalLight and SpotLight.
- * It renders out the shadow map and displays it on a HUD.
- *
- * Example usage:
- *	1) Import ShadowMapViewer into your app.
- *
- *	2) Create a shadow casting light and name it optionally:
- *		var light = new DirectionalLight( 0xffffff, 1 );
- *		light.castShadow = true;
- *		light.name = 'Sun';
- *
- *	3) Create a shadow map viewer for that light and set its size and position optionally:
- *		var shadowMapViewer = new ShadowMapViewer( light );
- *		shadowMapViewer.size.set( 128, 128 );	//width, height  default: 256, 256
- *		shadowMapViewer.position.set( 10, 10 );	//x, y in pixel	 default: 0, 0 (top left corner)
- *
- *	4) Render the shadow map viewer in your render loop:
- *		shadowMapViewer.render( renderer );
- *
- *	5) Optionally: Update the shadow map viewer on window resize:
- *		shadowMapViewer.updateForWindowResize();
- *
- *	6) If you set the position or size members directly, you need to call shadowMapViewer.update();
- */
+/// This is a helper for visualising a given light's shadow map.
+/// It works for shadow casting lights: DirectionalLight and SpotLight.
+/// It renders out the shadow map and displays it on a HUD.
+///
+/// Example usage:
+///	1) Import ShadowMapViewer into your app.
+///
+///	2) Create a shadow casting light and name it optionally:
+///		var light = new DirectionalLight( 0xffffff, 1 );
+///		light.castShadow = true;
+///		light.name = 'Sun';
+///
+///	3) Create a shadow map viewer for that light and set its size and position optionally:
+///		var shadowMapViewer = new ShadowMapViewer( light );
+///		shadowMapViewer.size.set( 128, 128 );	//width, height  default: 256, 256
+///		shadowMapViewer.position.set( 10, 10 );	//x, y in pixel	 default: 0, 0 (top left corner)
+///
+///	4) Render the shadow map viewer in your render loop:
+///		shadowMapViewer.render( renderer );
+///
+///	5) Optionally: Update the shadow map viewer on window resize:
+///		shadowMapViewer.updateForWindowResize();
+///
+///	6) If you set the position or size members directly, you need to call shadowMapViewer.update();
 
 class ShadowMapViewer {
   //- API
@@ -62,23 +60,19 @@ class ShadowMapViewer {
     //Holds the initial position and dimension of the HUD
     frame = {"x": 10, "y": 10, "width": 256, "height": 256};
 
-    camera = new OrthographicCamera(innerWidth / -2, innerWidth / 2,
-        innerHeight / 2, innerHeight / -2, 1, 10);
+    camera = OrthographicCamera(innerWidth / -2, innerWidth / 2, innerHeight / 2, innerHeight / -2, 1, 10);
     camera.position.set(0, 0, 2);
-    scene = new Scene();
+    scene = Scene();
     // scene.background = Color.fromHex(0xff00ff);
 
     //HUD for shadow map
-    var shader = UnpackDepthRGBAShader;
+    var shader = unpackDepthRGBAShader;
 
     uniforms = UniformsUtils.clone(shader["uniforms"]);
-    var material = new ShaderMaterial({
-      "uniforms": uniforms,
-      "vertexShader": shader["vertexShader"],
-      "fragmentShader": shader["fragmentShader"]
-    });
-    var plane = new PlaneGeometry(frame["width"]!, frame["height"]!);
-    mesh = new Mesh(plane, material);
+    var material = ShaderMaterial(
+        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
+    var plane = PlaneGeometry(frame["width"]!, frame["height"]!);
+    mesh = Mesh(plane, material);
 
     scene.add(mesh);
 
@@ -164,8 +158,7 @@ class ShadowMapViewer {
     var width = this.size["width"]!;
     var height = this.size["height"]!;
 
-    mesh.position.set(
-        -innerWidth / 2 + width / 2 + x, innerHeight / 2 - height / 2 - y, 0);
+    mesh.position.set(-innerWidth / 2 + width / 2 + x, innerHeight / 2 - height / 2 - y, 0);
 
     // if ( doRenderLabel ) labelMesh.position.set( mesh.position.x, mesh.position.y - scope.size.height / 2 + labelCanvas.height / 2, 0 );
   }

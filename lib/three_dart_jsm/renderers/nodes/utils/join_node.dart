@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class JoinNode extends Node {
   late List nodes;
@@ -9,12 +9,14 @@ class JoinNode extends Node {
     this.nodes = nodes ?? [];
   }
 
+  @override
   getNodeType([builder, output]) {
-    return builder.getTypeFromLength(this.nodes.length);
+    return builder.getTypeFromLength(nodes.length);
   }
 
+  @override
   generate([builder, output]) {
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
     var nodes = this.nodes;
 
     var snippetValues = [];

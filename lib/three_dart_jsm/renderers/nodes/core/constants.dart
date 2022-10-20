@@ -1,5 +1,3 @@
-part of renderer_nodes;
-
 class NodeShaderStage {
   static const String Vertex = 'vertex';
   static const String Fragment = 'fragment';

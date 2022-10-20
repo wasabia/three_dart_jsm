@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class Object3DNode extends Node {
   static const String VIEW_MATRIX = 'viewMatrix';
@@ -11,32 +12,32 @@ class Object3DNode extends Node {
   late dynamic object3d;
   late dynamic _inputNode;
 
-  Object3DNode([scope = Object3DNode.VIEW_MATRIX, object3d = null]) : super() {
+  Object3DNode([scope = Object3DNode.VIEW_MATRIX, object3d]) : super() {
     this.scope = scope;
     this.object3d = object3d;
 
-    this.updateType = NodeUpdateType.Object;
+    updateType = NodeUpdateType.Object;
 
-    this._inputNode = null;
+    _inputNode = null;
   }
 
+  @override
   getNodeType([builder, output]) {
     var scope = this.scope;
 
-    if (scope == Object3DNode.WORLD_MATRIX ||
-        scope == Object3DNode.VIEW_MATRIX) {
+    if (scope == Object3DNode.WORLD_MATRIX || scope == Object3DNode.VIEW_MATRIX) {
       return 'mat4';
     } else if (scope == Object3DNode.NORMAL_MATRIX) {
       return 'mat3';
-    } else if (scope == Object3DNode.POSITION ||
-        scope == Object3DNode.VIEW_POSITION) {
+    } else if (scope == Object3DNode.POSITION || scope == Object3DNode.VIEW_POSITION) {
       return 'vec3';
     }
   }
 
+  @override
   update([frame]) {
-    var object = this.object3d != null ? this.object3d : frame.object;
-    var inputNode = this._inputNode;
+    var object = object3d ?? frame.object;
+    var inputNode = _inputNode;
     var camera = frame.camera;
     var scope = this.scope;
 
@@ -55,19 +56,18 @@ class Object3DNode extends Node {
     }
   }
 
+  @override
   generate([builder, output]) {
     var scope = this.scope;
 
-    if (scope == Object3DNode.WORLD_MATRIX ||
-        scope == Object3DNode.VIEW_MATRIX) {
-      this._inputNode = new Matrix4Node();
+    if (scope == Object3DNode.WORLD_MATRIX || scope == Object3DNode.VIEW_MATRIX) {
+      _inputNode = Matrix4Node();
     } else if (scope == Object3DNode.NORMAL_MATRIX) {
-      this._inputNode = new Matrix3Node();
-    } else if (scope == Object3DNode.POSITION ||
-        scope == Object3DNode.VIEW_POSITION) {
-      this._inputNode = new Vector3Node();
+      _inputNode = Matrix3Node();
+    } else if (scope == Object3DNode.POSITION || scope == Object3DNode.VIEW_POSITION) {
+      _inputNode = Vector3Node();
     }
 
-    return this._inputNode.build(builder);
+    return _inputNode.build(builder);
   }
 }

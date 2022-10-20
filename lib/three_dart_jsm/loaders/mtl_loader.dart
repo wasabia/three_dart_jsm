@@ -1,8 +1,6 @@
 part of jsm_loader;
 
-/**
- * Loads a Wavefront .mtl file specifying materials
- */
+/// Loads a Wavefront .mtl file specifying materials
 
 class MTLLoader extends Loader {
   dynamic materialOptions;
@@ -19,25 +17,23 @@ class MTLLoader extends Loader {
     return completer.future;
   }
 
-  /**
-	 * Loads and parses a MTL asset from a URL.
-	 *
-	 * @param {String} url - URL to the MTL file.
-	 * @param {Function} [onLoad] - Callback invoked with the loaded object.
-	 * @param {Function} [onProgress] - Callback for download progress.
-	 * @param {Function} [onError] - Callback for download errors.
-	 *
-	 * @see setPath setResourcePath
-	 *
-	 * @note In order for relative texture references to resolve correctly
-	 * you must call setResourcePath() explicitly prior to load.
-	 */
+  /// Loads and parses a MTL asset from a URL.
+  ///
+  /// @param {String} url - URL to the MTL file.
+  /// @param {Function} [onLoad] - Callback invoked with the loaded object.
+  /// @param {Function} [onProgress] - Callback for download progress.
+  /// @param {Function} [onError] - Callback for download errors.
+  ///
+  /// @see setPath setResourcePath
+  ///
+  /// @note In order for relative texture references to resolve correctly
+  /// you must call setResourcePath() explicitly prior to load.
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
     var path = (this.path == '') ? LoaderUtils.extractUrlBase(url) : this.path;
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setRequestHeader(this.requestHeader);
     loader.setWithCredentials(this.withCredentials);
@@ -69,17 +65,15 @@ class MTLLoader extends Loader {
     return this;
   }
 
-  /**
-	 * Parses a MTL file.
-	 *
-	 * @param {String} text - Content of MTL file
-	 * @return {MaterialCreator}
-	 *
-	 * @see setPath setResourcePath
-	 *
-	 * @note In order for relative texture references to resolve correctly
-	 * you must call setResourcePath() explicitly prior to parse.
-	 */
+  /// Parses a MTL file.
+  ///
+  /// @param {String} text - Content of MTL file
+  /// @return {MaterialCreator}
+  ///
+  /// @see setPath setResourcePath
+  ///
+  /// @note In order for relative texture references to resolve correctly
+  /// you must call setResourcePath() explicitly prior to parse.
   parse(text, [String? path, Function? onLoad, Function? onError]) {
     var lines = text.split('\n');
     var info = {};
@@ -118,9 +112,7 @@ class MTLLoader extends Loader {
       }
     }
 
-    var materialCreator = new MaterialCreator(
-        this.resourcePath != "" ? this.resourcePath : path,
-        this.materialOptions);
+    var materialCreator = MaterialCreator(this.resourcePath != "" ? this.resourcePath : path, this.materialOptions);
     materialCreator.setCrossOrigin(this.crossOrigin);
     materialCreator.setManager(this.manager);
     materialCreator.setMaterials(materialsInfo);
@@ -128,20 +120,18 @@ class MTLLoader extends Loader {
   }
 }
 
-/**
- * Create a new MTLLoader.MaterialCreator
- * @param baseUrl - Url relative to which textures are loaded
- * @param options - Set of options on how to construct the materials
- *                  side: Which side to apply the material
- *                        FrontSide (default), THREE.BackSide, THREE.DoubleSide
- *                  wrap: What type of wrapping to apply for textures
- *                        RepeatWrapping (default), THREE.ClampToEdgeWrapping, THREE.MirroredRepeatWrapping
- *                  normalizeRGB: RGBs need to be normalized to 0-1 from 0-255
- *                                Default: false, assumed to be already normalized
- *                  ignoreZeroRGBs: Ignore values of RGBs (Ka,Kd,Ks) that are all 0's
- *                                  Default: false
- * @constructor
- */
+/// Create a new MTLLoader.MaterialCreator
+/// @param baseUrl - Url relative to which textures are loaded
+/// @param options - Set of options on how to construct the materials
+///                  side: Which side to apply the material
+///                        FrontSide (default), THREE.BackSide, THREE.DoubleSide
+///                  wrap: What type of wrapping to apply for textures
+///                        RepeatWrapping (default), THREE.ClampToEdgeWrapping, THREE.MirroredRepeatWrapping
+///                  normalizeRGB: RGBs need to be normalized to 0-1 from 0-255
+///                                Default: false, assumed to be already normalized
+///                  ignoreZeroRGBs: Ignore values of RGBs (Ka,Kd,Ks) that are all 0's
+///                                  Default: false
+/// @constructor
 
 class MaterialCreator {
   late String baseUrl;
@@ -166,10 +156,8 @@ class MaterialCreator {
 
     this.crossOrigin = 'anonymous';
 
-    this.side =
-        (this.options["side"] != null) ? this.options["side"] : FrontSide;
-    this.wrap =
-        (this.options["wrap"] != null) ? this.options["wrap"] : RepeatWrapping;
+    this.side = (this.options["side"] != null) ? this.options["side"] : FrontSide;
+    this.wrap = (this.options["wrap"] != null) ? this.options["wrap"] : RepeatWrapping;
   }
 
   setCrossOrigin(value) {
@@ -219,8 +207,7 @@ class MaterialCreator {
               value = [value[0] / 255, value[1] / 255, value[2] / 255];
             }
 
-            if (this.options != null &&
-                this.options["ignoreZeroRGBs"] != null) {
+            if (this.options != null && this.options["ignoreZeroRGBs"] != null) {
               if (value[0] == 0 && value[1] == 0 && value[2] == 0) {
                 // ignore
 
@@ -295,8 +282,7 @@ class MaterialCreator {
 
       var texParams = scope.getTextureParams(value, params);
 
-      var map = await scope.loadTexture(
-          resolveURL(scope.baseUrl, texParams["url"]), null, null, null, null);
+      var map = await scope.loadTexture(resolveURL(scope.baseUrl, texParams["url"]), null, null, null, null);
 
       map.repeat.copy(texParams["scale"]);
       map.offset.copy(texParams["offset"]);
@@ -321,21 +307,21 @@ class MaterialCreator {
 
           // Diffuse color (color under white light) using RGB values
 
-          params["color"] = new Color(1, 1, 1).fromArray(value);
+          params["color"] = Color(1, 1, 1).fromArray(value);
 
           break;
 
         case 'ks':
 
           // Specular color (color when light is reflected from shiny surface) using RGB values
-          params["specular"] = new Color(1, 1, 1).fromArray(value);
+          params["specular"] = Color(1, 1, 1).fromArray(value);
 
           break;
 
         case 'ke':
 
           // Emissive using RGB values
-          params["emissive"] = new Color(1, 1, 1).fromArray(value);
+          params["emissive"] = Color(1, 1, 1).fromArray(value);
 
           break;
 
@@ -408,8 +394,7 @@ class MaterialCreator {
         case 'tr':
           n = parseFloat(value);
 
-          if (this.options != null && this.options["invertTrProperty"])
-            n = 1 - n;
+          if (this.options != null && this.options["invertTrProperty"]) n = 1 - n;
 
           if (n > 0) {
             params["opacity"] = 1 - n;
@@ -423,15 +408,12 @@ class MaterialCreator {
       }
     }
 
-    this.materials[materialName] = new MeshPhongMaterial(params);
+    this.materials[materialName] = MeshPhongMaterial(params);
     return this.materials[materialName];
   }
 
   getTextureParams(String value, matParams) {
-    Map<String, dynamic> texParams = {
-      "scale": new Vector2(1, 1),
-      "offset": new Vector2(0, 0)
-    };
+    Map<String, dynamic> texParams = {"scale": Vector2(1, 1), "offset": Vector2(0, 0)};
 
     var items = value.split(RegExp(r"\s+"));
     var pos;
@@ -446,8 +428,7 @@ class MaterialCreator {
     pos = items.indexOf('-s');
 
     if (pos >= 0) {
-      texParams["scale"]!
-          .set(parseFloat(items[pos + 1]), parseFloat(items[pos + 2]));
+      texParams["scale"]!.set(parseFloat(items[pos + 1]), parseFloat(items[pos + 2]));
       splice(items, pos, 4); // we expect 3 parameters here!
 
     }
@@ -455,8 +436,7 @@ class MaterialCreator {
     pos = items.indexOf('-o');
 
     if (pos >= 0) {
-      texParams["offset"]!
-          .set(parseFloat(items[pos + 1]), parseFloat(items[pos + 2]));
+      texParams["offset"]!.set(parseFloat(items[pos + 1]), parseFloat(items[pos + 2]));
       splice(items, pos, 4); // we expect 3 parameters here!
 
     }
@@ -466,11 +446,11 @@ class MaterialCreator {
   }
 
   loadTexture(url, mapping, onLoad, onProgress, onError) async {
-    var manager = (this.manager != null) ? this.manager : DefaultLoadingManager;
+    var manager = (this.manager != null) ? this.manager : defaultLoadingManager;
     var loader = manager.getHandler(url);
 
     if (loader == null) {
-      loader = new TextureLoader(manager);
+      loader = TextureLoader(manager);
     }
 
     if (loader.setCrossOrigin != null) loader.setCrossOrigin(this.crossOrigin);

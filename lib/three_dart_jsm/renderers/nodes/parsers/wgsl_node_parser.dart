@@ -1,7 +1,8 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class WGSLNodeParser extends NodeParser {
+  @override
   parseFunction(source) {
-    return new WGSLNodeFunction(source);
+    return WGSLNodeFunction(source);
   }
 }

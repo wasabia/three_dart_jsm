@@ -49,8 +49,7 @@ class _MyAppState extends State<webgl_loader_fbx> {
 
   dynamic? sourceTexture;
 
-  final GlobalKey<THREE_JSM.DomLikeListenableState> _globalKey =
-      GlobalKey<THREE_JSM.DomLikeListenableState>();
+  final GlobalKey<THREE_JSM.DomLikeListenableState> _globalKey = GlobalKey<THREE_JSM.DomLikeListenableState>();
 
   late THREE_JSM.OrbitControls controls;
 
@@ -136,9 +135,7 @@ class _MyAppState extends State<webgl_loader_fbx> {
                         child: Builder(builder: (BuildContext context) {
                           if (kIsWeb) {
                             return three3dRender.isInitialized
-                                ? HtmlElementView(
-                                    viewType:
-                                        three3dRender.textureId!.toString())
+                                ? HtmlElementView(viewType: three3dRender.textureId!.toString())
                                 : Container();
                           } else {
                             return three3dRender.isInitialized
@@ -158,7 +155,7 @@ class _MyAppState extends State<webgl_loader_fbx> {
     int _t = DateTime.now().millisecondsSinceEpoch;
     final _gl = three3dRender.gl;
 
-    if(mixer == null) {
+    if (mixer == null) {
       return;
     }
 
@@ -204,13 +201,9 @@ class _MyAppState extends State<webgl_loader_fbx> {
     renderer!.shadowMap.enabled = true;
 
     if (!kIsWeb) {
-      var pars = THREE.WebGLRenderTargetOptions({
-        "minFilter": THREE.LinearFilter,
-        "magFilter": THREE.LinearFilter,
-        "format": THREE.RGBAFormat
-      });
-      renderTarget = THREE.WebGLRenderTarget(
-          (width * dpr).toInt(), (height * dpr).toInt(), pars);
+      var pars = THREE.WebGLRenderTargetOptions(
+          {"minFilter": THREE.LinearFilter, "magFilter": THREE.LinearFilter, "format": THREE.RGBAFormat});
+      renderTarget = THREE.WebGLRenderTarget((width * dpr).toInt(), (height * dpr).toInt(), pars);
       renderTarget.samples = 4;
       renderer!.setRenderTarget(renderTarget);
       sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget);
@@ -228,19 +221,18 @@ class _MyAppState extends State<webgl_loader_fbx> {
     var WIDTH = (width / AMOUNT) * dpr;
     var HEIGHT = (height / AMOUNT) * dpr;
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xcccccc);
-    scene.fog = new THREE.FogExp2(0xcccccc, 0.002);
+    scene = THREE.Scene();
+    scene.background = THREE.Color(0xcccccc);
+    scene.fog = THREE.FogExp2(0xcccccc, 0.002);
 
-    camera = new THREE.PerspectiveCamera(60, width / height, 1, 2000);
-    camera.position.set( 100, 200, 300 );
+    camera = THREE.PerspectiveCamera(60, width / height, 1, 2000);
+    camera.position.set(100, 200, 300);
 
     // controls
 
-    controls = new THREE_JSM.OrbitControls(camera, _globalKey);
+    controls = THREE_JSM.OrbitControls(camera, _globalKey);
 
-    controls.enableDamping =
-        true; // an animation loop is required when either damping or auto-rotation are enabled
+    controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
     controls.dampingFactor = 0.05;
 
     controls.screenSpacePanning = false;
@@ -248,30 +240,30 @@ class _MyAppState extends State<webgl_loader_fbx> {
     controls.minDistance = 100;
     controls.maxDistance = 500;
 
-    controls.maxPolarAngle = THREE.Math.PI / 2;
+    controls.maxPolarAngle = THREE.Math.pi / 2;
 
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0xa0a0a0 );
-    scene.fog = new THREE.Fog( 0xa0a0a0, 200, 1000 );
+    scene = THREE.Scene();
+    scene.background = THREE.Color(0xa0a0a0);
+    scene.fog = THREE.Fog(0xa0a0a0, 200, 1000);
 
-    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-    hemiLight.position.set( 0, 200, 0 );
-    scene.add( hemiLight );
+    var hemiLight = THREE.HemisphereLight(0xffffff, 0x444444);
+    hemiLight.position.set(0, 200, 0);
+    scene.add(hemiLight);
 
-    var dirLight = new THREE.DirectionalLight( 0xffffff );
-    dirLight.position.set( 0, 0, 0 );
+    var dirLight = THREE.DirectionalLight(0xffffff);
+    dirLight.position.set(0, 0, 0);
     dirLight.castShadow = true;
     dirLight.shadow!.camera!.top = 180;
-    dirLight.shadow!.camera!.bottom = - 100;
-    dirLight.shadow!.camera!.left = - 120;
+    dirLight.shadow!.camera!.bottom = -100;
+    dirLight.shadow!.camera!.left = -120;
     dirLight.shadow!.camera!.right = 120;
-    camera.add( dirLight );
+    camera.add(dirLight);
 
     // scene.add( new THREE.CameraHelper( dirLight.shadow!.camera ) );
 
     // ground
     // var ground = new THREE.Mesh( new THREE.PlaneGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { "color": 0xFF9999, "depthWrite": false } ) );
-    // ground.rotation.x = - THREE.Math.PI / 2;
+    // ground.rotation.x = - THREE.Math.pi / 2;
     // ground.receiveShadow = true;
     // scene.add( ground );
 
@@ -282,13 +274,12 @@ class _MyAppState extends State<webgl_loader_fbx> {
 
     // model
     var loader = THREE_JSM.FBXLoader(null, width.toInt(), height.toInt());
-    var object = await loader.loadAsync( 'assets/models/fbx/Samba Dancing.fbx');
+    var object = await loader.loadAsync('assets/models/fbx/Samba Dancing.fbx');
     // loader.setPath('assets/models/fbx/');
     // var object = await loader.loadAsync( 'model.fbx' );
-    mixer = new THREE.AnimationMixer( object );
+    mixer = THREE.AnimationMixer(object);
 
-
-    scene.add( object );
+    scene.add(object);
 
     animate();
   }

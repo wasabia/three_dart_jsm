@@ -1,17 +1,17 @@
-import './ExamplePage.dart';
-import './HomePage.dart';
+import 'example_page.dart';
+import 'home_page.dart';
 import 'package:flutter/material.dart';
 
 class ExampleApp extends StatefulWidget {
-  ExampleApp({Key? key}) : super(key: key);
+  const ExampleApp({Key? key}) : super(key: key);
 
-  _MyAppState createState() => _MyAppState();
+  @override
+  State<ExampleApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<ExampleApp> {
-  AppRouterDelegate _routerDelegate = AppRouterDelegate();
-  AppRouteInformationParser _routeInformationParser =
-      AppRouteInformationParser();
+  final AppRouterDelegate _routerDelegate = AppRouterDelegate();
+  final AppRouteInformationParser _routeInformationParser = AppRouteInformationParser();
 
   @override
   void initState() {
@@ -30,11 +30,10 @@ class _MyAppState extends State<ExampleApp> {
 
 class AppRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   @override
-  Future<AppRoutePath> parseRouteInformation(
-      RouteInformation routeInformation) async {
+  Future<AppRoutePath> parseRouteInformation(RouteInformation routeInformation) async {
     final uri = Uri.parse(routeInformation.location!);
     // Handle '/'
-    if (uri.pathSegments.length == 0) {
+    if (uri.pathSegments.isEmpty) {
       return AppRoutePath.home();
     }
 
@@ -52,15 +51,15 @@ class AppRouteInformationParser extends RouteInformationParser<AppRoutePath> {
   }
 
   @override
-  RouteInformation? restoreRouteInformation(AppRoutePath path) {
-    if (path.isUnknown) {
-      return RouteInformation(location: '/404');
+  RouteInformation? restoreRouteInformation(AppRoutePath configuration) {
+    if (configuration.isUnknown) {
+      return const RouteInformation(location: '/404');
     }
-    if (path.isHomePage) {
-      return RouteInformation(location: '/');
+    if (configuration.isHomePage) {
+      return const RouteInformation(location: '/');
     }
-    if (path.isDetailsPage) {
-      return RouteInformation(location: '/examples/${path.id}');
+    if (configuration.isDetailsPage) {
+      return RouteInformation(location: '/examples/${configuration.id}');
     }
     return null;
   }
@@ -68,6 +67,7 @@ class AppRouteInformationParser extends RouteInformationParser<AppRoutePath> {
 
 class AppRouterDelegate extends RouterDelegate<AppRoutePath>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<AppRoutePath> {
+  @override
   final GlobalKey<NavigatorState> navigatorKey;
 
   String? _selectedExample;
@@ -75,13 +75,12 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
 
   AppRouterDelegate() : navigatorKey = GlobalKey<NavigatorState>();
 
+  @override
   AppRoutePath get currentConfiguration {
     if (show404) {
       return AppRoutePath.unknown();
     }
-    return _selectedExample == null
-        ? AppRoutePath.home()
-        : AppRoutePath.details(_selectedExample);
+    return _selectedExample == null ? AppRoutePath.home() : AppRoutePath.details(_selectedExample);
   }
 
   @override
@@ -90,16 +89,16 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
       key: navigatorKey,
       pages: [
         MaterialPage(
-          key: ValueKey('HomePage'),
+          key: const ValueKey('HomePage'),
           child: HomePage(chooseExample: (id) {
             _handleExampleTapped(id);
           }),
         ),
         if (show404)
-          MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
+          const MaterialPage(key: ValueKey('UnknownPage'), child: UnknownScreen())
         else if (_selectedExample != null)
           MaterialPage(
-              key: ValueKey('ExamplePage'),
+              key: const ValueKey('ExamplePage'),
               child: Builder(
                 builder: (BuildContext context) {
                   return ExamplePage(id: _selectedExample);
@@ -122,20 +121,20 @@ class AppRouterDelegate extends RouterDelegate<AppRoutePath>
   }
 
   @override
-  Future<void> setNewRoutePath(AppRoutePath path) async {
-    if (path.isUnknown) {
+  Future<void> setNewRoutePath(AppRoutePath configuration) async {
+    if (configuration.isUnknown) {
       _selectedExample = null;
       show404 = true;
       return;
     }
 
-    if (path.isDetailsPage) {
-      if (path.id == null) {
+    if (configuration.isDetailsPage) {
+      if (configuration.id == null) {
         show404 = true;
         return;
       }
 
-      _selectedExample = path.id;
+      _selectedExample = configuration.id;
     } else {
       _selectedExample = null;
     }
@@ -166,11 +165,13 @@ class AppRoutePath {
 }
 
 class UnknownScreen extends StatelessWidget {
+  const UnknownScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Center(
+      body: const Center(
         child: Text('404!'),
       ),
     );

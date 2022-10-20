@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class OperatorNode extends TempNode {
   late dynamic op;
@@ -10,11 +10,11 @@ class OperatorNode extends TempNode {
 
     this.op = op;
 
-    if (params != null && params.length > 0) {
+    if (params != null && params.isNotEmpty) {
       var finalBNode = bNode;
 
       for (var i = 0; i < params.length; i++) {
-        finalBNode = new OperatorNode(op, finalBNode, params[i]);
+        finalBNode = OperatorNode(op, finalBNode, params[i]);
       }
 
       bNode = finalBNode;
@@ -42,7 +42,7 @@ class OperatorNode extends TempNode {
     } else if (op == '<=' || op == '>') {
       var length = builder.getTypeLength(output);
 
-      return length > 1 ? "bvec${length}" : 'bool';
+      return length > 1 ? "bvec$length" : 'bool';
     } else {
       if (typeA == 'float' && builder.isMatrix(typeB)) {
         return typeB;
@@ -70,10 +70,10 @@ class OperatorNode extends TempNode {
     var aNode = this.aNode;
     var bNode = this.bNode;
 
-    var type = this.getNodeType(builder, output);
+    var type = getNodeType(builder, output);
 
-    var typeA = null;
-    var typeB = null;
+    var typeA;
+    var typeB;
 
     if (type != 'void') {
       typeA = aNode.getNodeType(builder);
@@ -105,18 +105,18 @@ class OperatorNode extends TempNode {
 
     if (output != 'void') {
       if (op == '=') {
-        builder.addFlowCode("${a} ${this.op} ${b}");
+        builder.addFlowCode("$a ${this.op} $b");
 
         return a;
       } else if (op == '>' && outputLength > 1) {
-        return "${builder.getMethod('greaterThan')}( ${a}, ${b} )";
+        return "${builder.getMethod('greaterThan')}( $a, $b )";
       } else if (op == '<=' && outputLength > 1) {
-        return "${builder.getMethod('lessThanEqual')}( ${a}, ${b} )";
+        return "${builder.getMethod('lessThanEqual')}( $a, $b )";
       } else {
-        return "( ${a} ${this.op} ${b} )";
+        return "( $a ${this.op} $b )";
       }
     } else if (typeA != 'void') {
-      return "${a} ${this.op} ${b}";
+      return "$a ${this.op} $b";
     }
   }
 }

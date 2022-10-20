@@ -1,27 +1,31 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class VaryNode extends Node {
   late dynamic node;
   late dynamic name;
 
-  VaryNode(node, [name = null]) : super() {
+  VaryNode(node, [name]) : super() {
     generateLength = 1;
     this.node = node;
     this.name = name;
   }
 
+  @override
   getHash([builder]) {
-    return this.name ?? super.getHash(builder);
+    return name ?? super.getHash(builder);
   }
 
+  @override
   getNodeType([builder, output]) {
     // VaryNode is auto type
 
-    return this.node.getNodeType(builder);
+    return node.getNodeType(builder);
   }
 
+  @override
   generate([builder, output]) {
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
     var node = this.node;
     var name = this.name;
 
@@ -31,15 +35,13 @@ class VaryNode extends Node {
       nodeVary.name = name;
     }
 
-    var propertyName =
-        builder.getPropertyName(nodeVary, NodeShaderStage.Vertex);
+    var propertyName = builder.getPropertyName(nodeVary, NodeShaderStage.Vertex);
 
     // force node run in vertex stage
-    builder.flowNodeFromShaderStage(
-        NodeShaderStage.Vertex, node, type, propertyName);
+    builder.flowNodeFromShaderStage(NodeShaderStage.Vertex, node, type, propertyName);
 
-    var _result = builder.getPropertyName(nodeVary);
+    var result = builder.getPropertyName(nodeVary);
 
-    return _result;
+    return result;
   }
 }

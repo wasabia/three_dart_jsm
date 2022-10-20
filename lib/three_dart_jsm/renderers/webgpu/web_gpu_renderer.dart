@@ -1,8 +1,9 @@
 part of three_webgpu;
 
-var _frustum = new Frustum();
-var _projScreenMatrix = new Matrix4();
-var _vector3 = new Vector3();
+var _frustum = Frustum();
+var _projScreenMatrix = Matrix4();
+var _vector3 = Vector3();
+// TODO (WebGPU): implement
 
 class WebGPURenderer {
   late dynamic domElement;
@@ -21,27 +22,27 @@ class WebGPURenderer {
   Map<String, dynamic>? _viewport;
   Map<String, dynamic>? _scissor;
 
-  GPUAdapter? _adapter;
-  GPUDevice? _device;
+  // GPUAdapter? _adapter;
+  // GPUDevice? _device;
   dynamic _context;
-  GPUTexture? _colorBuffer;
-  GPUTexture? _depthBuffer;
+  // GPUTexture? _colorBuffer;
+  // GPUTexture? _depthBuffer;
   dynamic _info;
   dynamic _properties;
-  late WebGPUAttributes _attributes;
-  dynamic _geometries;
+  // late WebGPUAttributes _attributes;
+  // dynamic _geometries;
   dynamic _nodes;
   late WebGPUBindings _bindings;
-  dynamic _objects = null;
+  dynamic _objects;
   late WebGPURenderPipelines _renderPipelines;
-  dynamic _computePipelines = null;
-  dynamic _renderLists = null;
-  dynamic _textures = null;
-  dynamic _background = null;
+  dynamic _computePipelines;
+  dynamic _renderLists;
+  dynamic _textures;
+  dynamic _background;
 
-  dynamic _currentRenderList = null;
-  dynamic _opaqueSort = null;
-  dynamic _transparentSort = null;
+  dynamic _currentRenderList;
+  dynamic _opaqueSort;
+  dynamic _transparentSort;
 
   int _clearAlpha = 1;
   late Color _clearColor;
@@ -50,7 +51,7 @@ class WebGPURenderer {
 
   dynamic _renderTarget;
 
-  late GPURenderPassDescriptor _renderPassDescriptor;
+  // late GPURenderPassDescriptor _renderPassDescriptor;
 
   WebGPURenderer([Map? parameters]) {
     parameters ??= {};
@@ -82,16 +83,16 @@ class WebGPURenderer {
     this._viewport = null;
     this._scissor = null;
 
-    this._adapter = null;
-    this._device = null;
-    this._context = null;
-    this._colorBuffer = null;
-    this._depthBuffer = null;
+    // this._adapter = null;
+    // this._device = null;
+    // this._context = null;
+    // this._colorBuffer = null;
+    // this._depthBuffer = null;
 
     this._info = null;
     this._properties = null;
     // this._attributes = null;
-    this._geometries = null;
+    // this._geometries = null;
     this._nodes = null;
     // this._bindings = null;
     this._objects = null;
@@ -108,7 +109,7 @@ class WebGPURenderer {
     this._transparentSort = null;
 
     this._clearAlpha = 1;
-    this._clearColor = new Color(0x000000);
+    this._clearColor = Color(0x000000);
     this._clearDepth = 1;
     this._clearStencil = 0;
 
@@ -125,32 +126,27 @@ class WebGPURenderer {
     }
 
     this._parameters["requiredFeatures"] =
-        (parameters["requiredFeatures"] == undefined)
-            ? []
-            : parameters["requiredFeatures"];
+        (parameters["requiredFeatures"] == undefined) ? [] : parameters["requiredFeatures"];
     this._parameters["requiredLimits"] =
-        (parameters["requiredLimits"] == undefined)
-            ? {}
-            : parameters["requiredLimits"];
+        (parameters["requiredLimits"] == undefined) ? {} : parameters["requiredLimits"];
   }
 
   init() {
-    var parameters = this._parameters;
+    // var parameters = this._parameters;
 
-    var adapterOptions = GPURequestAdapterOptions(
-        powerPreference: parameters["powerPreference"]);
+    // var adapterOptions = GPURequestAdapterOptions(powerPreference: parameters["powerPreference"]);
 
-    var adapter = requestAdapter(adapterOptions);
+    // var adapter = requestAdapter(adapterOptions);
 
-    if (adapter == null) {
-      throw ('WebGPURenderer: Unable to create WebGPU adapter.');
-    }
+    // if (adapter == null) {
+    //   throw ('WebGPURenderer: Unable to create WebGPU adapter.');
+    // }
 
-    var deviceDescriptor = GPUDeviceDescriptor(maxBindGroups: 1);
+    // var deviceDescriptor = GPUDeviceDescriptor(maxBindGroups: 1);
     // "requiredFeatures": parameters["requiredFeatures"],
     // "requiredLimits": parameters["requiredLimits"]
 
-    var device = adapter.requestDevice(deviceDescriptor);
+    // var device = adapter.requestDevice(deviceDescriptor);
 
     // var context = ( parameters["context"] != undefined ) ? parameters["context"] : this.domElement.getContext( 'webgpu' );
 
@@ -159,51 +155,39 @@ class WebGPURenderer {
     // 	"format": GPUTextureFormat.BGRA8Unorm // this is the only valid context format right now (r121)
     // } );
 
-    this._adapter = adapter;
-    this._device = device;
+    // this._adapter = adapter;
+    // this._device = device;
     // this._context = context;
 
-    this._info = new WebGPUInfo();
-    this._properties = new WebGPUProperties();
-    this._attributes = new WebGPUAttributes(device);
-    this._geometries = new WebGPUGeometries(this._attributes, this._info);
-    this._textures = new WebGPUTextures(device, this._properties, this._info);
-    this._objects = new WebGPUObjects(this._geometries, this._info);
-    this._nodes = new WebGPUNodes(this);
-    this._computePipelines = new WebGPUComputePipelines(device);
-    this._renderPipelines = new WebGPURenderPipelines(
-        this, device, parameters["sampleCount"], this._nodes);
-    this._renderPipelines.bindings = new WebGPUBindings(
-        device,
-        this._info,
-        this._properties,
-        this._textures,
-        this._renderPipelines,
-        this._computePipelines,
-        this._attributes,
-        this._nodes);
-    this._bindings = this._renderPipelines.bindings;
-    this._renderLists = new WebGPURenderLists();
-    this._background = new WebGPUBackground(this);
+    // this._info = new WebGPUInfo();
+    // this._properties = new WebGPUProperties();
+    // this._attributes = new WebGPUAttributes(device);
+    // this._geometries = new WebGPUGeometries(this._attributes, this._info);
+    // this._textures = new WebGPUTextures(device, this._properties, this._info);
+    // this._objects = new WebGPUObjects(this._geometries, this._info);
+    // this._nodes = new WebGPUNodes(this);
+    // this._computePipelines = new WebGPUComputePipelines(device);
+    // this._renderPipelines = new WebGPURenderPipelines(this, device, parameters["sampleCount"], this._nodes);
+    // this._renderPipelines.bindings = new WebGPUBindings(device, this._info, this._properties, this._textures,
+    //     this._renderPipelines, this._computePipelines, this._attributes, this._nodes);
+    // this._bindings = this._renderPipelines.bindings;
+    // this._renderLists = new WebGPURenderLists();
+    // this._background = new WebGPUBackground(this);
 
-    //
-    // TODO 每次都创建新对象 优化？？
-    this._renderPassDescriptor = GPURenderPassDescriptor(
-        colorAttachments: GPURenderPassColorAttachment(
-          clearColor: GPUColor(r: 0.0, g: 0.0, b: 0.0, a: 1.0),
-          loadOp: GPULoadOp.Clear,
-          storeOp: GPUStoreOp.Store
-        ),
-        depthStencilAttachment: GPURenderPassDepthStencilAttachment(
-          depthStoreOp: GPUStoreOp.Store,
-          depthLoadOp: GPULoadOp.Clear,
-          stencilStoreOp: GPUStoreOp.Store,
-          stencilLoadOp: GPULoadOp.Clear,
-        )
-      );
+    // //
+    // // TODO 每次都创建新对象 优化？？
+    // this._renderPassDescriptor = GPURenderPassDescriptor(
+    //     colorAttachments: GPURenderPassColorAttachment(
+    //         clearColor: GPUColor(r: 0.0, g: 0.0, b: 0.0, a: 1.0), loadOp: GPULoadOp.Clear, storeOp: GPUStoreOp.Store),
+    //     depthStencilAttachment: GPURenderPassDepthStencilAttachment(
+    //       depthStoreOp: GPUStoreOp.Store,
+    //       depthLoadOp: GPULoadOp.Clear,
+    //       stencilStoreOp: GPUStoreOp.Store,
+    //       stencilLoadOp: GPULoadOp.Clear,
+    //     ));
 
-    this._setupColorBuffer();
-    this._setupDepthBuffer();
+    // this._setupColorBuffer();
+    // this._setupDepthBuffer();
   }
 
   render(Scene scene, camera) {
@@ -217,8 +201,7 @@ class WebGPURenderer {
 
     if (this._info.autoReset == true) this._info.reset();
 
-    _projScreenMatrix.multiplyMatrices(
-        camera.projectionMatrix, camera.matrixWorldInverse);
+    _projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
     _frustum.setFromProjectionMatrix(_projScreenMatrix);
 
     this._currentRenderList = this._renderLists.get(scene, camera);
@@ -234,146 +217,127 @@ class WebGPURenderer {
 
     // prepare render pass descriptor
 
-    var colorAttachment = this._renderPassDescriptor.colorAttachments;
-    var depthStencilAttachment =
-        this._renderPassDescriptor.depthStencilAttachment;
+    // var colorAttachment = this._renderPassDescriptor.colorAttachments;
+    // var depthStencilAttachment = this._renderPassDescriptor.depthStencilAttachment;
 
     var renderTarget = this._renderTarget;
 
     if (renderTarget != null) {
       // @TODO: Support RenderTarget with antialiasing.
 
-      var renderTargetProperties = this._properties.get(renderTarget);
+      // var renderTargetProperties = this._properties.get(renderTarget);
 
-      GPUTexture colorTextureGPU = renderTargetProperties["colorTextureGPU"];
+      //   GPUTexture colorTextureGPU = renderTargetProperties["colorTextureGPU"];
 
-      if (this._parameters["antialias"] == true) {
-        GPUTexture colorTextureGPUWithSamples = renderTargetProperties["colorTextureGPUWithSamples"];
+      //   if (this._parameters["antialias"] == true) {
+      //     GPUTexture colorTextureGPUWithSamples = renderTargetProperties["colorTextureGPUWithSamples"];
 
-        colorAttachment.view = colorTextureGPUWithSamples.createView();
-        colorAttachment.resolveTarget = colorTextureGPU.createView();
-      } else {
-        colorAttachment.view = colorTextureGPU.createView();
-      }
+      //     colorAttachment.view = colorTextureGPUWithSamples.createView();
+      //     colorAttachment.resolveTarget = colorTextureGPU.createView();
+      //   } else {
+      //     colorAttachment.view = colorTextureGPU.createView();
+      //   }
 
-      var depthTextureGPU = renderTargetProperties["depthTextureGPU"];
-      depthStencilAttachment.view = depthTextureGPU.createView();
-    } else {
-      if (this._parameters["antialias"] == true) {
-        colorAttachment.view = this._colorBuffer!.createView();
-        colorAttachment.resolveTarget =
-            this._context.getCurrentTexture().createView();
-      } else {
-        colorAttachment.view = this._context.getCurrentTexture().createView();
-        colorAttachment.resolveTarget = null;
-      }
+      //   var depthTextureGPU = renderTargetProperties["depthTextureGPU"];
+      //   depthStencilAttachment.view = depthTextureGPU.createView();
+      // } else {
+      //   if (this._parameters["antialias"] == true) {
+      //     colorAttachment.view = this._colorBuffer!.createView();
+      //     colorAttachment.resolveTarget = this._context.getCurrentTexture().createView();
+      //   } else {
+      //     colorAttachment.view = this._context.getCurrentTexture().createView();
+      //     colorAttachment.resolveTarget = null;
+      //   }
 
-      depthStencilAttachment.view = this._depthBuffer!.createView();
+      //   depthStencilAttachment.view = this._depthBuffer!.createView();
+      // }
+
+      // this._background.update(scene);
+
+      // // start render pass
+
+      // var device = this._device;
+      // var cmdEncoder = device!.createCommandEncoder();
+
+      // GPURenderPassEncoder passEncoder = cmdEncoder.beginRenderPass(this._renderPassDescriptor);
+
+      // // global rasterization settings for all renderable objects
+
+      // var vp = this._viewport;
+
+      // if (vp != null) {
+      //   var width = Math.floor(vp["width"] * this._pixelRatio);
+      //   var height = Math.floor(vp["height"] * this._pixelRatio);
+
+      //   passEncoder.setViewport(vp["x"].toDouble(), vp["y"].toDouble(), width.toDouble(), height.toDouble(),
+      //       vp["minDepth"].toDouble(), vp["maxDepth"].toDouble());
+      // }
+
+      // var sc = this._scissor;
+
+      // if (sc != null) {
+      //   var width = Math.floor(sc["width"] * this._pixelRatio);
+      //   var height = Math.floor(sc["height"] * this._pixelRatio);
+
+      //   passEncoder.setScissorRect(sc["x"], sc["y"], width, height);
+      // }
+
+      // // process render lists
+
+      // var opaqueObjects = this._currentRenderList.opaque;
+      // var transparentObjects = this._currentRenderList.transparent;
+
+      // if (opaqueObjects.length > 0) this._renderObjects(opaqueObjects, camera, passEncoder);
+      // if (transparentObjects.length > 0) this._renderObjects(transparentObjects, camera, passEncoder);
+
+      // // finish render pass
+
+      // passEncoder.end();
+      // device.queue.submit(cmdEncoder.finish(GPUCommandBufferDescriptor()));
     }
 
-    this._background.update(scene);
+    // getPixels() {
+    // var device = _device!;
 
-    // start render pass
+    // var renderTarget = getRenderTarget();
+    // int width = renderTarget.width.toInt();
+    // int height = renderTarget.height.toInt();
 
-    var device = this._device;
-    var cmdEncoder = device!.createCommandEncoder();
+    // int bytesPerPixel = Uint32List.bytesPerElement;
+    // int unpaddedBytesPerRow = width * bytesPerPixel;
+    // int align = 256;
+    // int paddedBytesPerRowPadding = (align - unpaddedBytesPerRow % align) % align;
+    // int paddedBytesPerRow = unpaddedBytesPerRow + paddedBytesPerRowPadding;
 
-    GPURenderPassEncoder passEncoder =
-        cmdEncoder.beginRenderPass(this._renderPassDescriptor);
+    // int bufferSize = paddedBytesPerRow * height;
 
-    // global rasterization settings for all renderable objects
+    // var renderTargetProperties = this._properties.get(renderTarget);
 
-    var vp = this._viewport;
+    // GPUTexture colorTextureGPU = renderTargetProperties["colorTextureGPU"];
 
-    if (vp != null) {
-      var width = Math.floor(vp["width"] * this._pixelRatio);
-      var height = Math.floor(vp["height"] * this._pixelRatio);
+    // var commandEncoder2 = device.createCommandEncoder();
+    // var copyTexture = GPUImageCopyTexture(texture: colorTextureGPU, origin: GPUOrigin3D());
 
-      passEncoder.setViewport(
-          vp["x"].toDouble(),
-          vp["y"].toDouble(),
-          width.toDouble(),
-          height.toDouble(),
-          vp["minDepth"].toDouble(),
-          vp["maxDepth"].toDouble());
-    }
+    // var bufferDesc = GPUBufferDescriptor(size: bufferSize, usage: GPUBufferUsage.MapRead | GPUBufferUsage.CopyDst);
+    // var outputBuffer = device.createBuffer(bufferDesc);
+    // var copyBuffer = GPUImageCopyBuffer(buffer: outputBuffer, bytesPerRow: paddedBytesPerRow);
 
-    var sc = this._scissor;
+    // var _textureExtent = GPUExtent3D(width: width, height: height);
+    // commandEncoder2.copyTextureToBuffer(copyTexture, copyBuffer, _textureExtent);
 
-    if (sc != null) {
-      var width = Math.floor(sc["width"] * this._pixelRatio);
-      var height = Math.floor(sc["height"] * this._pixelRatio);
+    // var commandBuffer2 = commandEncoder2.finish(GPUCommandBufferDescriptor());
+    // device.queue.submit(commandBuffer2);
 
-      passEncoder.setScissorRect(sc["x"], sc["y"], width, height);
-    }
+    // outputBuffer.mapAsync(mode: WGPUMapMode_Read, size: bufferSize);
 
-    // process render lists
+    // device.poll(true);
 
-    var opaqueObjects = this._currentRenderList.opaque;
-    var transparentObjects = this._currentRenderList.transparent;
+    // var data = outputBuffer.getMappedRange(offset: 0, size: bufferSize);
 
-    if (opaqueObjects.length > 0)
-      this._renderObjects(opaqueObjects, camera, passEncoder);
-    if (transparentObjects.length > 0)
-      this._renderObjects(transparentObjects, camera, passEncoder);
+    // Pointer<Uint8> pixles = data.cast<Uint8>();
+    // outputBuffer.unmap();
 
-    // finish render pass
-
-    passEncoder.end();
-    device.queue.submit(cmdEncoder.finish(GPUCommandBufferDescriptor()));
-  }
-
-  getPixels() {
-    var device = _device!;
-
-    var renderTarget = getRenderTarget();
-    int width = renderTarget.width.toInt();
-    int height = renderTarget.height.toInt();
-
-    int bytes_per_pixel = Uint32List.bytesPerElement;
-    int unpadded_bytes_per_row = width * bytes_per_pixel;
-    int align = 256;
-    int padded_bytes_per_row_padding =
-        (align - unpadded_bytes_per_row % align) % align;
-    int padded_bytes_per_row =
-        unpadded_bytes_per_row + padded_bytes_per_row_padding;
-
-    int bufferSize = padded_bytes_per_row * height;
-    
-
-    var renderTargetProperties = this._properties.get(renderTarget);
-
-    GPUTexture colorTextureGPU = renderTargetProperties["colorTextureGPU"];
-
-    var commandEncoder2 = device.createCommandEncoder();
-    var copyTexture =
-        GPUImageCopyTexture(texture: colorTextureGPU, origin: GPUOrigin3D());
-
-    var bufferDesc = GPUBufferDescriptor(
-        size: bufferSize,
-        usage: GPUBufferUsage.MapRead | GPUBufferUsage.CopyDst);
-    var outputBuffer = device.createBuffer(bufferDesc);
-    var copyBuffer = GPUImageCopyBuffer(
-        buffer: outputBuffer, bytesPerRow: padded_bytes_per_row);
-
-    var _textureExtent = GPUExtent3D(width: width, height: height);
-    commandEncoder2.copyTextureToBuffer(copyTexture, copyBuffer, _textureExtent);
-
-  
-    var commandBuffer2 = commandEncoder2.finish(GPUCommandBufferDescriptor());
-    device.queue.submit(commandBuffer2);
-
-    outputBuffer.mapAsync(mode: WGPUMapMode_Read, size: bufferSize);
-
-    device.poll(true);
-
-    var data = outputBuffer.getMappedRange(offset: 0, size: bufferSize);
-
-    Pointer<Uint8> pixles = data.cast<Uint8>();
-    outputBuffer.unmap();
-
-    return pixles.asTypedList(bufferSize);
-
+    // return pixles.asTypedList(bufferSize);
   }
 
   getContext() {
@@ -385,9 +349,7 @@ class WebGPURenderer {
   }
 
   getDrawingBufferSize(target) {
-    return target
-        .set(this._width * this._pixelRatio, this._height * this._pixelRatio)
-        .floor();
+    return target.set(this._width * this._pixelRatio, this._height * this._pixelRatio).floor();
   }
 
   getSize(Vector2 target) {
@@ -409,9 +371,9 @@ class WebGPURenderer {
     this.domElement.width = Math.floor(width * pixelRatio);
     this.domElement.height = Math.floor(height * pixelRatio);
 
-    this._configureContext();
-    this._setupColorBuffer();
-    this._setupDepthBuffer();
+    // this._configureContext();
+    // this._setupColorBuffer();
+    // this._setupDepthBuffer();
   }
 
   setSize(width, height, [updateStyle = true]) {
@@ -427,9 +389,9 @@ class WebGPURenderer {
 
     }
 
-    this._configureContext();
-    this._setupColorBuffer();
-    this._setupDepthBuffer();
+    // this._configureContext();
+    // this._setupColorBuffer();
+    // this._setupDepthBuffer();
   }
 
   setOpaqueSort(method) {
@@ -476,22 +438,13 @@ class WebGPURenderer {
     if (x == null) {
       this._viewport = null;
     } else {
-      this._viewport = {
-        "x": x,
-        "y": y,
-        "width": width,
-        "height": height,
-        "minDepth": minDepth,
-        "maxDepth": maxDepth
-      };
+      this._viewport = {"x": x, "y": y, "width": width, "height": height, "minDepth": minDepth, "maxDepth": maxDepth};
     }
   }
 
   getCurrentEncoding() {
     var renderTarget = this.getRenderTarget();
-    return (renderTarget != null)
-        ? renderTarget.texture.encoding
-        : this.outputEncoding;
+    return (renderTarget != null) ? renderTarget.texture.encoding : this.outputEncoding;
   }
 
   getCurrentColorFormat() {
@@ -503,7 +456,7 @@ class WebGPURenderer {
       var renderTargetProperties = this._properties.get(renderTarget);
       format = renderTargetProperties["colorTextureFormat"];
     } else {
-      format = GPUTextureFormat.BGRA8Unorm; // default context format
+      // format = GPUTextureFormat.BGRA8Unorm; // default context format
 
     }
 
@@ -519,7 +472,7 @@ class WebGPURenderer {
       var renderTargetProperties = this._properties.get(renderTarget);
       format = renderTargetProperties["depthTextureFormat"];
     } else {
-      format = GPUTextureFormat.Depth24PlusStencil8;
+      // format = GPUTextureFormat.Depth24PlusStencil8;
     }
 
     return format;
@@ -583,27 +536,27 @@ class WebGPURenderer {
   }
 
   compute(computeParams) {
-    var device = this._device!;
-    var cmdEncoder = device.createCommandEncoder();
-    var passEncoder = cmdEncoder.beginComputePass();
+    // var device = this._device!;
+    // var cmdEncoder = device.createCommandEncoder();
+    // var passEncoder = cmdEncoder.beginComputePass();
 
-    for (var param in computeParams.keys) {
-      // pipeline
+    // for (var param in computeParams.keys) {
+    //   // pipeline
 
-      var pipeline = this._computePipelines.get(param);
-      passEncoder.setPipeline(pipeline);
+    //   var pipeline = this._computePipelines.get(param);
+    //   passEncoder.setPipeline(pipeline);
 
-      // bind group
+    //   // bind group
 
-      var bindGroup = this._bindings.getForCompute(param).group;
-      this._bindings.update(param);
-      passEncoder.setBindGroup(0, bindGroup);
+    //   var bindGroup = this._bindings.getForCompute(param).group;
+    //   this._bindings.update(param);
+    //   passEncoder.setBindGroup(0, bindGroup);
 
-      passEncoder.dispatch(param.num);
-    }
+    //   passEncoder.dispatch(param.num);
+    // }
 
-    passEncoder.end();
-    device.queue.submit(cmdEncoder.finish());
+    // passEncoder.end();
+    // device.queue.submit(cmdEncoder.finish());
   }
 
   getRenderTarget() {
@@ -632,17 +585,14 @@ class WebGPURenderer {
       } else if (object is Sprite) {
         if (!object.frustumCulled || _frustum.intersectsSprite(object)) {
           if (this.sortObjects == true) {
-            _vector3
-                .setFromMatrixPosition(object.matrixWorld)
-                .applyMatrix4(_projScreenMatrix);
+            _vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
           }
 
           var geometry = object.geometry;
           var material = object.material;
 
           if (material.visible) {
-            currentRenderList.push(
-                object, geometry, material, groupOrder, _vector3.z, null);
+            currentRenderList.push(object, geometry, material, groupOrder, _vector3.z, null);
           }
         }
       } else if (object is LineLoop) {
@@ -651,9 +601,7 @@ class WebGPURenderer {
       } else if (object is Mesh || object is Line || object is Points) {
         if (!object.frustumCulled || _frustum.intersectsObject(object)) {
           if (this.sortObjects == true) {
-            _vector3
-                .setFromMatrixPosition(object.matrixWorld)
-                .applyMatrix4(_projScreenMatrix);
+            _vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
           }
 
           var geometry = object.geometry;
@@ -667,13 +615,11 @@ class WebGPURenderer {
               var groupMaterial = material[group.materialIndex];
 
               if (groupMaterial && groupMaterial.visible) {
-                currentRenderList.push(object, geometry, groupMaterial,
-                    groupOrder, _vector3.z, group);
+                currentRenderList.push(object, geometry, groupMaterial, groupOrder, _vector3.z, group);
               }
             }
           } else if (material.visible) {
-            currentRenderList.push(
-                object, geometry, material, groupOrder, _vector3.z, null);
+            currentRenderList.push(object, geometry, material, groupOrder, _vector3.z, null);
           }
         }
       }
@@ -686,191 +632,180 @@ class WebGPURenderer {
     }
   }
 
-  _renderObjects(renderList, camera, GPURenderPassEncoder passEncoder) {
-    // process renderable objects
+  // _renderObjects(renderList, camera, GPURenderPassEncoder passEncoder) {
+  //   // process renderable objects
 
-    for (var i = 0, il = renderList.length; i < il; i++) {
-      var renderItem = renderList[i];
+  //   for (var i = 0, il = renderList.length; i < il; i++) {
+  //     var renderItem = renderList[i];
 
-      // @TODO: Add support for multiple materials per object. This will require to extract
-      // the material from the renderItem object and pass it with its group data to _renderObject().
+  //     // @TODO: Add support for multiple materials per object. This will require to extract
+  //     // the material from the renderItem object and pass it with its group data to _renderObject().
 
-      var object = renderItem.object;
+  //     var object = renderItem.object;
 
-      object.modelViewMatrix
-          .multiplyMatrices(camera.matrixWorldInverse, object.matrixWorld);
-      object.normalMatrix.getNormalMatrix(object.modelViewMatrix);
+  //     object.modelViewMatrix.multiplyMatrices(camera.matrixWorldInverse, object.matrixWorld);
+  //     object.normalMatrix.getNormalMatrix(object.modelViewMatrix);
 
-      this._objects.update(object);
+  //     this._objects.update(object);
 
-      if (camera is ArrayCamera) {
-        var cameras = camera.cameras;
+  //     if (camera is ArrayCamera) {
+  //       var cameras = camera.cameras;
 
-        for (var j = 0, jl = cameras.length; j < jl; j++) {
-          var camera2 = cameras[j];
+  //       for (var j = 0, jl = cameras.length; j < jl; j++) {
+  //         var camera2 = cameras[j];
 
-          if (object.layers.test(camera2.layers)) {
-            var vp = camera2.viewport;
-            // var minDepth = (vp.minDepth == undefined) ? 0 : vp.minDepth;
-            // var maxDepth = (vp.maxDepth == undefined) ? 1 : vp.maxDepth;
-            var minDepth = 0.0;
-            var maxDepth = 1.0;
+  //         if (object.layers.test(camera2.layers)) {
+  //           var vp = camera2.viewport;
+  //           // var minDepth = (vp.minDepth == undefined) ? 0 : vp.minDepth;
+  //           // var maxDepth = (vp.maxDepth == undefined) ? 1 : vp.maxDepth;
+  //           var minDepth = 0.0;
+  //           var maxDepth = 1.0;
 
-            passEncoder.setViewport(
-                vp.x.toDouble(), vp.y.toDouble(), vp.width, vp.height, minDepth, maxDepth);
+  //           passEncoder.setViewport(vp.x.toDouble(), vp.y.toDouble(), vp.width, vp.height, minDepth, maxDepth);
 
-            this._nodes.update(object, camera2);
-            this._bindings.update(object);
-            this._renderObject(object, passEncoder);
-          }
-        }
-      } else {
-        this._nodes.update(object, camera);
+  //           this._nodes.update(object, camera2);
+  //           this._bindings.update(object);
+  //           this._renderObject(object, passEncoder);
+  //         }
+  //       }
+  //     } else {
+  //       this._nodes.update(object, camera);
 
-        this._bindings.update(object);
+  //       this._bindings.update(object);
 
-        this._renderObject(object, passEncoder);
-      }
-    }
-  }
+  //       this._renderObject(object, passEncoder);
+  //     }
+  //   }
+  // }
 
-  _renderObject(object, GPURenderPassEncoder passEncoder) {
-    var info = this._info;
+  // _renderObject(object, GPURenderPassEncoder passEncoder) {
+  //   var info = this._info;
 
-    // pipeline
+  //   // pipeline
 
-    var renderPipeline = this._renderPipelines.get(object);
-    passEncoder.setPipeline(renderPipeline.pipeline);
+  //   var renderPipeline = this._renderPipelines.get(object);
+  //   passEncoder.setPipeline(renderPipeline.pipeline);
 
-    // bind group
+  //   // bind group
 
-    var bindGroup = this._bindings.get(object)["group"];
-    passEncoder.setBindGroup(0, bindGroup);
+  //   var bindGroup = this._bindings.get(object)["group"];
+  //   passEncoder.setBindGroup(0, bindGroup);
 
-    // index
+  //   // index
 
-    var geometry = object.geometry;
-    var index = geometry.index;
+  //   var geometry = object.geometry;
+  //   var index = geometry.index;
 
-    var hasIndex = (index != null);
-    
-    if (hasIndex == true) {
-      this._setupIndexBuffer(index, passEncoder);
-    }
+  //   var hasIndex = (index != null);
 
-    // vertex buffers
+  //   if (hasIndex == true) {
+  //     this._setupIndexBuffer(index, passEncoder);
+  //   }
 
-    this._setupVertexBuffers(geometry.attributes, passEncoder, renderPipeline);
+  //   // vertex buffers
 
-    // draw
+  //   this._setupVertexBuffers(geometry.attributes, passEncoder, renderPipeline);
 
-    Map drawRange = geometry.drawRange;
-    var firstVertex = drawRange["start"];
-    var instanceCount =
-        (geometry is InstancedBufferGeometry) ? geometry.instanceCount : 1;
+  //   // draw
 
+  //   Map drawRange = geometry.drawRange;
+  //   var firstVertex = drawRange["start"];
+  //   var instanceCount = (geometry is InstancedBufferGeometry) ? geometry.instanceCount : 1;
 
-    if (hasIndex == true) {
-      var indexCount = (drawRange["count"] != null)
-          ? drawRange["count"]
-          : index.count;
+  //   if (hasIndex == true) {
+  //     var indexCount = (drawRange["count"] != null) ? drawRange["count"] : index.count;
 
-      passEncoder.drawIndexed(indexCount, instanceCount!, firstVertex, 0, 0);
+  //     passEncoder.drawIndexed(indexCount, instanceCount!, firstVertex, 0, 0);
 
-      info.update(object, indexCount, instanceCount);
-    } else {
-      var positionAttribute = geometry.attributes["position"];
-      var vertexCount = (drawRange["count"] != null)
-          ? drawRange["count"]
-          : positionAttribute.count;
+  //     info.update(object, indexCount, instanceCount);
+  //   } else {
+  //     var positionAttribute = geometry.attributes["position"];
+  //     var vertexCount = (drawRange["count"] != null) ? drawRange["count"] : positionAttribute.count;
 
-      passEncoder.draw(vertexCount, instanceCount!, firstVertex, 0);
+  //     passEncoder.draw(vertexCount, instanceCount!, firstVertex, 0);
 
-      info.update(object, vertexCount, instanceCount);
-    }
-  }
+  //     info.update(object, vertexCount, instanceCount);
+  //   }
+  // }
 
-  _setupIndexBuffer(index, GPURenderPassEncoder encoder) {
-    var buffer = this._attributes.get(index)["buffer"];
-    var indexFormat = (index.array is Uint16Array)
-        ? GPUIndexFormat.Uint16
-        : GPUIndexFormat.Uint32;
-    
+  // _setupIndexBuffer(index, GPURenderPassEncoder encoder) {
+  //   var buffer = this._attributes.get(index)["buffer"];
+  //   var indexFormat = (index.array is Uint16Array) ? GPUIndexFormat.Uint16 : GPUIndexFormat.Uint32;
 
-    encoder.setIndexBuffer(buffer, indexFormat);
-  }
+  //   encoder.setIndexBuffer(buffer, indexFormat);
+  // }
 
-  _setupVertexBuffers(geometryAttributes, encoder, renderPipeline) {
-    List shaderAttributes = renderPipeline.shaderAttributes;
+  // _setupVertexBuffers(geometryAttributes, encoder, renderPipeline) {
+  //   List shaderAttributes = renderPipeline.shaderAttributes;
 
-    for (var shaderAttribute in shaderAttributes) {
-      var name = shaderAttribute["name"];
-      var slot = shaderAttribute["slot"];
+  //   for (var shaderAttribute in shaderAttributes) {
+  //     var name = shaderAttribute["name"];
+  //     var slot = shaderAttribute["slot"];
 
-      var attribute = geometryAttributes[name];
+  //     var attribute = geometryAttributes[name];
 
-      if (attribute != undefined) {
-        var buffer = this._attributes.get(attribute)["buffer"];
-        encoder.setVertexBuffer(slot, buffer);
-      }
-    }
-  }
+  //     if (attribute != undefined) {
+  //       var buffer = this._attributes.get(attribute)["buffer"];
+  //       encoder.setVertexBuffer(slot, buffer);
+  //     }
+  //   }
+  // }
 
-  _setupColorBuffer() {
-    var device = this._device;
+  // _setupColorBuffer() {
+  //   var device = this._device;
 
-    if (device != null) {
-      if (this._colorBuffer != null) this._colorBuffer!.destroy();
+  //   if (device != null) {
+  //     if (this._colorBuffer != null) this._colorBuffer!.destroy();
 
-      this._colorBuffer = this._device!.createTexture(GPUTextureDescriptor(
-          size: GPUExtent3D(
-              width: Math.floor(this._width * this._pixelRatio),
-              height: Math.floor(this._height * this._pixelRatio),
-              depthOrArrayLayers: 1),
-          sampleCount: this._parameters["sampleCount"],
-          format: GPUTextureFormat.BGRA8Unorm,
-          usage: GPUTextureUsage.RenderAttachment));
-    }
-  }
+  //     this._colorBuffer = this._device!.createTexture(GPUTextureDescriptor(
+  //         size: GPUExtent3D(
+  //             width: Math.floor(this._width * this._pixelRatio),
+  //             height: Math.floor(this._height * this._pixelRatio),
+  //             depthOrArrayLayers: 1),
+  //         sampleCount: this._parameters["sampleCount"],
+  //         format: GPUTextureFormat.BGRA8Unorm,
+  //         usage: GPUTextureUsage.RenderAttachment));
+  //   }
+  // }
 
-  _setupDepthBuffer() {
-    var device = this._device;
+  // _setupDepthBuffer() {
+  //   var device = this._device;
 
-    if (device != null) {
-      if (this._depthBuffer != null) this._depthBuffer!.destroy();
+  //   if (device != null) {
+  //     if (this._depthBuffer != null) this._depthBuffer!.destroy();
 
-      this._depthBuffer = this._device!.createTexture(GPUTextureDescriptor(
-          size: GPUExtent3D(
-              width: Math.floor(this._width * this._pixelRatio),
-              height: Math.floor(this._height * this._pixelRatio),
-              depthOrArrayLayers: 1),
-          sampleCount: this._parameters["sampleCount"],
-          format: GPUTextureFormat.Depth24PlusStencil8,
-          usage: GPUTextureUsage.RenderAttachment));
-    }
-  }
+  //     this._depthBuffer = this._device!.createTexture(GPUTextureDescriptor(
+  //         size: GPUExtent3D(
+  //             width: Math.floor(this._width * this._pixelRatio),
+  //             height: Math.floor(this._height * this._pixelRatio),
+  //             depthOrArrayLayers: 1),
+  //         sampleCount: this._parameters["sampleCount"],
+  //         format: GPUTextureFormat.Depth24PlusStencil8,
+  //         usage: GPUTextureUsage.RenderAttachment));
+  //   }
+  // }
 
-  _configureContext() {
-    var device = this._device;
+  // _configureContext() {
+  //   var device = this._device;
 
-    if (device != null) {
-      // this._context.configure( {
-      // 	device: device,
-      // 	format: GPUTextureFormat.BGRA8Unorm,
-      // 	usage: GPUTextureUsage.RENDER_ATTACHMENT,
-      // 	size: {
-      // 		width: Math.floor( this._width * this._pixelRatio ),
-      // 		height: Math.floor( this._height * this._pixelRatio ),
-      // 		depthOrArrayLayers: 1
-      // 	},
-      // } );
+  //   if (device != null) {
+  //     // this._context.configure( {
+  //     // 	device: device,
+  //     // 	format: GPUTextureFormat.BGRA8Unorm,
+  //     // 	usage: GPUTextureUsage.RENDER_ATTACHMENT,
+  //     // 	size: {
+  //     // 		width: Math.floor( this._width * this._pixelRatio ),
+  //     // 		height: Math.floor( this._height * this._pixelRatio ),
+  //     // 		depthOrArrayLayers: 1
+  //     // 	},
+  //     // } );
 
-    }
-  }
+  //   }
+  // }
 
-  _createCanvasElement() {
-    // var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
-    // canvas.style.display = 'block';
-    // return canvas;
-  }
+  // _createCanvasElement() {
+  //   // var canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
+  //   // canvas.style.display = 'block';
+  //   // return canvas;
+  // }
 }

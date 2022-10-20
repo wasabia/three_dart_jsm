@@ -53,9 +53,7 @@ class RGBELoader extends DataTextureLoader {
     //RGBE_DATA_SIZE = 4,
 
     /* flags indicating which fields in an rgbe_header_info are valid */
-    var RGBE_VALID_PROGRAMTYPE = 1,
-        RGBE_VALID_FORMAT = 2,
-        RGBE_VALID_DIMENSIONS = 4;
+    var RGBE_VALID_PROGRAMTYPE = 1, RGBE_VALID_FORMAT = 2, RGBE_VALID_DIMENSIONS = 4;
 
     var NEWLINE = '\n';
 
@@ -69,9 +67,7 @@ class RGBELoader extends DataTextureLoader {
       var s = '';
       var chunk = String.fromCharCodes(buffer.sublist(p, p + chunkSize));
 
-      while ((0 > (i = chunk.indexOf(NEWLINE))) &&
-          (len < lineLimit) &&
-          (p < buffer.lengthInBytes)) {
+      while ((0 > (i = chunk.indexOf(NEWLINE))) && (len < lineLimit) && (p < buffer.lengthInBytes)) {
         s += chunk;
         len += chunk.length;
         p += chunkSize;
@@ -190,8 +186,7 @@ class RGBELoader extends DataTextureLoader {
           header["width"] = int.parse(match[2]);
         }
 
-        if ((header["valid"] & RGBE_VALID_FORMAT) == 1 &&
-            (header["valid"] & RGBE_VALID_DIMENSIONS) == 1) break;
+        if ((header["valid"] & RGBE_VALID_FORMAT) == 1 && (header["valid"] & RGBE_VALID_DIMENSIONS) == 1) break;
       }
 
       if ((header["valid"] & RGBE_VALID_FORMAT) == 0) {
@@ -212,9 +207,7 @@ class RGBELoader extends DataTextureLoader {
           // run length encoding is not allowed so read flat
           ((scanline_width < 8) || (scanline_width > 0x7fff)) ||
               // this file is not run length encoded
-              ((2 != buffer[0]) ||
-                  (2 != buffer[1]) ||
-                  ((buffer[2] & 0x80) != 0))) {
+              ((2 != buffer[0]) || (2 != buffer[1]) || ((buffer[2] & 0x80) != 0))) {
         // return the flat buffer
         return buffer;
       }
@@ -223,7 +216,7 @@ class RGBELoader extends DataTextureLoader {
         return rgbe_error(rgbe_format_error, 'wrong scanline width');
       }
 
-      var data_rgba = new Uint8List(4 * w * h);
+      var data_rgba = Uint8List(4 * w * h);
 
       if (data_rgba.length == 0) {
         return rgbe_error(rgbe_memory_error, 'unable to allocate buffer space');
@@ -232,8 +225,8 @@ class RGBELoader extends DataTextureLoader {
       var offset = 0, pos = 0;
 
       var ptr_end = 4 * scanline_width;
-      var rgbeStart = new Uint8List(4);
-      var scanline_buffer = new Uint8List(ptr_end);
+      var rgbeStart = Uint8List(4);
+      var scanline_buffer = Uint8List(ptr_end);
       var num_scanlines = h;
 
       // read in each successive scanline
@@ -247,9 +240,7 @@ class RGBELoader extends DataTextureLoader {
         rgbeStart[2] = buffer[pos++];
         rgbeStart[3] = buffer[pos++];
 
-        if ((2 != rgbeStart[0]) ||
-            (2 != rgbeStart[1]) ||
-            (((rgbeStart[2] << 8) | rgbeStart[3]) != scanline_width)) {
+        if ((2 != rgbeStart[0]) || (2 != rgbeStart[1]) || (((rgbeStart[2] << 8) | rgbeStart[3]) != scanline_width)) {
           return rgbe_error(rgbe_format_error, 'bad rgbe scanline format');
         }
 
@@ -304,8 +295,7 @@ class RGBELoader extends DataTextureLoader {
       return data_rgba;
     };
 
-    var RGBEByteToRGBFloat =
-        (sourceArray, sourceOffset, destArray, destOffset) {
+    var RGBEByteToRGBFloat = (sourceArray, sourceOffset, destArray, destOffset) {
       var e = sourceArray[sourceOffset + 3];
       var scale = Math.pow(2.0, e - 128.0) / 255.0;
 
@@ -320,12 +310,9 @@ class RGBELoader extends DataTextureLoader {
       var scale = Math.pow(2.0, e - 128.0) / 255.0;
 
       // clamping to 65504, the maximum representable value in float16
-      destArray[destOffset + 0] = DataUtils.toHalfFloat(
-          Math.min(sourceArray[sourceOffset + 0] * scale, 65504));
-      destArray[destOffset + 1] = DataUtils.toHalfFloat(
-          Math.min(sourceArray[sourceOffset + 1] * scale, 65504));
-      destArray[destOffset + 2] = DataUtils.toHalfFloat(
-          Math.min(sourceArray[sourceOffset + 2] * scale, 65504));
+      destArray[destOffset + 0] = DataUtils.toHalfFloat(Math.min(sourceArray[sourceOffset + 0] * scale, 65504));
+      destArray[destOffset + 1] = DataUtils.toHalfFloat(Math.min(sourceArray[sourceOffset + 1] * scale, 65504));
+      destArray[destOffset + 2] = DataUtils.toHalfFloat(Math.min(sourceArray[sourceOffset + 2] * scale, 65504));
       destArray[destOffset + 3] = DataUtils.toHalfFloat(1.0);
     };
 
@@ -340,10 +327,8 @@ class RGBELoader extends DataTextureLoader {
 
       var w = rgbe_header_info["width"], h = rgbe_header_info["height"];
 
-      Uint8List image_rgba_data =
-          RGBE_ReadPixels_RLE(byteArray.sublist(byteArrayPos), w, h)
-              as Uint8List;
-      
+      Uint8List image_rgba_data = RGBE_ReadPixels_RLE(byteArray.sublist(byteArrayPos), w, h) as Uint8List;
+
       if (RGBE_RETURN_FAILURE != image_rgba_data) {
         var data, format, type;
         int numElements;
@@ -359,7 +344,7 @@ class RGBELoader extends DataTextureLoader {
 
           case FloatType:
             numElements = image_rgba_data.length ~/ 4;
-            var floatArray = new Float32Array(numElements * 4);
+            var floatArray = Float32Array(numElements * 4);
 
             for (var j = 0; j < numElements; j++) {
               RGBEByteToRGBFloat(image_rgba_data, j * 4, floatArray, j * 4);
@@ -371,7 +356,7 @@ class RGBELoader extends DataTextureLoader {
 
           case HalfFloatType:
             numElements = image_rgba_data.length ~/ 4;
-            var halfArray = new Uint16Array(numElements * 4);
+            var halfArray = Uint16Array(numElements * 4);
 
             for (var j = 0; j < numElements; j++) {
               RGBEByteToRGBHalf(image_rgba_data, j * 4, halfArray, j * 4);

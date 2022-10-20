@@ -1,16 +1,13 @@
 part of jsm_modifiers;
 
-/**
- * Break faces with edges longer than maxEdgeLength
- */
+/// Break faces with edges longer than maxEdgeLength
 
 class TessellateModifier {
   num maxEdgeLength = 0.1;
   num maxIterations = 6.0;
   num maxFaces = double.infinity;
 
-  TessellateModifier(
-      {maxEdgeLength = 0.1, maxIterations = 6, maxFaces = double.infinity}) {
+  TessellateModifier({maxEdgeLength = 0.1, maxIterations = 6, maxFaces = double.infinity}) {
     this.maxEdgeLength = maxEdgeLength;
     this.maxIterations = maxIterations;
     this.maxFaces = maxFaces;
@@ -26,34 +23,34 @@ class TessellateModifier {
     var maxIterations = this.maxIterations;
     var maxEdgeLengthSquared = this.maxEdgeLength * this.maxEdgeLength;
 
-    var va = new Vector3.init();
-    var vb = new Vector3.init();
-    var vc = new Vector3.init();
-    var vm = new Vector3.init();
+    var va = Vector3.init();
+    var vb = Vector3.init();
+    var vc = Vector3.init();
+    var vm = Vector3.init();
     var vs = [va, vb, vc, vm];
 
-    var na = new Vector3.init();
-    var nb = new Vector3.init();
-    var nc = new Vector3.init();
-    var nm = new Vector3.init();
+    var na = Vector3.init();
+    var nb = Vector3.init();
+    var nc = Vector3.init();
+    var nm = Vector3.init();
     var ns = [na, nb, nc, nm];
 
-    var ca = new Color(1, 1, 1);
-    var cb = new Color(1, 1, 1);
-    var cc = new Color(1, 1, 1);
-    var cm = new Color(1, 1, 1);
+    var ca = Color(1, 1, 1);
+    var cb = Color(1, 1, 1);
+    var cc = Color(1, 1, 1);
+    var cm = Color(1, 1, 1);
     var cs = [ca, cb, cc, cm];
 
-    var ua = new Vector2(null, null);
-    var ub = new Vector2(null, null);
-    var uc = new Vector2(null, null);
-    var um = new Vector2(null, null);
+    var ua = Vector2(null, null);
+    var ub = Vector2(null, null);
+    var uc = Vector2(null, null);
+    var um = Vector2(null, null);
     var us = [ua, ub, uc, um];
 
-    var u2a = new Vector2(null, null);
-    var u2b = new Vector2(null, null);
-    var u2c = new Vector2(null, null);
-    var u2m = new Vector2(null, null);
+    var u2a = Vector2(null, null);
+    var u2b = Vector2(null, null);
+    var u2c = Vector2(null, null);
+    var u2m = Vector2(null, null);
     var u2s = [u2a, u2b, u2c, u2m];
 
     var attributes = geometry.attributes;
@@ -187,9 +184,7 @@ class TessellateModifier {
         var dbc = vb.distanceToSquared(vc);
         var dac = va.distanceToSquared(vc);
 
-        if (dab > maxEdgeLengthSquared ||
-            dbc > maxEdgeLengthSquared ||
-            dac > maxEdgeLengthSquared) {
+        if (dab > maxEdgeLengthSquared || dbc > maxEdgeLengthSquared || dac > maxEdgeLengthSquared) {
           tessellating = true;
 
           if (dab >= dbc && dab >= dac) {
@@ -226,28 +221,24 @@ class TessellateModifier {
       }
     }
 
-    var geometry2 = new BufferGeometry();
+    var geometry2 = BufferGeometry();
 
-    geometry2.setAttribute(
-        'position', new Float32BufferAttribute(positions2, 3, false));
+    geometry2.setAttribute('position', Float32BufferAttribute(positions2, 3, false));
 
     if (hasNormals) {
-      geometry2.setAttribute(
-          'normal', new Float32BufferAttribute(normals2, 3, false));
+      geometry2.setAttribute('normal', Float32BufferAttribute(normals2, 3, false));
     }
 
     if (hasColors) {
-      geometry2.setAttribute(
-          'color', new Float32BufferAttribute(colors2, 3, false));
+      geometry2.setAttribute('color', Float32BufferAttribute(colors2, 3, false));
     }
 
     if (hasUVs) {
-      geometry2.setAttribute('uv', new Float32BufferAttribute(uvs2, 2, false));
+      geometry2.setAttribute('uv', Float32BufferAttribute(uvs2, 2, false));
     }
 
     if (hasUV2s) {
-      geometry2.setAttribute(
-          'uv2', new Float32BufferAttribute(uv2s2, 2, false));
+      geometry2.setAttribute('uv2', Float32BufferAttribute(uv2s2, 2, false));
     }
 
     return geometry2;

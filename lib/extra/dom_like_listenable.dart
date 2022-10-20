@@ -205,11 +205,10 @@ class WebPointerEvent {
       wpe.deltaY = event.scrollDelta.dy;
     }
 
-    if(event is PointerMoveEvent) {
+    if (event is PointerMoveEvent) {
       wpe.movementX = event.delta.dx;
       wpe.movementY = event.delta.dy;
     }
-
 
     final EventTouch _touch = EventTouch();
     _touch.pointer = event.pointer;
@@ -218,29 +217,25 @@ class WebPointerEvent {
     _touch.clientX = local.dx;
     _touch.clientY = local.dy;
 
-    wpe.touches.add( _touch );
+    wpe.touches.add(_touch);
     wpe.changedTouches = [_touch];
 
     return wpe;
   }
 
-  factory WebPointerEvent.fromPointerScrollEvent(
-      BuildContext context, PointerScrollEvent event) {
+  factory WebPointerEvent.fromPointerScrollEvent(BuildContext context, PointerScrollEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerDownEvent(
-      BuildContext context, PointerDownEvent event) {
+  factory WebPointerEvent.fromPointerDownEvent(BuildContext context, PointerDownEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerMoveEvent(
-      BuildContext context, PointerMoveEvent event) {
+  factory WebPointerEvent.fromPointerMoveEvent(BuildContext context, PointerMoveEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerUpEvent(
-      BuildContext context, PointerUpEvent event) {
+  factory WebPointerEvent.fromPointerUpEvent(BuildContext context, PointerUpEvent event) {
     return convertEvent(context, event);
   }
 
@@ -260,6 +255,4 @@ class EventTouch {
 
   num? clientX;
   num? clientY;
-
-
 }

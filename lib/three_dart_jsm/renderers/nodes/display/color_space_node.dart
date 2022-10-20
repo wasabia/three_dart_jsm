@@ -1,4 +1,6 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 var LinearToLinear = ShaderNode((inputs) {
   return inputs.value;
@@ -18,10 +20,7 @@ var LinearTosRGB = ShaderNode((inputs) {
   return join([rgbResult.r, rgbResult.g, rgbResult.b, value.a]);
 });
 
-var EncodingLib = {
-  "LinearToLinear": LinearToLinear,
-  "LinearTosRGB": LinearTosRGB
-};
+var EncodingLib = {"LinearToLinear": LinearToLinear, "LinearTosRGB": LinearTosRGB};
 
 class ColorSpaceNode extends TempNode {
   static const String LINEAR_TO_LINEAR = 'LinearToLinear';
@@ -37,7 +36,7 @@ class ColorSpaceNode extends TempNode {
   }
 
   fromEncoding(encoding) {
-    var method = null;
+    var method;
 
     if (encoding == LinearEncoding) {
       method = 'Linear';
@@ -50,8 +49,9 @@ class ColorSpaceNode extends TempNode {
     return this;
   }
 
+  @override
   generate([builder, output]) {
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
 
     var method = this.method;
     var node = this.node;

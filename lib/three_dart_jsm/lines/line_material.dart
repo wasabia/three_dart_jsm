@@ -1,21 +1,19 @@
 part of jsm_lines;
 
-/**
- * parameters = {
- *  color: <hex>,
- *  linewidth: <float>,
- *  dashed: <boolean>,
- *  dashScale: <float>,
- *  dashSize: <float>,
- *  dashOffset: <float>,
- *  gapSize: <float>,
- *  resolution: <Vector2>, // to be set by renderer
- * }
- */
+/// parameters = {
+///  color: <hex>,
+///  linewidth: <float>,
+///  dashed: <boolean>,
+///  dashScale: <float>,
+///  dashSize: <float>,
+///  dashOffset: <float>,
+///  gapSize: <float>,
+///  resolution: <Vector2>, // to be set by renderer
+/// }
 
-final UniformsLib_line = {
+final uniformsLibLine = {
   "linewidth": {"value": 1},
-  "resolution": {"value": new Vector2(1, 1)},
+  "resolution": {"value": Vector2(1, 1)},
   "dashScale": {"value": 1},
   "dashSize": {"value": 1},
   "dashOffset": {"value": 0},
@@ -24,8 +22,7 @@ final UniformsLib_line = {
 };
 
 Map<String, dynamic> ShaderLib_line = {
-  "uniforms": UniformsUtils.merge(
-      [UniformsLib["common"], UniformsLib["fog"], UniformsLib_line]),
+  "uniforms": UniformsUtils.merge([uniformsLib["common"], uniformsLib["fog"], uniformsLibLine]),
   "vertexShader": """
 		#include <common>
 		#include <color_pars_vertex>

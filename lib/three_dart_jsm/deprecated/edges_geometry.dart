@@ -26,7 +26,7 @@
 
 // 		var precisionPoints = 4;
 // 		var precision = THREE.Math.pow( 10, precisionPoints );
-// 		var thresholdDot = THREE.Math.cos( THREE.MathUtils.DEG2RAD * thresholdAngle );
+// 		var thresholdDot = THREE.Math.cos( THREE.MathUtils.deg2rad * thresholdAngle );
 
 // 		var indexAttr = geometry.getIndex();
 // 		var positionAttr = geometry.getAttribute( 'position' );

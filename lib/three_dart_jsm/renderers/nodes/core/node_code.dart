@@ -1,5 +1,3 @@
-part of renderer_nodes;
-
 class NodeCode {
   late String name;
   late String type;

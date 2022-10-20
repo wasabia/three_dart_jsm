@@ -1,9 +1,18 @@
-part of jsm_postprocessing;
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'pass.dart';
 
 class ShaderPasses extends Pass {
   late dynamic textureID;
+  @override
   late Map<String, dynamic> uniforms;
+  @override
   late Material material;
+  @override
   late FullScreenQuad fsQuad;
   late Color oldClearColor;
   late num oldClearAlpha;
@@ -18,95 +27,85 @@ class ShaderPasses extends Pass {
   ShaderPasses(shader, textureID) : super() {
     this.textureID = (textureID != null) ? textureID : 'tDiffuse';
 
-    this.uniforms = UniformsUtils.clone(shader["uniforms"]);
+    uniforms = UniformsUtils.clone(shader["uniforms"]);
     passes = shader["passes"];
 
-    this.clearColor = new Color(0, 0, 0);
-    this.oldClearColor = Color.fromHex(0xffffff);
+    clearColor = Color(0, 0, 0);
+    oldClearColor = Color.fromHex(0xffffff);
 
-    Map<String, dynamic> _defines = {};
-    _defines.addAll(shader["defines"] ?? {});
-    this.material = new ShaderMaterial({
-      "defines": _defines,
-      "uniforms": this.uniforms,
+    Map<String, dynamic> defines = {};
+    defines.addAll(shader["defines"] ?? {});
+    material = ShaderMaterial({
+      "defines": defines,
+      "uniforms": uniforms,
       "vertexShader": shader["vertexShader"],
       "fragmentShader": shader["fragmentShader"]
     });
 
-    this.fsQuad = new FullScreenQuad(this.material);
-    this.renderTargetsPass = {};
+    fsQuad = FullScreenQuad(material);
+    renderTargetsPass = {};
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
-    renderer.getClearColor(this.oldClearColor);
-    this.oldClearAlpha = renderer.getClearAlpha();
-    this.oldAutoClear = renderer.autoClear;
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
+    renderer.getClearColor(oldClearColor);
+    oldClearAlpha = renderer.getClearAlpha();
+    oldAutoClear = renderer.autoClear;
     renderer.autoClear = false;
 
-    renderer.setClearColor(this.clearColor, alpha: 0.0);
+    renderer.setClearColor(clearColor, alpha: 0.0);
 
     if (maskActive == true) renderer.state.buffers.stencil.setTest(false);
 
-    if (this.uniforms[this.textureID] != null) {
-      this.uniforms[this.textureID]["value"] = readBuffer.texture;
+    if (uniforms[textureID] != null) {
+      uniforms[textureID]["value"] = readBuffer.texture;
     }
 
     if (passes != null) {
       int i = 0;
-      int _lastPass = passes!.length - 1;
+      int lastPass = passes!.length - 1;
       WebGLRenderTarget? lastRenderTarget;
-      for (Map<String, dynamic> _pass in passes!) {
-        this.material.uniforms["acPass"] = {"value": i};
+      for (Map<String, dynamic> pass in passes!) {
+        material.uniforms["acPass"] = {"value": i};
         if (lastRenderTarget != null) {
-          this.material.uniforms["acPassTexture"] = {
-            "value": lastRenderTarget.texture
-          };
+          material.uniforms["acPassTexture"] = {"value": lastRenderTarget.texture};
         }
 
-        this.material.needsUpdate = true;
+        material.needsUpdate = true;
 
-        if (this.renderTargetsPass[i] == null) {
-          var pars = WebGLRenderTargetOptions({
-            "minFilter": LinearFilter,
-            "magFilter": LinearFilter,
-            "format": RGBAFormat
-          });
-          var renderTargetPass =
-              new WebGLRenderTarget(readBuffer.width, readBuffer.height, pars);
-          renderTargetPass.texture.name = 'renderTargetPass' + i.toString();
+        if (renderTargetsPass[i] == null) {
+          var pars =
+              WebGLRenderTargetOptions({"minFilter": LinearFilter, "magFilter": LinearFilter, "format": RGBAFormat});
+          var renderTargetPass = WebGLRenderTarget(readBuffer.width, readBuffer.height, pars);
+          renderTargetPass.texture.name = 'renderTargetPass$i';
           renderTargetPass.texture.generateMipmaps = false;
-          this.renderTargetsPass[i] = renderTargetPass;
+          renderTargetsPass[i] = renderTargetPass;
         }
 
-        if (i >= _lastPass) {
-          if (this.renderToScreen) {
-            renderPass(renderer, this.material, null, null, null, this.clear);
+        if (i >= lastPass) {
+          if (renderToScreen) {
+            renderPass(renderer, material, null, null, null, clear);
           } else {
-            renderPass(
-                renderer, this.material, writeBuffer, null, null, this.clear);
+            renderPass(renderer, material, writeBuffer, null, null, clear);
           }
         } else {
-          renderPass(renderer, this.material, this.renderTargetsPass[i], null,
-              null, this.clear);
+          renderPass(renderer, material, renderTargetsPass[i], null, null, clear);
         }
 
-        lastRenderTarget = this.renderTargetsPass[i];
+        lastRenderTarget = renderTargetsPass[i];
 
         i = i + 1;
       }
     } else {
-      if (this.renderToScreen) {
-        renderPass(renderer, this.material, null, null, null, this.clear);
+      if (renderToScreen) {
+        renderPass(renderer, material, null, null, null, clear);
       } else {
-        renderPass(
-            renderer, this.material, writeBuffer, null, null, this.clear);
+        renderPass(renderer, material, writeBuffer, null, null, clear);
       }
     }
   }
 
-  renderPass(
-      renderer, passMaterial, renderTarget, clearColor, clearAlpha, clear) {
+  renderPass(renderer, passMaterial, renderTarget, clearColor, clearAlpha, clear) {
     // print("renderPass passMaterial: ${passMaterial} renderTarget: ${renderTarget}  ");
     // print(passMaterial.uniforms);
 
@@ -122,16 +121,16 @@ class ShaderPasses extends Pass {
     }
 
     // TODO: Avoid using autoClear properties, see https://github.com/mrdoob/three.js/pull/15571#issuecomment-465669600
-    if (clear)
-      renderer.clear(renderer.autoClearColor, renderer.autoClearDepth,
-          renderer.autoClearStencil);
+    if (clear) {
+      renderer.clear(renderer.autoClearColor, renderer.autoClearDepth, renderer.autoClearStencil);
+    }
 
-    this.fsQuad.material = passMaterial;
-    this.fsQuad.render(renderer);
+    fsQuad.material = passMaterial;
+    fsQuad.render(renderer);
 
     // restore original state
     renderer.autoClear = oldAutoClear;
-    renderer.setClearColor(this.oldClearColor);
+    renderer.setClearColor(oldClearColor);
     renderer.setClearAlpha(oldClearAlpha);
   }
 }

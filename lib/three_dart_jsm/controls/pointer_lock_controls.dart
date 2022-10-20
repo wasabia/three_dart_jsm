@@ -4,9 +4,9 @@ class PointerLockControls with EventDispatcher {
   bool isLocked = false;
 
   // Set to constrain the pitch of the camera
-  // Range is 0 to Math.PI radians
+  // Range is 0 to Math.pi radians
   double minPolarAngle = 0; // radians
-  double maxPolarAngle = Math.PI; // radians
+  double maxPolarAngle = Math.pi; // radians
 
   double pointerSpeed = 1.0;
 
@@ -30,18 +30,15 @@ class PointerLockControls with EventDispatcher {
     print("onMouseMove event: ${event} isLocked ${scope.isLocked} ");
     if (scope.isLocked == false) return;
 
-    var movementX =
-        event.movementX ?? event.mozMovementX ?? event.webkitMovementX ?? 0;
-    var movementY =
-        event.movementY ?? event.mozMovementY ?? event.webkitMovementY ?? 0;
+    var movementX = event.movementX ?? event.mozMovementX ?? event.webkitMovementX ?? 0;
+    var movementY = event.movementY ?? event.mozMovementY ?? event.webkitMovementY ?? 0;
 
     _euler.setFromQuaternion(camera.quaternion);
 
     _euler.y -= movementX * 0.002 * scope.pointerSpeed;
     _euler.x -= movementY * 0.002 * scope.pointerSpeed;
 
-    _euler.x = Math.max(_PI_2 - scope.maxPolarAngle,
-        Math.min(_PI_2 - scope.minPolarAngle, _euler.x));
+    _euler.x = Math.max(_pi2 - scope.maxPolarAngle, Math.min(_pi2 - scope.minPolarAngle, _euler.x));
 
     camera.quaternion.setFromEuler(_euler);
 
@@ -73,10 +70,8 @@ class PointerLockControls with EventDispatcher {
 
   disconnect() {
     scope.domElement.removeEventListener('mousemove', onMouseMove);
-    scope.domElement
-        .removeEventListener('pointerlockchange', onPointerlockChange);
-    scope.domElement
-        .removeEventListener('pointerlockerror', onPointerlockError);
+    scope.domElement.removeEventListener('pointerlockchange', onPointerlockChange);
+    scope.domElement.removeEventListener('pointerlockerror', onPointerlockError);
   }
 
   dispose() {
@@ -89,7 +84,7 @@ class PointerLockControls with EventDispatcher {
     return camera;
   }
 
-  var direction = new Vector3(0, 0, -1);
+  var direction = Vector3(0, 0, -1);
 
   getDirection(v) {
     return v.copy(direction).applyQuaternion(camera.quaternion);

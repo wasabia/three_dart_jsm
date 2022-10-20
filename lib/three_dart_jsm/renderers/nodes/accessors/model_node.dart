@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ModelNode extends Object3DNode {
   static const String VIEW_MATRIX = 'viewMatrix';

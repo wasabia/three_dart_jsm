@@ -9,7 +9,7 @@ class WebGPUGeometries {
     this.attributes = attributes;
     this.info = info;
 
-    this.geometries = new WeakMap();
+    this.geometries = WeakMap();
   }
 
   update(geometry) {

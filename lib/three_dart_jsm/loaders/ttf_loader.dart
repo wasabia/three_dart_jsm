@@ -1,10 +1,8 @@
 part of jsm_loader;
 
-/**
- * Requires opentype.js to be included in the project.
- * Loads TTF files and converts them into typeface JSON that can be used directly
- * to create THREE.Font objects.
- */
+/// Requires opentype.js to be included in the project.
+/// Loads TTF files and converts them into typeface JSON that can be used directly
+/// to create THREE.Font objects.
 
 class TTFLoader extends Loader {
   bool reversed = false;
@@ -14,7 +12,7 @@ class TTFLoader extends Loader {
   loadAsync(url) async {
     var scope = this;
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
     loader.setRequestHeader(this.requestHeader);
@@ -27,7 +25,7 @@ class TTFLoader extends Loader {
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
     loader.setRequestHeader(this.requestHeader);
@@ -72,11 +70,7 @@ class TTFLoader extends Loader {
       var reversed = [];
 
       paths.forEach((p) {
-        var result = {
-          "type": 'm',
-          "x": p[p.length - 1].x,
-          "y": p[p.length - 1].y
-        };
+        var result = {"type": 'm', "x": p[p.length - 1].x, "y": p[p.length - 1].y};
 
         reversed.add(result);
 
@@ -137,24 +131,18 @@ class TTFLoader extends Loader {
               token["o"] += command["type"].toLowerCase() + ' ';
 
               if (command["x"] != null && command["y"] != null) {
-                token["o"] += round(command["x"] * scale).toString() +
-                    ' ' +
-                    round(command["y"] * scale).toString() +
-                    ' ';
+                token["o"] +=
+                    round(command["x"] * scale).toString() + ' ' + round(command["y"] * scale).toString() + ' ';
               }
 
               if (command["x1"] != null && command["y1"] != null) {
-                token["o"] += round(command["x1"] * scale).toString() +
-                    ' ' +
-                    round(command["y1"] * scale).toString() +
-                    ' ';
+                token["o"] +=
+                    round(command["x1"] * scale).toString() + ' ' + round(command["y1"] * scale).toString() + ' ';
               }
 
               if (command["x2"] != null && command["y2"] != null) {
-                token["o"] += round(command["x2"] * scale).toString() +
-                    ' ' +
-                    round(command["y2"] * scale).toString() +
-                    ' ';
+                token["o"] +=
+                    round(command["x2"] * scale).toString() + ' ' + round(command["y2"] * scale).toString() + ' ';
               }
             });
           }
@@ -181,7 +169,6 @@ class TTFLoader extends Loader {
       };
     }
 
-    return convert(opentype.parseBuffer(arraybuffer, null),
-        this.reversed); // eslint-disable-line no-undef
+    return convert(opentype.parseBuffer(arraybuffer, null), this.reversed); // eslint-disable-line no-undef
   }
 }

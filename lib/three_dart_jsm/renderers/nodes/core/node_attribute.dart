@@ -1,5 +1,3 @@
-part of renderer_nodes;
-
 class NodeAttribute {
   late String name;
   late String type;

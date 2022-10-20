@@ -15,10 +15,10 @@ import '../curves/index.dart';
 
 export './gltf/index.dart';
 
-part 'LUTCubeLoader.dart';
-part 'TTFLoader.dart';
-part 'TYPRLoader.dart';
-part './OBJLoader.dart';
-part './RGBELoader.dart';
-part './MTLLoader.dart';
-part './FBXLoader.dart';
+part 'lut_cube_loader.dart';
+part 'ttf_loader.dart';
+part 'typr_loader.dart';
+part 'obj_loader.dart';
+part 'rgbe_loader.dart';
+part 'mtl_loader.dart';
+part 'fbx_loader.dart';

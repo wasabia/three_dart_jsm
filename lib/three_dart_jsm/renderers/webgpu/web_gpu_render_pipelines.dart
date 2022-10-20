@@ -3,7 +3,7 @@ part of three_webgpu;
 class _Stages {
   Map vertex;
   Map fragment;
-  _Stages({required this.vertex, required this.fragment}) {}
+  _Stages({required this.vertex, required this.fragment});
 }
 
 extension MapExt on Map {
@@ -20,9 +20,11 @@ extension MapExt on Map {
   }
 }
 
+// TODO (WebGPU): implement
+
 class WebGPURenderPipelines {
   late WebGPURenderer renderer;
-  late GPUDevice device;
+  // late GPUDevice device;
   late int sampleCount;
   late WebGPUNodes nodes;
   late dynamic bindings;
@@ -30,22 +32,21 @@ class WebGPURenderPipelines {
   late WeakMap objectCache;
   late _Stages stages;
 
-  WebGPURenderPipelines(renderer, device, sampleCount, nodes,
-      [bindings = null]) {
+  WebGPURenderPipelines(renderer, device, sampleCount, nodes, [bindings]) {
     this.renderer = renderer;
-    this.device = device;
+    // this.device = device;
     this.sampleCount = sampleCount;
     this.nodes = nodes;
     this.bindings = bindings;
 
     this.pipelines = [];
-    this.objectCache = new WeakMap();
+    this.objectCache = WeakMap();
 
-    this.stages = _Stages(vertex: new Map(), fragment: new Map());
+    this.stages = _Stages(vertex: Map(), fragment: Map());
   }
 
   get(object) {
-    var device = this.device;
+    // var device = this.device;
     var material = object.material;
 
     Map<String, dynamic> cache = this._getCache(object);
@@ -68,23 +69,20 @@ class WebGPURenderPipelines {
       var stageVertex = this.stages.vertex.get(nodeBuilder.vertexShader);
 
       if (stageVertex == undefined) {
-        stageVertex = new WebGPUProgrammableStage(
-            device, nodeBuilder.vertexShader, 'vertex');
+        // stageVertex = new WebGPUProgrammableStage(device, nodeBuilder.vertexShader, 'vertex');
         this.stages.vertex.set(nodeBuilder.vertexShader, stageVertex);
       }
 
       var stageFragment = this.stages.fragment.get(nodeBuilder.fragmentShader);
 
       if (stageFragment == undefined) {
-        stageFragment = new WebGPUProgrammableStage(
-            device, nodeBuilder.fragmentShader, 'fragment');
+        // stageFragment = new WebGPUProgrammableStage(device, nodeBuilder.fragmentShader, 'fragment');
         this.stages.fragment.set(nodeBuilder.fragmentShader, stageFragment);
       }
 
       // determine render pipeline
 
-      currentPipeline = this
-          ._acquirePipeline(stageVertex, stageFragment, object, nodeBuilder);
+      currentPipeline = this._acquirePipeline(stageVertex, stageFragment, object, nodeBuilder);
 
       cache["currentPipeline"] = currentPipeline;
 
@@ -106,15 +104,14 @@ class WebGPURenderPipelines {
 
   dispose() {
     this.pipelines = [];
-    this.objectCache = new WeakMap();
+    this.objectCache = WeakMap();
     // this.shaderModules = _Stages(
     // 	vertex: new Map(),
     // 	fragment: new Map()
     // );
   }
 
-  WebGPURenderPipeline _acquirePipeline(
-      stageVertex, stageFragment, object, nodeBuilder) {
+  WebGPURenderPipeline _acquirePipeline(stageVertex, stageFragment, object, nodeBuilder) {
     var pipeline;
     var pipelines = this.pipelines;
 
@@ -132,11 +129,10 @@ class WebGPURenderPipelines {
     }
 
     if (pipeline == undefined) {
-      pipeline = new WebGPURenderPipeline(
-          this.device, this.renderer, this.sampleCount);
-      pipeline.init(cacheKey, stageVertex, stageFragment, object, nodeBuilder);
+      // pipeline = new WebGPURenderPipeline(this.device, this.renderer, this.sampleCount);
+      // pipeline.init(cacheKey, stageVertex, stageFragment, object, nodeBuilder);
 
-      pipelines.add(pipeline);
+      // pipelines.add(pipeline);
     }
 
     return pipeline;

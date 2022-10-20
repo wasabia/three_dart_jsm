@@ -1,24 +1,26 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class TextureNode extends InputNode {
+  @override
   late dynamic value;
   late UVNode uv;
   late dynamic bias;
 
-  TextureNode([value = null, uv = null, bias = null]) : super('texture') {
+  TextureNode([value, uv, bias]) : super('texture') {
     this.value = value;
-    this.uv = uv ?? new UVNode();
+    this.uv = uv ?? UVNode();
     this.bias = bias;
   }
 
+  @override
   generate([builder, output]) {
-    var texture = this.value;
+    var texture = value;
 
     if (!texture || texture.isTexture != true) {
       throw ('TextureNode: Need a three.js texture.');
     }
 
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
 
     var textureProperty = super.generate(builder, type);
 
@@ -31,11 +33,11 @@ class TextureNode extends InputNode {
 
       var snippet = nodeData.snippet;
 
-      if (snippet == undefined) {
-        var uvSnippet = this.uv.build(builder, 'vec2');
+      if (snippet == null) {
+        var uvSnippet = uv.build(builder, 'vec2');
         var bias = this.bias;
 
-        var biasSnippet = null;
+        var biasSnippet;
 
         if (bias != null) {
           biasSnippet = bias.build(builder, 'float');

@@ -8,13 +8,7 @@ class WebGPUInfo {
   WebGPUInfo() {
     this.autoReset = true;
 
-    this.render = {
-      "frame": 0,
-      "drawCalls": 0,
-      "triangles": 0,
-      "points": 0,
-      "lines": 0
-    };
+    this.render = {"frame": 0, "drawCalls": 0, "triangles": 0, "points": 0, "lines": 0};
 
     this.memory = {"geometries": 0, "textures": 0};
   }

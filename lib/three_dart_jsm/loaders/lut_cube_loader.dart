@@ -6,7 +6,7 @@ class LUTCubeLoader extends Loader {
   LUTCubeLoader(manager) : super(manager) {}
 
   loadAsync(url) async {
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('text');
     final resp = await loader.loadAsync(url);
@@ -15,7 +15,7 @@ class LUTCubeLoader extends Loader {
   }
 
   load(url, Function onLoad, [Function? onProgress, Function? onError]) async {
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('text');
     final data = await loader.load(url, (text) {
@@ -59,8 +59,8 @@ class LUTCubeLoader extends Loader {
 
     var title = null;
     int size = 0;
-    var domainMin = new Vector3(0, 0, 0);
-    var domainMax = new Vector3(1, 1, 1);
+    var domainMin = Vector3(0, 0, 0);
+    var domainMax = Vector3(1, 1, 1);
 
     final reg3 = RegExp(r"[\n\r]+");
     var lines = str.split(reg3);
@@ -109,8 +109,7 @@ class LUTCubeLoader extends Loader {
       }
     }
 
-    var texture = new DataTexture(
-        null, null, null, null, null, null, null, null, null, null, null, null);
+    var texture = DataTexture(null, null, null, null, null, null, null, null, null, null, null, null);
     texture.image!.data = data;
     texture.image!.width = size;
     texture.image!.height = size * size;
@@ -120,7 +119,7 @@ class LUTCubeLoader extends Loader {
     texture.wrapT = ClampToEdgeWrapping;
     texture.generateMipmaps = false;
 
-    var texture3D = new Data3DTexture();
+    var texture3D = Data3DTexture();
     texture3D.image!.data = data;
     texture3D.image!.width = size;
     texture3D.image!.height = size;

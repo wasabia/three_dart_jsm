@@ -13,7 +13,7 @@ class WebGPUSampledTexture extends WebGPUBinding {
     this.dimension = GPUTextureViewDimension.TwoD;
 
     this.type = GPUBindingType.SampledTexture;
-    this.visibility = GPUShaderStage.Fragment;
+    // this.visibility = GPUShaderStage.Fragment;
 
     this.textureGPU = null; // set by the renderer
   }

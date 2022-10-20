@@ -1,43 +1,45 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'pass.dart';
 
 class FilmPass extends Pass {
-  FilmPass(noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale)
-      : super() {
+  FilmPass(noiseIntensity, scanlinesIntensity, scanlinesCount, grayscale) : super() {
     if (FilmShader == null) print('THREE.FilmPass relies on FilmShader');
 
     var shader = FilmShader;
 
-    this.uniforms = UniformsUtils.clone(Map<String, dynamic>.from(shader["uniforms"]));
+    uniforms = UniformsUtils.clone(Map<String, dynamic>.from(shader["uniforms"]));
 
-    this.material = new ShaderMaterial({
-      "uniforms": this.uniforms,
-      "vertexShader": shader["vertexShader"],
-      "fragmentShader": shader["fragmentShader"]
-    });
+    material = ShaderMaterial(
+        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
 
-    if (grayscale != null) this.uniforms["grayscale"]["value"] = grayscale;
-    if (noiseIntensity != null)
-      this.uniforms["nIntensity"]["value"] = noiseIntensity;
-    if (scanlinesIntensity != null)
-      this.uniforms["sIntensity"]["value"] = scanlinesIntensity;
-    if (scanlinesCount != null)
-      this.uniforms["sCount"]["value"] = scanlinesCount;
+    if (grayscale != null) uniforms["grayscale"]["value"] = grayscale;
+    if (noiseIntensity != null) {
+      uniforms["nIntensity"]["value"] = noiseIntensity;
+    }
+    if (scanlinesIntensity != null) {
+      uniforms["sIntensity"]["value"] = scanlinesIntensity;
+    }
+    if (scanlinesCount != null) {
+      uniforms["sCount"]["value"] = scanlinesCount;
+    }
 
-    this.fsQuad = new FullScreenQuad(this.material);
+    fsQuad = FullScreenQuad(material);
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
-    this.uniforms['tDiffuse']["value"] = readBuffer.texture;
-    this.uniforms['time']["value"] += deltaTime;
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
+    uniforms['tDiffuse']["value"] = readBuffer.texture;
+    uniforms['time']["value"] += deltaTime;
 
-    if (this.renderToScreen) {
+    if (renderToScreen) {
       renderer.setRenderTarget(null);
-      this.fsQuad.render(renderer);
+      fsQuad.render(renderer);
     } else {
       renderer.setRenderTarget(writeBuffer);
-      if (this.clear) renderer.clear();
-      this.fsQuad.render(renderer);
+      if (clear) renderer.clear();
+      fsQuad.render(renderer);
     }
   }
 }

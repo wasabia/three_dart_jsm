@@ -3,8 +3,7 @@ part of jsm_deprecated;
 class CylinderGeometry extends Geometry {
   String type = "CylinderGeometry";
 
-  CylinderGeometry(radiusTop, radiusBottom, height, radialSegments,
-      heightSegments, openEnded, thetaStart, thetaLength)
+  CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength)
       : super() {
     this.parameters = {
       "radiusTop": radiusTop,
@@ -18,14 +17,7 @@ class CylinderGeometry extends Geometry {
     };
 
     this.fromBufferGeometry(THREE.CylinderGeometry(
-        radiusTop,
-        radiusBottom,
-        height,
-        radialSegments,
-        heightSegments,
-        openEnded,
-        thetaStart,
-        thetaLength));
+        radiusTop, radiusBottom, height, radialSegments, heightSegments, openEnded, thetaStart, thetaLength));
     this.mergeVertices();
   }
 }

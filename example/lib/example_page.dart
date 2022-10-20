@@ -12,10 +12,11 @@ import 'misc_controls_map.dart';
 import 'misc_controls_trackball.dart';
 
 class ExamplePage extends StatefulWidget {
-  String? id;
-  ExamplePage({Key? key, this.id}) : super(key: key);
+  final String? id;
+  const ExamplePage({Key? key, this.id}) : super(key: key);
 
-  _MyAppState createState() => _MyAppState();
+  @override
+  State<ExamplePage> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<ExamplePage> {
@@ -32,24 +33,22 @@ class _MyAppState extends State<ExamplePage> {
 
     if (fileName == "games_fps") {
       page = TestGame(fileName: fileName);
-    } 
-    else if (fileName == "misc_controls_orbit") {
+    } else if (fileName == "misc_controls_orbit") {
       page = misc_controls_orbit(fileName: fileName);
     } else if (fileName == "misc_controls_trackball") {
       page = misc_controls_trackball(fileName: fileName);
     } else if (fileName == "misc_controls_arcball") {
-      page = misc_controls_arcball(fileName: fileName);
+      page = MiscControlsArcball(fileName: fileName);
     } else if (fileName == "misc_controls_map") {
       page = misc_controls_map(fileName: fileName);
-    // } else if (fileName == "webgpu_rtt") {
-    //   page = webgpu_rtt(fileName: fileName);
+      // } else if (fileName == "webgpu_rtt") {
+      //   page = webgpu_rtt(fileName: fileName);
     } else if (fileName == "misc_controls_pointerlock") {
       page = misc_controls_pointerlock(fileName: fileName);
     } else if (fileName == "webgl_loader_fbx") {
       page = webgl_loader_fbx(fileName: fileName);
-      
     } else {
-      throw ("ExamplePage fileName ${fileName} is not support yet ");
+      throw ("ExamplePage fileName $fileName is not support yet ");
     }
 
     return page;

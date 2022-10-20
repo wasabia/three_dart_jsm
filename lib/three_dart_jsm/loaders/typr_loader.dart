@@ -1,10 +1,8 @@
 part of jsm_loader;
 
-/**
- * Requires opentype.js to be included in the project.
- * Loads TTF files and converts them into typeface JSON that can be used directly
- * to create THREE.Font objects.
- */
+/// Requires opentype.js to be included in the project.
+/// Loads TTF files and converts them into typeface JSON that can be used directly
+/// to create THREE.Font objects.
 
 class TYPRLoader extends Loader {
   bool reversed = false;
@@ -12,7 +10,7 @@ class TYPRLoader extends Loader {
   TYPRLoader(manager) : super(manager) {}
 
   loadAsync(url) async {
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
     loader.setRequestHeader(this.requestHeader);
@@ -25,7 +23,7 @@ class TYPRLoader extends Loader {
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
     loader.setRequestHeader(this.requestHeader);
@@ -105,7 +103,6 @@ class TYPRLoader extends Loader {
       };
     }
 
-    return convert(typr_dart.Font(arraybuffer),
-        this.reversed); // eslint-disable-line no-undef
+    return convert(typr_dart.Font(arraybuffer), this.reversed); // eslint-disable-line no-undef
   }
 }

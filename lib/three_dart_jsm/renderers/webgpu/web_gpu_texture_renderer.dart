@@ -11,7 +11,7 @@ class WebGPUTextureRenderer {
 
     // @TODO: Consider to introduce WebGPURenderTarget or rename WebGLRenderTarget to just RenderTarget
 
-    this.renderTarget = new WebGLRenderTarget(1, 1, options);
+    this.renderTarget = WebGLRenderTarget(1, 1, options);
   }
 
   getTexture() {

@@ -1,16 +1,14 @@
 import 'package:three_dart/three3d/math/index.dart';
 
-/**
- * Convolution shader
- * ported from o3d sample to WebGL / GLSL
- * http://o3d.googlecode.com/svn/trunk/samples/convolution.html
- */
+/// Convolution shader
+/// ported from o3d sample to WebGL / GLSL
+/// http://o3d.googlecode.com/svn/trunk/samples/convolution.html
 
 Map ConvolutionShader = {
   "defines": {'KERNEL_SIZE_FLOAT': '25.0', 'KERNEL_SIZE_INT': '25'},
   "uniforms": {
     'tDiffuse': {"value": null},
-    'uImageIncrement': {"value": new Vector2(0.001953125, 0.0)},
+    'uImageIncrement': {"value": Vector2(0.001953125, 0.0)},
     'cKernel': {"value": []}
   },
   "vertexShader": [
@@ -51,7 +49,7 @@ Function ConvolutionShader_buildKernel = (sigma) {
   if (kernelSize > kMaxKernelSize) kernelSize = kMaxKernelSize;
   halfWidth = (kernelSize - 1) * 0.5;
 
-  values = new List<num>.filled(kernelSize, 0.0);
+  values = List<num>.filled(kernelSize, 0.0);
   sum = 0.0;
   for (i = 0; i < kernelSize; ++i) {
     values[i] = gauss(i - halfWidth, sigma);

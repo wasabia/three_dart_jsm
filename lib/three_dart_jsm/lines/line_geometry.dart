@@ -12,7 +12,7 @@ class LineGeometry extends LineSegmentsGeometry {
     // converts [ x1, y1, z1,  x2, y2, z2, ... ] to pairs format
 
     int length = array.length - 3;
-    var points = new Float32Array(2 * length);
+    var points = Float32Array(2 * length);
 
     for (var i = 0; i < length; i += 3) {
       points[2 * i] = array[i];
@@ -33,7 +33,7 @@ class LineGeometry extends LineSegmentsGeometry {
     // converts [ r1, g1, b1,  r2, g2, b2, ... ] to pairs format
 
     int length = array.length - 3;
-    var colors = new Float32Array(2 * length);
+    var colors = Float32Array(2 * length);
 
     for (var i = 0; i < length; i += 3) {
       colors[2 * i] = array[i];
@@ -56,8 +56,7 @@ class LineGeometry extends LineSegmentsGeometry {
     if (geometry.isGeometry) {
       this.setPositions(geometry.vertices);
     } else if (geometry.isBufferGeometry) {
-      this.setPositions(
-          geometry.attributes.position.array); // assumes non-indexed
+      this.setPositions(geometry.attributes.position.array); // assumes non-indexed
 
     }
 

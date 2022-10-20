@@ -2,12 +2,12 @@ part of jsm_utils;
 
 class SkeletonUtils {
   static retarget(target, source, [options]) {
-    var pos = new Vector3(),
-        quat = new Quaternion(),
-        scale = new Vector3(),
-        bindBoneMatrix = new Matrix4(),
-        relativeMatrix = new Matrix4(),
-        globalMatrix = new Matrix4();
+    var pos = Vector3(),
+        quat = Quaternion(),
+        scale = Vector3(),
+        bindBoneMatrix = Matrix4(),
+        relativeMatrix = Matrix4(),
+        globalMatrix = Matrix4();
 
     options = options ?? {};
 
@@ -160,7 +160,7 @@ class SkeletonUtils {
     var numFrames = Math.round(clip.duration * (options.fps / 1000) * 1000),
         delta = 1 / options.fps,
         convertedTracks = <KeyframeTrack>[],
-        mixer = new AnimationMixer(source),
+        mixer = AnimationMixer(source),
         bones = getBones(target.skeleton),
         boneDatas = [];
     var positionOffset, bone, boneTo, boneData, name;
@@ -186,7 +186,7 @@ class SkeletonUtils {
 
           if (options.hip == name) {
             if (!boneData.pos) {
-              boneData.pos = {"times": new Float32Array(numFrames), "values": new Float32Array(numFrames * 3)};
+              boneData.pos = {"times": Float32Array(numFrames), "values": Float32Array(numFrames * 3)};
             }
 
             if (options.useFirstFramePosition) {
@@ -203,7 +203,7 @@ class SkeletonUtils {
           }
 
           if (!boneData.quat) {
-            boneData.quat = {"times": new Float32Array(numFrames), "values": new Float32Array(numFrames * 4)};
+            boneData.quat = {"times": Float32Array(numFrames), "values": Float32Array(numFrames * 4)};
           }
 
           boneData.quat.times[i] = time;
@@ -222,22 +222,22 @@ class SkeletonUtils {
 
       if (boneData) {
         if (boneData.pos) {
-          convertedTracks.add(new VectorKeyframeTrack(
+          convertedTracks.add(VectorKeyframeTrack(
               '.bones[' + boneData.bone.name + '].position', boneData.pos.times, boneData.pos.values, null));
         }
 
-        convertedTracks.add(new QuaternionKeyframeTrack(
+        convertedTracks.add(QuaternionKeyframeTrack(
             '.bones[' + boneData.bone.name + '].quaternion', boneData.quat.times, boneData.quat.values, null));
       }
     }
 
     mixer.uncacheAction(clip);
 
-    return new AnimationClip(clip.name, -1, convertedTracks);
+    return AnimationClip(clip.name, -1, convertedTracks);
   }
 
   static getHelperFromSkeleton(skeleton) {
-    var source = new SkeletonHelper(skeleton.bones[0]);
+    var source = SkeletonHelper(skeleton.bones[0]);
     source.skeleton = skeleton;
 
     return source;
@@ -246,12 +246,12 @@ class SkeletonUtils {
   static getSkeletonOffsets(target, source, [options]) {
     options = options ?? {};
 
-    var targetParentPos = new Vector3(),
-        targetPos = new Vector3(),
-        sourceParentPos = new Vector3(),
-        sourcePos = new Vector3(),
-        targetDir = new Vector2(),
-        sourceDir = new Vector2();
+    var targetParentPos = Vector3(),
+        targetPos = Vector3(),
+        sourceParentPos = Vector3(),
+        sourcePos = Vector3(),
+        targetDir = Vector2(),
+        sourceDir = Vector2();
 
     options.hip = options.hip != null ? options.hip : 'hip';
     options.names = options.names ?? {};
@@ -290,16 +290,16 @@ class SkeletonUtils {
         sourcePos.setFromMatrixPosition(boneTo.matrixWorld);
 
         targetDir
-            .subVectors(new Vector2(targetPos.x, targetPos.y), new Vector2(targetParentPos.x, targetParentPos.y))
+            .subVectors(Vector2(targetPos.x, targetPos.y), Vector2(targetParentPos.x, targetParentPos.y))
             .normalize();
 
         sourceDir
-            .subVectors(new Vector2(sourcePos.x, sourcePos.y), new Vector2(sourceParentPos.x, sourceParentPos.y))
+            .subVectors(Vector2(sourcePos.x, sourcePos.y), Vector2(sourceParentPos.x, sourceParentPos.y))
             .normalize();
 
         var laterialAngle = targetDir.angle() - sourceDir.angle();
 
-        var offset = new Matrix4().makeRotationFromEuler(new Euler(0, 0, laterialAngle));
+        var offset = Matrix4().makeRotationFromEuler(Euler(0, 0, laterialAngle));
 
         bone.matrix.multiply(offset);
 
@@ -389,8 +389,8 @@ class SkeletonUtils {
   }
 
   static clone(source) {
-    var sourceLookup = new Map();
-    var cloneLookup = new Map();
+    var sourceLookup = Map();
+    var cloneLookup = Map();
 
     var clone = source.clone();
 
@@ -426,7 +426,7 @@ class SkeletonUtils {
     callback(a, b);
 
     for (var i = 0; i < a.children.length; i++) {
-      var _bc = null;
+      var _bc;
 
       if (b != null && i < b.children.length) {
         _bc = b.children[i];

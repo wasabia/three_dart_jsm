@@ -1,13 +1,9 @@
 part of jsm_controls;
 
-var _tempVector = new Vector3();
-var _tempVector2 = new Vector3();
-var _tempQuaternion = new Quaternion();
-var _unit = {
-  "X": new Vector3(1, 0, 0),
-  "Y": new Vector3(0, 1, 0),
-  "Z": new Vector3(0, 0, 1)
-};
+var _tempVector = Vector3();
+var _tempVector2 = Vector3();
+var _tempQuaternion = Quaternion();
+var _unit = {"X": Vector3(1, 0, 0), "Y": Vector3(0, 1, 0), "Z": Vector3(0, 0, 1)};
 
 var _mouseDownEvent = Event({"type": 'mouseDown'});
 var _mouseUpEvent = Event({"type": 'mouseUp', "mode": null});
@@ -115,8 +111,7 @@ class TransformControls extends Object3D {
     if (value != _translationSnap) {
       _translationSnap = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'translationSnap-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'translationSnap-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -130,8 +125,7 @@ class TransformControls extends Object3D {
     if (value != _rotationSnap) {
       _rotationSnap = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'rotationSnap-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'rotationSnap-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -271,8 +265,7 @@ class TransformControls extends Object3D {
       // _plane.worldPosition = value;
       // _gizmo.worldPosition = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'worldPosition-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'worldPosition-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -288,8 +281,7 @@ class TransformControls extends Object3D {
       // _plane.worldPositionStart = value;
       // _gizmo.worldPositionStart = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'worldPositionStart-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'worldPositionStart-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -305,8 +297,7 @@ class TransformControls extends Object3D {
       // _plane.worldQuaternion = value;
       // _gizmo.worldQuaternion = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'worldQuaternion-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'worldQuaternion-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -322,8 +313,7 @@ class TransformControls extends Object3D {
       // _plane.worldQuaternionStart = value;
       // _gizmo.worldQuaternionStart = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'worldQuaternionStart-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'worldQuaternionStart-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -339,8 +329,7 @@ class TransformControls extends Object3D {
       // _plane.cameraPosition = value;
       // _gizmo.cameraPosition = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'cameraPosition-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'cameraPosition-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -356,8 +345,7 @@ class TransformControls extends Object3D {
       // _plane.cameraQuaternion = value;
       // _gizmo.cameraQuaternion = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'cameraQuaternion-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'cameraQuaternion-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -373,8 +361,7 @@ class TransformControls extends Object3D {
       // _plane.pointStart = value;
       // _gizmo.pointStart = value;
 
-      scope
-          .dispatchEvent(Event({"type": 'pointStart-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'pointStart-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -406,8 +393,7 @@ class TransformControls extends Object3D {
       // _plane.rotationAxis = value;
       // _gizmo.rotationAxis = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'rotationAxis-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'rotationAxis-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -423,8 +409,7 @@ class TransformControls extends Object3D {
       // _plane.rotationAngle = value;
       // _gizmo.rotationAngle = value;
 
-      scope.dispatchEvent(
-          Event({"type": 'rotationAngle-changed', "value": value}));
+      scope.dispatchEvent(Event({"type": 'rotationAngle-changed', "value": value}));
       scope.dispatchEvent(_changeEvent);
     }
   }
@@ -445,23 +430,23 @@ class TransformControls extends Object3D {
     }
   }
 
-  var _offset = new Vector3();
-  var _startNorm = new Vector3();
-  var _endNorm = new Vector3();
-  var _cameraScale = new Vector3();
+  var _offset = Vector3();
+  var _startNorm = Vector3();
+  var _endNorm = Vector3();
+  var _cameraScale = Vector3();
 
-  var _parentPosition = new Vector3();
-  var _parentQuaternion = new Quaternion();
-  var _parentQuaternionInv = new Quaternion();
-  var _parentScale = new Vector3();
+  var _parentPosition = Vector3();
+  var _parentQuaternion = Quaternion();
+  var _parentQuaternionInv = Quaternion();
+  var _parentScale = Vector3();
 
-  var _worldScaleStart = new Vector3();
-  var _worldQuaternionInv = new Quaternion();
-  var _worldScale = new Vector3();
+  var _worldScaleStart = Vector3();
+  var _worldQuaternionInv = Quaternion();
+  var _worldScale = Vector3();
 
-  var _positionStart = new Vector3();
-  var _quaternionStart = new Quaternion();
-  var _scaleStart = new Vector3();
+  var _positionStart = Vector3();
+  var _quaternionStart = Quaternion();
+  var _scaleStart = Vector3();
 
   TransformControls(camera, domKey) : super() {
     scope = this;
@@ -483,9 +468,7 @@ class TransformControls extends Object3D {
     this.add(_plane);
 
     this.domElement.addEventListener('pointerdown', this._onPointerDown, false);
-    this
-        .domElement
-        .addEventListener('pointermove', this._onPointerHover, false);
+    this.domElement.addEventListener('pointermove', this._onPointerHover, false);
     this.domElement.addEventListener('pointerup', this._onPointerUp, false);
   }
 
@@ -495,15 +478,12 @@ class TransformControls extends Object3D {
       this.object.updateMatrixWorld(force);
 
       if (this.object.parent == null) {
-        print(
-            'TransformControls: The attached 3D object must be a part of the scene graph.');
+        print('TransformControls: The attached 3D object must be a part of the scene graph.');
       } else {
-        this.object.parent.matrixWorld.decompose(
-            this._parentPosition, this._parentQuaternion, this._parentScale);
+        this.object.parent.matrixWorld.decompose(this._parentPosition, this._parentQuaternion, this._parentScale);
       }
 
-      this.object.matrixWorld.decompose(
-          this.worldPosition, this.worldQuaternion, this._worldScale);
+      this.object.matrixWorld.decompose(this.worldPosition, this.worldQuaternion, this._worldScale);
 
       this._parentQuaternionInv.copy(this._parentQuaternion).invert();
       this._worldQuaternionInv.copy(this.worldQuaternion).invert();
@@ -511,10 +491,7 @@ class TransformControls extends Object3D {
 
     this.camera.updateMatrixWorld(force);
 
-    this
-        .camera
-        .matrixWorld
-        .decompose(this.cameraPosition, this.cameraQuaternion, _cameraScale);
+    this.camera.matrixWorld.decompose(this.cameraPosition, this.cameraQuaternion, _cameraScale);
 
     this.eye.copy(this.cameraPosition).sub(this.worldPosition).normalize();
 
@@ -526,8 +503,7 @@ class TransformControls extends Object3D {
 
     _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
-    var intersect = intersectObjectWithRay(
-        this._gizmo.picker[this.mode], _raycaster, false);
+    var intersect = intersectObjectWithRay(this._gizmo.picker[this.mode], _raycaster, false);
 
     if (intersect != null && intersect != false) {
       this.axis = intersect.object.name;
@@ -539,15 +515,12 @@ class TransformControls extends Object3D {
   pointerDown(Pointer pointer) {
     _pointer0 = pointer;
 
-
-    if (this.object == null || this.dragging == true || pointer.button != 1)
-      return;
+    if (this.object == null || this.dragging == true || pointer.button != 1) return;
 
     if (this.axis != null) {
       _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
-      var planeIntersect =
-          intersectObjectWithRay(this._plane, _raycaster, true);
+      var planeIntersect = intersectObjectWithRay(this._plane, _raycaster, true);
 
       if (planeIntersect != null && planeIntersect != false) {
         this.object.updateMatrixWorld(false);
@@ -557,8 +530,7 @@ class TransformControls extends Object3D {
         this._quaternionStart.copy(this.object.quaternion);
         this._scaleStart.copy(this.object.scale);
 
-        this.object.matrixWorld.decompose(this.worldPositionStart,
-            this.worldQuaternionStart, this._worldScaleStart);
+        this.object.matrixWorld.decompose(this.worldPositionStart, this.worldQuaternionStart, this._worldScaleStart);
 
         this.pointStart.copy(planeIntersect.point).sub(this.worldPositionStart);
       }
@@ -571,9 +543,7 @@ class TransformControls extends Object3D {
 
   pointerMove(Pointer pointer) {
     // TODO if not when change axis will cause object position change. why???
-    if (pointer.x == _pointer0?.x &&
-        pointer.y == _pointer0?.y &&
-        pointer.button == _pointer0?.button) {
+    if (pointer.x == _pointer0?.x && pointer.y == _pointer0?.y && pointer.button == _pointer0?.button) {
       return;
     }
     _pointer0 = pointer;
@@ -589,10 +559,7 @@ class TransformControls extends Object3D {
       space = 'world';
     }
 
-    if (object == null ||
-        axis == null ||
-        this.dragging == false ||
-        pointer.button != 1) return;
+    if (object == null || axis == null || this.dragging == false || pointer.button != 1) return;
 
     _raycaster.setFromCamera(Vector2(pointer.x, pointer.y), this.camera);
 
@@ -616,15 +583,9 @@ class TransformControls extends Object3D {
       if (axis.indexOf('Z') == -1) this._offset.z = 0;
 
       if (space == 'local' && axis != 'XYZ') {
-        this
-            ._offset
-            .applyQuaternion(this._quaternionStart)
-            .divide(this._parentScale);
+        this._offset.applyQuaternion(this._quaternionStart).divide(this._parentScale);
       } else {
-        this
-            ._offset
-            .applyQuaternion(this._parentQuaternionInv)
-            .divide(this._parentScale);
+        this._offset.applyQuaternion(this._parentQuaternionInv).divide(this._parentScale);
       }
 
       object.position.copy(this._offset).add(this._positionStart);
@@ -633,25 +594,18 @@ class TransformControls extends Object3D {
 
       if (this.translationSnap != null) {
         if (space == 'local') {
-          object.position.applyQuaternion(
-              _tempQuaternion.copy(this._quaternionStart).invert());
+          object.position.applyQuaternion(_tempQuaternion.copy(this._quaternionStart).invert());
 
           if (axis.indexOf('X') != -1) {
-            object.position.x =
-                Math.round(object.position.x / this.translationSnap) *
-                    this.translationSnap;
+            object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap;
           }
 
           if (axis.indexOf('Y') != -1) {
-            object.position.y =
-                Math.round(object.position.y / this.translationSnap) *
-                    this.translationSnap;
+            object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap;
           }
 
           if (axis.indexOf('Z') != -1) {
-            object.position.z =
-                Math.round(object.position.z / this.translationSnap) *
-                    this.translationSnap;
+            object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap;
           }
 
           object.position.applyQuaternion(this._quaternionStart);
@@ -659,33 +613,24 @@ class TransformControls extends Object3D {
 
         if (space == 'world') {
           if (object.parent != null) {
-            var _vec =
-                _tempVector.setFromMatrixPosition(object.parent.matrixWorld);
-            object.position.add(
-                _tempVector.setFromMatrixPosition(object.parent.matrixWorld));
+            var _vec = _tempVector.setFromMatrixPosition(object.parent.matrixWorld);
+            object.position.add(_tempVector.setFromMatrixPosition(object.parent.matrixWorld));
           }
 
           if (axis.indexOf('X') != -1) {
-            object.position.x =
-                Math.round(object.position.x / this.translationSnap) *
-                    this.translationSnap;
+            object.position.x = Math.round(object.position.x / this.translationSnap) * this.translationSnap;
           }
 
           if (axis.indexOf('Y') != -1) {
-            object.position.y =
-                Math.round(object.position.y / this.translationSnap) *
-                    this.translationSnap;
+            object.position.y = Math.round(object.position.y / this.translationSnap) * this.translationSnap;
           }
 
           if (axis.indexOf('Z') != -1) {
-            object.position.z =
-                Math.round(object.position.z / this.translationSnap) *
-                    this.translationSnap;
+            object.position.z = Math.round(object.position.z / this.translationSnap) * this.translationSnap;
           }
 
           if (object.parent != null) {
-            object.position.sub(
-                _tempVector.setFromMatrixPosition(object.parent.matrixWorld));
+            object.position.sub(_tempVector.setFromMatrixPosition(object.parent.matrixWorld));
           }
         }
       }
@@ -744,9 +689,8 @@ class TransformControls extends Object3D {
     } else if (mode == 'rotate') {
       this._offset.copy(this.pointEnd).sub(this.pointStart);
 
-      var ROTATION_SPEED = 20 /
-          this.worldPosition.distanceTo(
-              _tempVector.setFromMatrixPosition(this.camera.matrixWorld));
+      var ROTATION_SPEED =
+          20 / this.worldPosition.distanceTo(_tempVector.setFromMatrixPosition(this.camera.matrixWorld));
 
       if (axis == 'E') {
         this.rotationAxis.copy(this.eye);
@@ -755,14 +699,10 @@ class TransformControls extends Object3D {
         this._startNorm.copy(this.pointStart).normalize();
         this._endNorm.copy(this.pointEnd).normalize();
 
-        this.rotationAngle *=
-            (this._endNorm.cross(this._startNorm).dot(this.eye) < 0 ? 1 : -1);
+        this.rotationAngle *= (this._endNorm.cross(this._startNorm).dot(this.eye) < 0 ? 1 : -1);
       } else if (axis == 'XYZE') {
         this.rotationAxis.copy(this._offset).cross(this.eye).normalize();
-        this.rotationAngle = this
-                ._offset
-                .dot(_tempVector.copy(this.rotationAxis).cross(this.eye)) *
-            ROTATION_SPEED;
+        this.rotationAngle = this._offset.dot(_tempVector.copy(this.rotationAxis).cross(this.eye)) * ROTATION_SPEED;
       } else if (axis == 'X' || axis == 'Y' || axis == 'Z') {
         this.rotationAxis.copy(_unit[axis]);
 
@@ -772,29 +712,21 @@ class TransformControls extends Object3D {
           _tempVector.applyQuaternion(this.worldQuaternion);
         }
 
-        this.rotationAngle =
-            this._offset.dot(_tempVector.cross(this.eye).normalize()) *
-                ROTATION_SPEED;
+        this.rotationAngle = this._offset.dot(_tempVector.cross(this.eye).normalize()) * ROTATION_SPEED;
       }
 
       // Apply rotation snap
 
       if (this.rotationSnap != null)
-        this.rotationAngle =
-            Math.round(this.rotationAngle / this.rotationSnap) *
-                this.rotationSnap;
+        this.rotationAngle = Math.round(this.rotationAngle / this.rotationSnap) * this.rotationSnap;
 
       // Apply rotate
       if (space == 'local' && axis != 'E' && axis != 'XYZE') {
         object.quaternion.copy(this._quaternionStart);
-        object.quaternion
-            .multiply(_tempQuaternion.setFromAxisAngle(
-                this.rotationAxis, this.rotationAngle))
-            .normalize();
+        object.quaternion.multiply(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle)).normalize();
       } else {
         this.rotationAxis.applyQuaternion(this._parentQuaternionInv);
-        object.quaternion.copy(_tempQuaternion.setFromAxisAngle(
-            this.rotationAxis, this.rotationAngle));
+        object.quaternion.copy(_tempQuaternion.setFromAxisAngle(this.rotationAxis, this.rotationAngle));
         object.quaternion.multiply(this._quaternionStart).normalize();
       }
     }
@@ -879,8 +811,7 @@ class TransformControls extends Object3D {
   }
 
   update() {
-    print(
-        'THREE.TransformControls: update function has no more functionality and therefore has been deprecated.');
+    print('THREE.TransformControls: update function has no more functionality and therefore has been deprecated.');
   }
 
   // mouse / touch event handlers

@@ -66,8 +66,7 @@ class DragControls with EventDispatcher {
 
     if (_selected) {
       if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
-        _selected.position
-            .copy(_intersection.sub(_offset).applyMatrix4(_inverseMatrix));
+        _selected.position.copy(_intersection.sub(_offset).applyMatrix4(_inverseMatrix));
       }
 
       scope.dispatchEvent(Event({'type': 'drag', 'object': _selected}));
@@ -87,8 +86,7 @@ class DragControls with EventDispatcher {
         var object = _intersections[0].object;
 
         _plane.setFromNormalAndCoplanarPoint(
-            _camera.getWorldDirection(_plane.normal),
-            _worldPosition.setFromMatrixPosition(object.matrixWorld));
+            _camera.getWorldDirection(_plane.normal), _worldPosition.setFromMatrixPosition(object.matrixWorld));
 
         if (_hovered != object && _hovered != null) {
           scope.dispatchEvent(Event({'type': 'hoveroff', 'object': _hovered}));
@@ -125,19 +123,14 @@ class DragControls with EventDispatcher {
     _raycaster.intersectObjects(_objects, true, _intersections);
 
     if (_intersections.length > 0) {
-      _selected = (scope.transformGroup == true)
-          ? _objects[0]
-          : _intersections[0].object;
+      _selected = (scope.transformGroup == true) ? _objects[0] : _intersections[0].object;
 
       _plane.setFromNormalAndCoplanarPoint(
-          _camera.getWorldDirection(_plane.normal),
-          _worldPosition.setFromMatrixPosition(_selected.matrixWorld));
+          _camera.getWorldDirection(_plane.normal), _worldPosition.setFromMatrixPosition(_selected.matrixWorld));
 
       if (_raycaster.ray.intersectPlane(_plane, _intersection)) {
         _inverseMatrix.copy(_selected.parent.matrixWorld).invert();
-        _offset
-            .copy(_intersection)
-            .sub(_worldPosition.setFromMatrixPosition(_selected.matrixWorld));
+        _offset.copy(_intersection).sub(_worldPosition.setFromMatrixPosition(_selected.matrixWorld));
       }
 
       // _domElement.style.cursor = 'move';

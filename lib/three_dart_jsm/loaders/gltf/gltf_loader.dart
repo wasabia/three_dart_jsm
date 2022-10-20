@@ -16,43 +16,43 @@ class GLTFLoader extends Loader {
     this.pluginCallbacks = [];
 
     this.register((parser) {
-      return new GLTFMaterialsClearcoatExtension(parser);
+      return GLTFMaterialsClearcoatExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFTextureBasisUExtension(parser);
+      return GLTFTextureBasisUExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFTextureWebPExtension(parser);
+      return GLTFTextureWebPExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMaterialsSheenExtension(parser);
+      return GLTFMaterialsSheenExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMaterialsTransmissionExtension(parser);
+      return GLTFMaterialsTransmissionExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMaterialsVolumeExtension(parser);
+      return GLTFMaterialsVolumeExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMaterialsIorExtension(parser);
+      return GLTFMaterialsIorExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMaterialsSpecularExtension(parser);
+      return GLTFMaterialsSpecularExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFLightsExtension(parser);
+      return GLTFLightsExtension(parser);
     });
 
     this.register((parser) {
-      return new GLTFMeshoptCompression(parser);
+      return GLTFMeshoptCompression(parser);
     });
   }
 
@@ -95,7 +95,7 @@ class GLTFLoader extends Loader {
       scope.manager.itemEnd(url);
     };
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
 
     loader.setPath(this.path);
     loader.setResponseType('arraybuffer');
@@ -168,8 +168,7 @@ class GLTFLoader extends Loader {
       if (magic == BINARY_EXTENSION_HEADER_MAGIC) {
         // try {
 
-        extensions[EXTENSIONS["KHR_BINARY_GLTF"]] =
-            new GLTFBinaryExtension(data.buffer);
+        extensions[EXTENSIONS["KHR_BINARY_GLTF"]] = GLTFBinaryExtension(data.buffer);
 
         // } catch ( error ) {
 
@@ -187,13 +186,11 @@ class GLTFLoader extends Loader {
     Map<String, dynamic> json = convert.jsonDecode(content);
 
     if (json["asset"] == null || num.parse(json["asset"]["version"]) < 2.0) {
-      if (onError != null)
-        onError(
-            'THREE.GLTFLoader: Unsupported asset. glTF versions >= 2.0 are supported.');
+      if (onError != null) onError('THREE.GLTFLoader: Unsupported asset. glTF versions >= 2.0 are supported.');
       return;
     }
 
-    var parser = new GLTFParser(json, {
+    var parser = GLTFParser(json, {
       "path": path != null
           ? path
           : this.resourcePath != null
@@ -225,24 +222,19 @@ class GLTFLoader extends Loader {
         var extensionsRequired = json["extensionsRequired"] ?? [];
 
         if (extensionName == EXTENSIONS["KHR_MATERIALS_UNLIT"]) {
-          extensions[extensionName] = new GLTFMaterialsUnlitExtension();
-        } else if (extensionName ==
-            EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
-          extensions[extensionName] =
-              new GLTFMaterialsPbrSpecularGlossinessExtension();
+          extensions[extensionName] = GLTFMaterialsUnlitExtension();
+        } else if (extensionName == EXTENSIONS["KHR_MATERIALS_PBR_SPECULAR_GLOSSINESS"]) {
+          extensions[extensionName] = GLTFMaterialsPbrSpecularGlossinessExtension();
         } else if (extensionName == EXTENSIONS["KHR_DRACO_MESH_COMPRESSION"]) {
-          extensions[extensionName] =
-              new GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
+          extensions[extensionName] = GLTFDracoMeshCompressionExtension(json, this.dracoLoader);
         } else if (extensionName == EXTENSIONS["MSFT_TEXTURE_DDS"]) {
-          extensions[extensionName] =
-              new GLTFTextureDDSExtension(this.ddsLoader);
+          extensions[extensionName] = GLTFTextureDDSExtension(this.ddsLoader);
         } else if (extensionName == EXTENSIONS["KHR_TEXTURE_TRANSFORM"]) {
-          extensions[extensionName] = new GLTFTextureTransformExtension();
+          extensions[extensionName] = GLTFTextureTransformExtension();
         } else if (extensionName == EXTENSIONS["KHR_MESH_QUANTIZATION"]) {
-          extensions[extensionName] = new GLTFMeshQuantizationExtension();
+          extensions[extensionName] = GLTFMeshQuantizationExtension();
         } else {
-          if (extensionsRequired.indexOf(extensionName) >= 0 &&
-              plugins[extensionName] == null) {
+          if (extensionsRequired.indexOf(extensionName) >= 0 && plugins[extensionName] == null) {
             print('THREE.GLTFLoader: Unknown extension ${extensionName}.');
           }
         }

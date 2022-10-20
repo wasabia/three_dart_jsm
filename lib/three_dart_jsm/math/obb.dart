@@ -15,21 +15,13 @@ class OBBC {
 
 var a = OBBC({
   "c": null, // center
-  "u": [
-    new Vector3.init(),
-    new Vector3.init(),
-    new Vector3.init()
-  ], // basis vectors
+  "u": [Vector3.init(), Vector3.init(), Vector3.init()], // basis vectors
   "e": [] // half width
 });
 
 var b = OBBC({
   "c": null, // center
-  "u": [
-    new Vector3.init(),
-    new Vector3.init(),
-    new Vector3.init()
-  ], // basis vectors
+  "u": [Vector3.init(), Vector3.init(), Vector3.init()], // basis vectors
   "e": [] // half width
 });
 
@@ -37,17 +29,17 @@ var R = [[], [], []];
 var AbsR = [[], [], []];
 var t = [];
 
-var xAxis = new Vector3.init();
-var yAxis = new Vector3.init();
-var zAxis = new Vector3.init();
-var v1 = new Vector3.init();
-var size = new Vector3.init();
-var closestPoint = new Vector3.init();
-var rotationMatrix = new Matrix3();
-var aabb = new Box3(null, null);
-var obbmatrix = new Matrix4();
-var inverse = new Matrix4();
-var localRay = new Ray(null, null);
+var xAxis = Vector3.init();
+var yAxis = Vector3.init();
+var zAxis = Vector3.init();
+var v1 = Vector3.init();
+var size = Vector3.init();
+var closestPoint = Vector3.init();
+var rotationMatrix = Matrix3();
+var aabb = Box3(null, null);
+var obbmatrix = Matrix4();
+var inverse = Matrix4();
+var localRay = Ray(null, null);
 
 var obb = OBB();
 // OBB
@@ -87,10 +79,8 @@ class OBB {
     return result.copy(this.halfSize).multiplyScalar(2);
   }
 
-  /**
-	* Reference: Closest Point on OBB to Point in Real-Time Collision Detection
-	* by Christer Ericson (chapter 5.1.4)
-	*/
+  /// Reference: Closest Point on OBB to Point in Real-Time Collision Detection
+  /// by Christer Ericson (chapter 5.1.4)
   clampPoint(point, result) {
     var halfSize = this.halfSize;
 
@@ -137,16 +127,13 @@ class OBB {
 
     // if that point is inside the sphere, the OBB and sphere intersect
 
-    return closestPoint.distanceToSquared(sphere.center) <=
-        (sphere.radius * sphere.radius);
+    return closestPoint.distanceToSquared(sphere.center) <= (sphere.radius * sphere.radius);
   }
 
-  /**
-	* Reference: OBB-OBB Intersection in Real-Time Collision Detection
-	* by Christer Ericson (chapter 4.4.1)
-	*
-	*/
-  intersectsOBB(obb, {epsilon = Math.EPSILON}) {
+  /// Reference: OBB-OBB Intersection in Real-Time Collision Detection
+  /// by Christer Ericson (chapter 4.4.1)
+  ///
+  intersectsOBB(obb, {epsilon = Math.epsilon}) {
     // prepare data structures (the code uses the same nomenclature like the reference)
 
     a.c = this.center;
@@ -204,8 +191,7 @@ class OBB {
     for (var i = 0; i < 3; i++) {
       ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
       rb = b.e[i];
-      if (Math.abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb)
-        return false;
+      if (Math.abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return false;
     }
 
     // test axis L = A0 x B0
@@ -267,10 +253,8 @@ class OBB {
     return true;
   }
 
-  /**
-	* Reference: Testing Box Against Plane in Real-Time Collision Detection
-	* by Christer Ericson (chapter 5.2.3)
-	*/
+  /// Reference: Testing Box Against Plane in Real-Time Collision Detection
+  /// by Christer Ericson (chapter 5.2.3)
   intersectsPlane(plane) {
     this.rotation.extractBasis(xAxis, yAxis, zAxis);
 
@@ -289,10 +273,8 @@ class OBB {
     return Math.abs(d) <= r;
   }
 
-  /**
-	* Performs a ray/OBB intersection test and stores the intersection point
-	* to the given 3D vector. If no intersection is detected, *null* is returned.
-	*/
+  /// Performs a ray/OBB intersection test and stores the intersection point
+  /// to the given 3D vector. If no intersection is detected, *null* is returned.
   intersectRay(ray, result) {
     // the idea is to perform the intersection test in the local space
     // of the OBB.
@@ -321,10 +303,8 @@ class OBB {
     }
   }
 
-  /**
-	* Performs a ray/OBB intersection test. Returns either true or false if
-	* there is a intersection or not.
-	*/
+  /// Performs a ray/OBB intersection test. Returns either true or false if
+  /// there is a intersection or not.
   intersectsRay(ray) {
     return this.intersectRay(ray, v1) != null;
   }
@@ -340,9 +320,7 @@ class OBB {
   }
 
   equals(obb) {
-    return obb.center.equals(this.center) &&
-        obb.halfSize.equals(this.halfSize) &&
-        obb.rotation.equals(this.rotation);
+    return obb.center.equals(this.center) && obb.halfSize.equals(this.halfSize) && obb.rotation.equals(this.rotation);
   }
 
   applyMatrix4(matrix) {

@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class MathNode extends TempNode {
   // 1 input
@@ -57,18 +57,12 @@ class MathNode extends TempNode {
   late dynamic bNode;
   late dynamic cNode;
 
-  MathNode(method, aNode, [bNode = null, cNode = null]) : super() {
-    this.method = method;
-
-    this.aNode = aNode;
-    this.bNode = bNode;
-    this.cNode = cNode;
-  }
+  MathNode(this.method, this.aNode, [this.bNode, this.cNode]) : super();
 
   getInputType(builder) {
-    var aType = this.aNode.getNodeType(builder);
-    var bType = this.bNode ? this.bNode.getNodeType(builder) : null;
-    var cType = this.cNode ? this.cNode.getNodeType(builder) : null;
+    var aType = aNode.getNodeType(builder);
+    var bType = bNode ? bNode.getNodeType(builder) : null;
+    var cType = cNode ? cNode.getNodeType(builder) : null;
 
     var aLen = builder.getTypeLength(aType);
     var bLen = builder.getTypeLength(bType);
@@ -85,41 +79,39 @@ class MathNode extends TempNode {
     return aType;
   }
 
+  @override
   getNodeType([builder, output]) {
     var method = this.method;
 
-    if (method == MathNode.LENGTH ||
-        method == MathNode.DISTANCE ||
-        method == MathNode.DOT) {
+    if (method == MathNode.LENGTH || method == MathNode.DISTANCE || method == MathNode.DOT) {
       return 'float';
     } else if (method == MathNode.CROSS) {
       return 'vec3';
     } else {
-      return this.getInputType(builder);
+      return getInputType(builder);
     }
   }
 
+  @override
   generate([builder, output]) {
     var method = this.method;
 
-    var type = this.getNodeType(builder);
-    var inputType = this.getInputType(builder);
+    var type = getNodeType(builder);
+    var inputType = getInputType(builder);
 
-    var a = this.aNode;
-    var b = this.bNode;
-    var c = this.cNode;
+    var a = aNode;
+    var b = bNode;
+    var c = cNode;
 
     var isWebGL = builder.renderer.isWebGLRenderer == true;
 
-    if (isWebGL &&
-        (method == MathNode.DFDX || method == MathNode.DFDY) &&
-        output == 'vec3') {
+    if (isWebGL && (method == MathNode.DFDX || method == MathNode.DFDY) && output == 'vec3') {
       // Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
 
-      return new JoinNode([
-        new MathNode(method, new SplitNode(a, 'x')),
-        new MathNode(method, new SplitNode(a, 'y')),
-        new MathNode(method, new SplitNode(a, 'z'))
+      return JoinNode([
+        MathNode(method, SplitNode(a, 'x')),
+        MathNode(method, SplitNode(a, 'y')),
+        MathNode(method, SplitNode(a, 'z'))
       ]).build(builder);
     } else if (method == MathNode.TRANSFORM_DIRECTION) {
       // dir can be either a direction vector or a normal vector
@@ -129,24 +121,20 @@ class MathNode extends TempNode {
       var tB = b;
 
       if (builder.isMatrix(tA.getNodeType(builder))) {
-        tB = new ExpressionNode(
-            "${builder.getType('vec4')}( ${tB.build(builder, 'vec3')}, 0.0 )",
-            'vec4');
+        tB = ExpressionNode("${builder.getType('vec4')}( ${tB.build(builder, 'vec3')}, 0.0 )", 'vec4');
       } else {
-        tA = new ExpressionNode(
-            "${builder.getType('vec4')}( ${tA.build(builder, 'vec3')}, 0.0 )",
-            'vec4');
+        tA = ExpressionNode("${builder.getType('vec4')}( ${tA.build(builder, 'vec3')}, 0.0 )", 'vec4');
       }
 
-      var mulNode = new SplitNode(new OperatorNode('*', tA, tB), 'xyz');
+      var mulNode = SplitNode(OperatorNode('*', tA, tB), 'xyz');
 
-      return new MathNode(MathNode.NORMALIZE, mulNode).build(builder);
+      return MathNode(MathNode.NORMALIZE, mulNode).build(builder);
     } else if (method == MathNode.SATURATE) {
       return "clamp( ${a.build(builder, inputType)}, 0.0, 1.0 )";
     } else if (method == MathNode.NEGATE) {
-      return '( -' + a.build(builder, inputType) + ' )';
+      return '${'( -' + a.build(builder, inputType)} )';
     } else if (method == MathNode.INVERT) {
-      return '( 1.0 - ' + a.build(builder, inputType) + ' )';
+      return '${'( 1.0 - ' + a.build(builder, inputType)} )';
     } else {
       var params = [];
 
@@ -154,46 +142,27 @@ class MathNode extends TempNode {
         params.addAll([a.build(builder, type), b.build(builder, type)]);
       } else if (method == MathNode.STEP) {
         params.addAll([
-          a.build(
-              builder,
-              builder.getTypeLength(a.getNodeType(builder)) == 1
-                  ? 'float'
-                  : inputType),
+          a.build(builder, builder.getTypeLength(a.getNodeType(builder)) == 1 ? 'float' : inputType),
           b.build(builder, inputType)
         ]);
-      } else if ((isWebGL &&
-              (method == MathNode.MIN || method == MathNode.MAX)) ||
-          method == MathNode.MOD) {
+      } else if ((isWebGL && (method == MathNode.MIN || method == MathNode.MAX)) || method == MathNode.MOD) {
         params.addAll([
           a.build(builder, inputType),
-          b.build(
-              builder,
-              builder.getTypeLength(b.getNodeType(builder)) == 1
-                  ? 'float'
-                  : inputType)
+          b.build(builder, builder.getTypeLength(b.getNodeType(builder)) == 1 ? 'float' : inputType)
         ]);
       } else if (method == MathNode.REFRACT) {
-        params.addAll([
-          a.build(builder, inputType),
-          b.build(builder, inputType),
-          c.build(builder, 'float')
-        ]);
+        params.addAll([a.build(builder, inputType), b.build(builder, inputType), c.build(builder, 'float')]);
       } else if (method == MathNode.MIX) {
         params.addAll([
           a.build(builder, inputType),
           b.build(builder, inputType),
-          c.build(
-              builder,
-              builder.getTypeLength(c.getNodeType(builder)) == 1
-                  ? 'float'
-                  : inputType)
+          c.build(builder, builder.getTypeLength(c.getNodeType(builder)) == 1 ? 'float' : inputType)
         ]);
       } else {
         params.addAll([a.build(builder, inputType)]);
 
         if (c != null) {
-          params.addAll(
-              [b.build(builder, inputType), c.build(builder, inputType)]);
+          params.addAll([b.build(builder, inputType), c.build(builder, inputType)]);
         } else if (b != null) {
           params.add(b.build(builder, inputType));
         }

@@ -1,4 +1,6 @@
-part of renderer_nodes;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/extra/console.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class Node {
   late String uuid;
@@ -9,35 +11,32 @@ class Node {
   dynamic xyz;
   dynamic w;
 
-
   late bool constant;
 
   late int generateLength;
 
   dynamic value;
 
-  Node([nodeType = null]) {
-    this.nodeType = nodeType;
+  Node([this.nodeType]) {
+    updateType = NodeUpdateType.None;
 
-    this.updateType = NodeUpdateType.None;
-
-    this.uuid = MathUtils.generateUUID();
+    uuid = MathUtils.generateUUID();
   }
 
   get type {
-    return this.runtimeType.toString();
+    return runtimeType.toString();
   }
 
   getHash([builder]) {
-    return this.uuid;
+    return uuid;
   }
 
   getUpdateType([builder]) {
-    return this.updateType;
+    return updateType;
   }
 
   getNodeType([builder, output]) {
-    return this.nodeType;
+    return nodeType;
   }
 
   update([frame]) {
@@ -48,8 +47,8 @@ class Node {
     console.warn('Abstract function.');
   }
 
-  build(NodeBuilder builder, [output = null]) {
-    var hash = this.getHash(builder);
+  build(NodeBuilder builder, [output]) {
+    var hash = getHash(builder);
     var sharedNode = builder.getNodeFromHash(hash);
 
     if (sharedNode != undefined && this != sharedNode) {
@@ -61,25 +60,25 @@ class Node {
 
     // generate 函数的参数长度？
     // dart不支持
-    var isGenerateOnce = (this.generateLength == 1);
+    var isGenerateOnce = (generateLength == 1);
 
-    var snippet = null;
+    var snippet;
 
     if (isGenerateOnce) {
-      var type = this.getNodeType(builder);
+      var type = getNodeType(builder);
       var nodeData = builder.getDataFromNode(this);
 
       snippet = nodeData["snippet"];
 
       if (snippet == undefined) {
-        snippet = this.generate(builder) ?? '';
+        snippet = generate(builder) ?? '';
 
         nodeData["snippet"] = snippet;
       }
 
       snippet = builder.format(snippet, type, output);
     } else {
-      snippet = this.generate(builder, output) ?? '';
+      snippet = generate(builder, output) ?? '';
     }
 
     builder.removeStack(this);
@@ -88,11 +87,10 @@ class Node {
   }
 
   getProperty(String name) {
-    if(name == "xyz") {
+    if (name == "xyz") {
       return xyz;
     } else {
-      throw("Node ${this} getProperty name: ${name} is not support  ");
+      throw ("Node ${this} getProperty name: $name is not support  ");
     }
-    
   }
 }

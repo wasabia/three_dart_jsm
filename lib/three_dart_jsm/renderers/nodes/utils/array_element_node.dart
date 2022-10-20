@@ -1,22 +1,21 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ArrayElementNode extends Node {
   late dynamic node;
   late dynamic indexNode;
 
-  ArrayElementNode(node, indexNode) : super() {
-    this.node = node;
-    this.indexNode = indexNode;
-  }
+  ArrayElementNode(this.node, this.indexNode) : super();
 
+  @override
   getNodeType([builder, output]) {
-    return this.node.getNodeType(builder);
+    return node.getNodeType(builder);
   }
 
+  @override
   generate([builder, output]) {
-    var nodeSnippet = this.node.build(builder);
-    var indexSnippet = this.indexNode.build(builder, 'int');
+    var nodeSnippet = node.build(builder);
+    var indexSnippet = indexNode.build(builder, 'int');
 
-    return "${nodeSnippet}[ ${indexSnippet} ]";
+    return "$nodeSnippet[ $indexSnippet ]";
   }
 }

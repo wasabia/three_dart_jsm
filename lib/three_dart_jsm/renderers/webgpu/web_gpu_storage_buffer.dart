@@ -8,10 +8,10 @@ class WebGPUStorageBuffer extends WebGPUBinding {
   WebGPUStorageBuffer(name, attribute) : super(name) {
     this.type = GPUBindingType.StorageBuffer;
 
-    this.usage = GPUBufferUsage.Uniform |
-        GPUBufferUsage.Vertex |
-        GPUBufferUsage.Storage |
-        GPUBufferUsage.CopyDst;
+    // this.usage = GPUBufferUsage.Uniform |
+    //     GPUBufferUsage.Vertex |
+    //     GPUBufferUsage.Storage |
+    //     GPUBufferUsage.CopyDst;
 
     this.attribute = attribute;
     this.bufferGPU = null; // set by the renderer

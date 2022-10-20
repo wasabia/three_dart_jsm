@@ -1,21 +1,25 @@
-part of jsm_postprocessing;
+import 'dart:convert';
+import 'dart:typed_data';
 
-/**
-*
-* Supersample Anti-Aliasing Render Pass
-*
-* This manual approach to SSAA re-renders the scene ones for each sample with camera jitter and accumulates the results.
-*
-* References: https://en.wikipedia.org/wiki/Supersampling
-*
-*/
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'pass.dart';
+
+///
+/// Supersample Anti-Aliasing Render Pass
+///
+/// This manual approach to SSAA re-renders the scene ones for each sample with camera jitter and accumulates the results.
+///
+/// References: https://en.wikipedia.org/wiki/Supersampling
+///
 
 class SSAARenderPass extends Pass {
   int sampleLevel = 4;
   bool unbiased = true;
   Color clearColor = Color.fromHex(0x000000);
   int clearAlpha = 0;
-  Color _oldClearColor = new Color(0, 0, 0);
+  Color _oldClearColor = Color(0, 0, 0);
   late Map<String, dynamic> copyUniforms;
   late ShaderMaterial copyMaterial;
 
@@ -25,22 +29,21 @@ class SSAARenderPass extends Pass {
     this.scene = scene;
     this.camera = camera;
 
-    this.sampleLevel =
-        4; // specified as n, where the number of samples is 2^n, so sampleLevel = 4, is 2^4 samples, 16.
-    this.unbiased = true;
+    sampleLevel = 4; // specified as n, where the number of samples is 2^n, so sampleLevel = 4, is 2^4 samples, 16.
+    unbiased = true;
 
     // as we need to clear the buffer in this pass, clearColor must be set to something, defaults to black.
     this.clearColor = clearColor ?? Color.fromHex(0x000000);
     this.clearAlpha = clearAlpha ?? 0;
-    this._oldClearColor = new Color(0, 0, 0);
+    _oldClearColor = Color(0, 0, 0);
 
     if (CopyShader == null) print('THREE.SSAARenderPass relies on CopyShader');
 
     var copyShader = CopyShader;
-    this.copyUniforms = UniformsUtils.clone(copyShader["uniforms"]);
+    copyUniforms = UniformsUtils.clone(copyShader["uniforms"]);
 
-    this.copyMaterial = new ShaderMaterial({
-      "uniforms": this.copyUniforms,
+    copyMaterial = ShaderMaterial({
+      "uniforms": copyUniforms,
       "vertexShader": copyShader["vertexShader"],
       "fragmentShader": copyShader["fragmentShader"],
       "premultipliedAlpha": true,
@@ -50,47 +53,42 @@ class SSAARenderPass extends Pass {
       "depthWrite": false
     });
 
-    this.fsQuad = new FullScreenQuad(this.copyMaterial);
+    fsQuad = FullScreenQuad(copyMaterial);
   }
 
   dispose() {
-    if (this.sampleRenderTarget != null) {
-      this.sampleRenderTarget!.dispose();
-      this.sampleRenderTarget = null;
+    if (sampleRenderTarget != null) {
+      sampleRenderTarget!.dispose();
+      sampleRenderTarget = null;
     }
   }
 
+  @override
   setSize(width, height) {
-    if (this.sampleRenderTarget != null)
-      this.sampleRenderTarget!.setSize(width, height);
+    if (sampleRenderTarget != null) {
+      sampleRenderTarget!.setSize(width, height);
+    }
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
-    if (this.sampleRenderTarget == null) {
-      this.sampleRenderTarget = new WebGLRenderTarget(
-          readBuffer.width,
-          readBuffer.height,
-          WebGLRenderTargetOptions({
-            "minFilter": LinearFilter,
-            "magFilter": LinearFilter,
-            "format": RGBAFormat
-          }));
-      this.sampleRenderTarget!.texture.name = 'SSAARenderPass.sample';
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
+    if (sampleRenderTarget == null) {
+      sampleRenderTarget = WebGLRenderTarget(readBuffer.width, readBuffer.height,
+          WebGLRenderTargetOptions({"minFilter": LinearFilter, "magFilter": LinearFilter, "format": RGBAFormat}));
+      sampleRenderTarget!.texture.name = 'SSAARenderPass.sample';
     }
 
-    var jitterOffsets =
-        _JitterVectors[Math.max(0, Math.min(this.sampleLevel, 5))];
+    var jitterOffsets = _JitterVectors[Math.max(0, Math.min(sampleLevel, 5))];
 
     var autoClear = renderer.autoClear;
     renderer.autoClear = false;
 
-    renderer.getClearColor(this._oldClearColor);
+    renderer.getClearColor(_oldClearColor);
     var oldClearAlpha = renderer.getClearAlpha();
 
     var baseSampleWeight = 1.0 / jitterOffsets.length;
     var roundingRange = 1 / 32;
-    this.copyUniforms['tDiffuse']["value"] = this.sampleRenderTarget!.texture;
+    copyUniforms['tDiffuse']["value"] = sampleRenderTarget!.texture;
 
     var viewOffset = {
       "fullWidth": readBuffer.width,
@@ -101,18 +99,18 @@ class SSAARenderPass extends Pass {
       "height": readBuffer.height
     };
 
-    Map<String, dynamic> originalViewOffset =
-        jsonDecode(jsonEncode(this.camera.view ?? {}));
+    Map<String, dynamic> originalViewOffset = jsonDecode(jsonEncode(camera.view ?? {}));
 
-    if (originalViewOffset["enabled"] == true)
+    if (originalViewOffset["enabled"] == true) {
       viewOffset.addAll(originalViewOffset);
+    }
 
     // render the scene multiple times, each slightly jitter offset from the last and accumulate the results.
     for (var i = 0; i < jitterOffsets.length; i++) {
       var jitterOffset = jitterOffsets[i];
 
-      if (this.camera.type == "PerspectiveCamera") {
-        (this.camera as PerspectiveCamera).setViewOffset(
+      if (camera.type == "PerspectiveCamera") {
+        (camera as PerspectiveCamera).setViewOffset(
             viewOffset["fullWidth"],
             viewOffset["fullHeight"],
             viewOffset["offsetX"] + jitterOffset[0] * 0.0625,
@@ -120,8 +118,8 @@ class SSAARenderPass extends Pass {
 
             viewOffset["width"],
             viewOffset["height"]);
-      } else if (this.camera.type == "OrthographicCamera") {
-        (this.camera as OrthographicCamera).setViewOffset(
+      } else if (camera.type == "OrthographicCamera") {
+        (camera as OrthographicCamera).setViewOffset(
             viewOffset["fullWidth"],
             viewOffset["fullHeight"],
             viewOffset["offsetX"] + jitterOffset[0] * 0.0625,
@@ -133,58 +131,55 @@ class SSAARenderPass extends Pass {
 
       var sampleWeight = baseSampleWeight;
 
-      if (this.unbiased) {
+      if (unbiased) {
         // the theory is that equal weights for each sample lead to an accumulation of rounding errors.
         // The following equation varies the sampleWeight per sample so that it is uniformly distributed
         // across a range of values whose rounding errors cancel each other out.
 
-        var uniformCenteredDistribution =
-            (-0.5 + (i + 0.5) / jitterOffsets.length);
+        var uniformCenteredDistribution = (-0.5 + (i + 0.5) / jitterOffsets.length);
         sampleWeight += roundingRange * uniformCenteredDistribution;
       }
 
-      this.copyUniforms['opacity']["value"] = sampleWeight;
-      renderer.setClearColor(this.clearColor, alpha: this.clearAlpha);
-      renderer.setRenderTarget(this.sampleRenderTarget);
+      copyUniforms['opacity']["value"] = sampleWeight;
+      renderer.setClearColor(clearColor, alpha: clearAlpha);
+      renderer.setRenderTarget(sampleRenderTarget);
       renderer.clear(true, true, true);
-      renderer.render(this.scene, this.camera);
+      renderer.render(scene, camera);
 
-      renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer);
+      renderer.setRenderTarget(renderToScreen ? null : writeBuffer);
 
       if (i == 0) {
         renderer.setClearColor(Color.fromHex(0x000000), alpha: 0.0);
         renderer.clear(true, true, true);
       }
 
-      this.fsQuad.render(renderer);
+      fsQuad.render(renderer);
     }
 
-    if (this.camera.type == "OrthographicCamera" &&
-        originalViewOffset["enabled"] == true) {
-      (this.camera as OrthographicCamera).setViewOffset(
+    if (camera.type == "OrthographicCamera" && originalViewOffset["enabled"] == true) {
+      (camera as OrthographicCamera).setViewOffset(
           originalViewOffset["fullWidth"],
           originalViewOffset["fullHeight"],
           originalViewOffset["offsetX"],
           originalViewOffset["offsetY"],
           originalViewOffset["width"],
           originalViewOffset["height"]);
-    } else if (this.camera.type == "PerspectiveCamera" &&
-        originalViewOffset["enabled"] == true) {
-      (this.camera as PerspectiveCamera).setViewOffset(
+    } else if (camera.type == "PerspectiveCamera" && originalViewOffset["enabled"] == true) {
+      (camera as PerspectiveCamera).setViewOffset(
           originalViewOffset["fullWidth"],
           originalViewOffset["fullHeight"],
           originalViewOffset["offsetX"],
           originalViewOffset["offsetY"],
           originalViewOffset["width"],
           originalViewOffset["height"]);
-    } else if (this.camera.type == "PerspectiveCamera") {
-      (this.camera as PerspectiveCamera).clearViewOffset();
-    } else if (this.camera.type == "OrthographicCamera") {
-      (this.camera as OrthographicCamera).clearViewOffset();
+    } else if (camera.type == "PerspectiveCamera") {
+      (camera as PerspectiveCamera).clearViewOffset();
+    } else if (camera.type == "OrthographicCamera") {
+      (camera as OrthographicCamera).clearViewOffset();
     }
 
     renderer.autoClear = autoClear;
-    renderer.setClearColor(this._oldClearColor, alpha: oldClearAlpha);
+    renderer.setClearColor(_oldClearColor, alpha: oldClearAlpha);
   }
 }
 

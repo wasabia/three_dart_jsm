@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class CodeNode extends Node {
   late String code;
@@ -8,49 +9,47 @@ class CodeNode extends Node {
   CodeNode([code = '', nodeType = 'code']) : super(nodeType) {
     this.code = code;
 
-    this.useKeywords = false;
+    useKeywords = false;
 
-    this._includes = [];
+    _includes = [];
   }
 
   setIncludes(includes) {
-    this._includes = includes;
+    _includes = includes;
 
     return this;
   }
 
   getIncludes(builder) {
-    return this._includes;
+    return _includes;
   }
 
   @override
   generate([builder, output]) {
-    if (this.useKeywords == true) {
+    if (useKeywords == true) {
       var contextKeywords = builder.context.keywords;
 
-      if (contextKeywords != undefined) {
+      if (contextKeywords != null) {
         var nodeData = builder.getDataFromNode(this, builder.shaderStage);
 
-        if (nodeData.keywords == undefined) {
-          nodeData.keywords = [];
-        }
+        nodeData.keywords ??= [];
 
         if (nodeData.keywords.indexOf(contextKeywords) == -1) {
-          contextKeywords.include(builder, this.code);
+          contextKeywords.include(builder, code);
 
           nodeData.keywords.push(contextKeywords);
         }
       }
     }
 
-    var includes = this.getIncludes(builder);
+    var includes = getIncludes(builder);
 
     for (var include in includes) {
       include.build(builder);
     }
 
-    var nodeCode = builder.getCodeFromNode(this, this.getNodeType(builder));
-    nodeCode.code = this.code;
+    var nodeCode = builder.getCodeFromNode(this, getNodeType(builder));
+    nodeCode.code = code;
 
     return nodeCode.code;
   }

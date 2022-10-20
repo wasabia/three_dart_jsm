@@ -1,7 +1,7 @@
 part of three_webgpu;
 
 var _clearAlpha;
-var _clearColor = new Color();
+var _clearColor = Color();
 
 class WebGPUBackground {
   late WebGPURenderer renderer;
@@ -34,27 +34,27 @@ class WebGPUBackground {
       _clearAlpha = 1;
       forceClear = true;
     } else {
-      console.error(
-          'THREE.WebGPURenderer: Unsupported background configuration.',
-          background);
+      console.error('THREE.WebGPURenderer: Unsupported background configuration.', background);
     }
 
     // configure render pass descriptor
 
-    var renderPassDescriptor = renderer._renderPassDescriptor;
-    var colorAttachment = renderPassDescriptor.colorAttachments;
-    var depthStencilAttachment = renderPassDescriptor.depthStencilAttachment;
+    // TODO (WebGPU): implement
+
+    // var renderPassDescriptor = renderer._renderPassDescriptor;
+    // var colorAttachment = renderPassDescriptor.colorAttachments;
+    // var depthStencilAttachment = renderPassDescriptor.depthStencilAttachment;
 
     if (renderer.autoClear == true || forceClear == true) {
       if (renderer.autoClearColor == true) {
         // colorAttachment.loadValue = { "r": _clearColor.r, "g": _clearColor.g, "b": _clearColor.b, "a": _clearAlpha };
-        colorAttachment.clearColor = GPUColor(
-            r: _clearColor.r.toDouble(),
-            g: _clearColor.g.toDouble(),
-            b: _clearColor.b.toDouble(),
-            a: _clearAlpha.toDouble());
+        // colorAttachment.clearColor = GPUColor(
+        // r: _clearColor.r.toDouble(),
+        // g: _clearColor.g.toDouble(),
+        // b: _clearColor.b.toDouble(),
+        // a: _clearAlpha.toDouble());
       } else {
-        colorAttachment.loadValue = GPULoadOp.Load;
+        // colorAttachment.loadValue = GPULoadOp.Load;
       }
 
       if (renderer.autoClearDepth == true) {
@@ -73,7 +73,7 @@ class WebGPUBackground {
 
       }
     } else {
-      colorAttachment.loadValue = GPULoadOp.Load;
+      // colorAttachment.loadValue = GPULoadOp.Load;
       // depthStencilAttachment.depthLoadValue = GPULoadOp.Load;
       // depthStencilAttachment.stencilLoadValue = GPULoadOp.Load;
 

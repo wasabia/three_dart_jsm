@@ -2,7 +2,7 @@ part of jsm_utils;
 
 class BufferGeometryUtils {
   static computeTangents(geometry, [bool negateSign = true]) {
-    throw(" computeTangents   TODO "); 
+    throw (" computeTangents   TODO ");
   }
 }
 

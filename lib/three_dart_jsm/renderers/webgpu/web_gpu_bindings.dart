@@ -1,7 +1,8 @@
 part of three_webgpu;
 
 class WebGPUBindings {
-  late GPUDevice device;
+  // TODO (WebGPU): implement
+  // late GPUDevice device;
   late WebGPUInfo info;
   late WebGPUProperties properties;
   late WebGPUTextures textures;
@@ -12,9 +13,8 @@ class WebGPUBindings {
   late WeakMap uniformsData;
   late WeakMap updateMap;
 
-  WebGPUBindings(device, info, properties, textures, renderPipelines,
-      computePipelines, attributes, nodes) {
-    this.device = device;
+  WebGPUBindings(device, info, properties, textures, renderPipelines, computePipelines, attributes, nodes) {
+    // this.device = device;
     this.info = info;
     this.properties = properties;
     this.textures = textures;
@@ -23,9 +23,9 @@ class WebGPUBindings {
     this.attributes = attributes;
     this.nodes = nodes;
 
-    this.uniformsData = new WeakMap();
+    this.uniformsData = WeakMap();
 
-    this.updateMap = new WeakMap();
+    this.updateMap = WeakMap();
   }
 
   Map get(object) {
@@ -34,23 +34,19 @@ class WebGPUBindings {
     if (data == undefined) {
       // each object defines an array of bindings (ubos, textures, samplers etc.)
 
-      var nodeBuilder = this.nodes.get(object);
-      var bindings = nodeBuilder.getBindings();
+      // var nodeBuilder = this.nodes.get(object);
+      // var bindings = nodeBuilder.getBindings();
 
       // setup (static) binding layout and (dynamic) binding group
 
-      WebGPURenderPipeline renderPipeline = this.renderPipelines.get(object);
+      // WebGPURenderPipeline renderPipeline = this.renderPipelines.get(object);
 
       // var bindGroupLayout = renderPipeline.pipeline.getBindGroupLayout( 0 );
-      var bindGroupLayout = renderPipeline.bindGroupLayout;
+      // var bindGroupLayout = renderPipeline.bindGroupLayout;
 
-      var bindGroup = this._createBindGroup(bindings, bindGroupLayout);
+      // var bindGroup = this._createBindGroup(bindings, bindGroupLayout);
 
-      data = {
-        "layout": bindGroupLayout,
-        "group": bindGroup,
-        "bindings": bindings
-      };
+      // data = {"layout": bindGroupLayout, "group": bindGroup, "bindings": bindings};
 
       this.uniformsData.set(object, data);
     }
@@ -104,15 +100,15 @@ class WebGPUBindings {
       if (isShared && isUpdated) continue;
       if (binding is WebGPUUniformBuffer) {
         var buffer = binding.getBuffer();
-        var bufferGPU = binding.bufferGPU!;
+        // var bufferGPU = binding.bufferGPU!;
 
         var needsBufferWrite = binding.update();
 
         if (needsBufferWrite == true) {
           if (buffer is Float32Array) {
-            this.device.queue.writeBuffer(bufferGPU, 0, buffer.toDartList(), buffer.lengthInBytes);
+            // this.device.queue.writeBuffer(bufferGPU, 0, buffer.toDartList(), buffer.lengthInBytes);
           } else {
-            this.device.queue.writeBuffer(bufferGPU, 0, buffer, buffer.lengthInBytes);
+            // this.device.queue.writeBuffer(bufferGPU, 0, buffer, buffer.lengthInBytes);
           }
         }
       } else if (binding.isStorageBuffer) {
@@ -135,8 +131,7 @@ class WebGPUBindings {
         var needsTextureRefresh = textures.updateTexture(texture);
         var textureGPU = textures.getTextureGPU(texture);
 
-        if (textureGPU != undefined && binding.textureGPU != textureGPU ||
-            needsTextureRefresh == true) {
+        if (textureGPU != undefined && binding.textureGPU != textureGPU || needsTextureRefresh == true) {
           binding.textureGPU = textureGPU;
           needsBindGroupRefresh = true;
         }
@@ -151,73 +146,68 @@ class WebGPUBindings {
   }
 
   dispose() {
-    this.uniformsData = new WeakMap();
-    this.updateMap = new WeakMap();
+    this.uniformsData = WeakMap();
+    this.updateMap = WeakMap();
   }
 
   _createBindGroup(bindings, layout) {
-    var bindingPoint = 0;
-    List<GPUBindGroupEntry> entries = [];
+    // var bindingPoint = 0;
+    // List<GPUBindGroupEntry> entries = [];
 
-    for (var binding in bindings) {
-      if (binding is WebGPUUniformBuffer) {
-        if (binding.bufferGPU == null) {
-          var byteLength = binding.getByteLength();
-          binding.bufferGPU = this.device.createBuffer(
-              GPUBufferDescriptor(size: byteLength, usage: binding.usage));
-        }
+    // for (var binding in bindings) {
+    //   if (binding is WebGPUUniformBuffer) {
+    //     if (binding.bufferGPU == null) {
+    //       var byteLength = binding.getByteLength();
+    //       binding.bufferGPU = this.device.createBuffer(GPUBufferDescriptor(size: byteLength, usage: binding.usage));
+    //     }
 
-  
-        entries.add(GPUBindGroupEntry(
-            binding: bindingPoint, buffer: binding.bufferGPU));
-      } else if (binding is WebGPUStorageBuffer) {
-        if (binding.bufferGPU == null) {
-          var attribute = binding.attribute;
+    //     entries.add(GPUBindGroupEntry(binding: bindingPoint, buffer: binding.bufferGPU));
+    //   } else if (binding is WebGPUStorageBuffer) {
+    //     if (binding.bufferGPU == null) {
+    //       var attribute = binding.attribute;
 
-          this.attributes.update(attribute, false, binding.usage);
-          binding.bufferGPU = this.attributes.get(attribute).buffer;
-        }
+    //       this.attributes.update(attribute, false, binding.usage);
+    //       binding.bufferGPU = this.attributes.get(attribute).buffer;
+    //     }
 
-        entries.add(GPUBindGroupEntry(
-            binding: bindingPoint, buffer: binding.bufferGPU));
-      } else if (binding is WebGPUSampler) {
-        if (binding.samplerGPU == null) {
-          binding.samplerGPU = this.textures.getDefaultSampler();
-        }
+    //     entries.add(GPUBindGroupEntry(binding: bindingPoint, buffer: binding.bufferGPU));
+    //   } else if (binding is WebGPUSampler) {
+    //     if (binding.samplerGPU == null) {
+    //       binding.samplerGPU = this.textures.getDefaultSampler();
+    //     }
 
-        entries.add(GPUBindGroupEntry(
-            binding: bindingPoint, sampler: binding.samplerGPU));
-      } else if (binding is WebGPUSampledTexture) {
-        if (binding.textureGPU == null) {
-          if (binding is WebGPUSampledCubeTexture) {
-            binding.textureGPU = this.textures.getDefaultCubeTexture();
-          } else {
-            binding.textureGPU = this.textures.getDefaultTexture();
-          }
-        }
+    //     entries.add(GPUBindGroupEntry(binding: bindingPoint, sampler: binding.samplerGPU));
+    //   } else if (binding is WebGPUSampledTexture) {
+    //     if (binding.textureGPU == null) {
+    //       if (binding is WebGPUSampledCubeTexture) {
+    //         binding.textureGPU = this.textures.getDefaultCubeTexture();
+    //       } else {
+    //         binding.textureGPU = this.textures.getDefaultTexture();
+    //       }
+    //     }
 
-        convertDimension(String dim) {
-          if (dim == "2d") {
-            return 1;
-          } else {
-            throw ("WebGPUBindings convertDimension dim: ${dim} need support ");
-          }
-        }
+    //     convertDimension(String dim) {
+    //       if (dim == "2d") {
+    //         return 1;
+    //       } else {
+    //         throw ("WebGPUBindings convertDimension dim: $dim need support ");
+    //       }
+    //     }
 
-        int _dim = convertDimension(binding.dimension);
+    //     int _dim = convertDimension(binding.dimension);
 
-        entries.add(GPUBindGroupEntry(
-            binding: bindingPoint,
-            textureView: binding.textureGPU
-                .createView(GPUTextureViewDescriptor(dimension: _dim))));
-      }
+    //     entries.add(GPUBindGroupEntry(
+    //         binding: bindingPoint,
+    //         textureView: binding.textureGPU.createView(GPUTextureViewDescriptor(dimension: _dim))));
+    //   }
 
-      bindingPoint++;
-    }
+    //   bindingPoint++;
+    // }
 
-    var _bindGroup = this.device.createBindGroup(GPUBindGroupDescriptor(
-        layout: layout, entries: entries, entryCount: entries.length));
+    // var _bindGroup = this
+    //     .device
+    //     .createBindGroup(GPUBindGroupDescriptor(layout: layout, entries: entries, entryCount: entries.length));
 
-    return _bindGroup;
+    // return _bindGroup;
   }
 }

@@ -10,7 +10,7 @@ class WebGPUSampler extends WebGPUBinding {
     this.texture = texture;
 
     this.type = GPUBindingType.Sampler;
-    this.visibility = GPUShaderStage.Fragment;
+    // this.visibility = GPUShaderStage.Fragment;
 
     this.samplerGPU = null; // set by the renderer
   }

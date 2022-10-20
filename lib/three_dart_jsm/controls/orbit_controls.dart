@@ -85,40 +85,39 @@ class OrbitControls with EventDispatcher {
   var EPS = 0.000001;
 
   // current position in spherical coordinates
-  var spherical = new Spherical();
-  var sphericalDelta = new Spherical();
+  var spherical = Spherical();
+  var sphericalDelta = Spherical();
 
   num scale = 1;
-  var panOffset = new Vector3.init();
+  var panOffset = Vector3.init();
   var zoomChanged = false;
 
-  var rotateStart = new Vector2(0, 0);
-  var rotateEnd = new Vector2(null, null);
-  var rotateDelta = new Vector2(null, null);
+  var rotateStart = Vector2(0, 0);
+  var rotateEnd = Vector2(null, null);
+  var rotateDelta = Vector2(null, null);
 
-  var panStart = new Vector2(null, null);
-  var panEnd = new Vector2(null, null);
-  var panDelta = new Vector2(null, null);
+  var panStart = Vector2(null, null);
+  var panEnd = Vector2(null, null);
+  var panDelta = Vector2(null, null);
 
-  var dollyStart = new Vector2(null, null);
-  var dollyEnd = new Vector2(null, null);
-  var dollyDelta = new Vector2(null, null);
+  var dollyStart = Vector2(null, null);
+  var dollyEnd = Vector2(null, null);
+  var dollyDelta = Vector2(null, null);
 
-  var Infinity = Math.Infinity;
+  var infinity = Math.infinity;
 
   List pointers = [];
   Map<int, Vector2> pointerPositions = {};
 
-  var lastPosition = new Vector3();
-  var lastQuaternion = new Quaternion();
+  var lastPosition = Vector3();
+  var lastQuaternion = Quaternion();
 
-  var twoPI = 2 * Math.PI;
+  var twoPI = 2 * Math.pi;
 
   late Quaternion quat;
   late Quaternion quatInverse;
 
-  OrbitControls(Camera object, GlobalKey<DomLikeListenableState> listenableKey)
-      : super() {
+  OrbitControls(Camera object, GlobalKey<DomLikeListenableState> listenableKey) : super() {
     scope = this;
 
     this.object = object;
@@ -130,25 +129,25 @@ class OrbitControls with EventDispatcher {
     this.enabled = true;
 
     // "target" sets the location of focus, where the object orbits around
-    this.target = new Vector3();
+    this.target = Vector3();
 
     // How far you can dolly in and out ( PerspectiveCamera only )
     this.minDistance = 0;
-    this.maxDistance = Infinity;
+    this.maxDistance = infinity;
 
     // How far you can zoom in and out ( OrthographicCamera only )
     this.minZoom = 0;
-    this.maxZoom = Infinity;
+    this.maxZoom = infinity;
 
     // How far you can orbit vertically, upper and lower limits.
-    // Range is 0 to Math.PI radians.
+    // Range is 0 to Math.pi radians.
     this.minPolarAngle = 0; // radians
-    this.maxPolarAngle = Math.PI; // radians
+    this.maxPolarAngle = Math.pi; // radians
 
     // How far you can orbit horizontally, upper and lower limits.
     // If set, the interval [ min, max ] must be a sub-interval of [ - 2 PI, 2 PI ], with ( max - min < 2 PI )
-    this.minAzimuthAngle = -Infinity; // radians
-    this.maxAzimuthAngle = Infinity; // radians
+    this.minAzimuthAngle = -infinity; // radians
+    this.maxAzimuthAngle = infinity; // radians
 
     // Set to true to enable damping (inertia)
     // If damping is enabled, you must call controls.update() in your animation loop
@@ -167,8 +166,7 @@ class OrbitControls with EventDispatcher {
     // Set to false to disable panning
     this.enablePan = true;
     this.panSpeed = 1.0;
-    this.screenSpacePanning =
-        true; // if false, pan orthogonal to world-space direction camera.up
+    this.screenSpacePanning = true; // if false, pan orthogonal to world-space direction camera.up
     this.keyPanSpeed = 7.0; // pixels moved per arrow key push
 
     // Set to true to automatically rotate around the target
@@ -177,11 +175,7 @@ class OrbitControls with EventDispatcher {
     this.autoRotateSpeed = 2.0; // 30 seconds per orbit when fps is 60
 
     // Mouse buttons
-    this.mouseButtons = {
-      'LEFT': MOUSE.ROTATE,
-      'MIDDLE': MOUSE.DOLLY,
-      'RIGHT': MOUSE.PAN
-    };
+    this.mouseButtons = {'LEFT': MOUSE.ROTATE, 'MIDDLE': MOUSE.DOLLY, 'RIGHT': MOUSE.PAN};
 
     // Touch fingers
     this.touches = {'ONE': TOUCH.ROTATE, 'TWO': TOUCH.DOLLY_PAN};
@@ -203,7 +197,7 @@ class OrbitControls with EventDispatcher {
     // force an update at start
 
     // so camera.up is the orbit axis
-    quat = new Quaternion().setFromUnitVectors(object.up, new Vector3(0, 1, 0));
+    quat = Quaternion().setFromUnitVectors(object.up, Vector3(0, 1, 0));
     quatInverse = quat.clone().invert();
 
     this.update();
@@ -247,7 +241,7 @@ class OrbitControls with EventDispatcher {
 
   // this method is exposed, but perhaps it would be better if we can make it private...
 
-  var offset = new Vector3();
+  var offset = Vector3();
 
   update() {
     var position = scope.object.position;
@@ -277,34 +271,31 @@ class OrbitControls with EventDispatcher {
     var max = scope.maxAzimuthAngle;
 
     if (isFinite(min) && isFinite(max)) {
-      if (min < -Math.PI)
+      if (min < -Math.pi)
         min += twoPI;
-      else if (min > Math.PI) min -= twoPI;
+      else if (min > Math.pi) min -= twoPI;
 
-      if (max < -Math.PI)
+      if (max < -Math.pi)
         max += twoPI;
-      else if (max > Math.PI) max -= twoPI;
+      else if (max > Math.pi) max -= twoPI;
 
       if (min <= max) {
         spherical.theta = Math.max(min, Math.min(max, spherical.theta));
       } else {
-        spherical.theta = (spherical.theta > (min + max) / 2)
-            ? Math.max(min, spherical.theta)
-            : Math.min(max, spherical.theta);
+        spherical.theta =
+            (spherical.theta > (min + max) / 2) ? Math.max(min, spherical.theta) : Math.min(max, spherical.theta);
       }
     }
 
     // restrict phi to be between desired limits
-    spherical.phi = Math.max(
-        scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
+    spherical.phi = Math.max(scope.minPolarAngle, Math.min(scope.maxPolarAngle, spherical.phi));
 
     spherical.makeSafe();
 
     spherical.radius *= scale;
 
     // restrict radius to be between desired limits
-    spherical.radius = Math.max(
-        scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
+    spherical.radius = Math.max(scope.minDistance, Math.min(scope.maxDistance, spherical.radius));
 
     // move target to panned location
 
@@ -374,7 +365,7 @@ class OrbitControls with EventDispatcher {
   }
 
   getAutoRotationAngle() {
-    return 2 * Math.PI / 60 / 60 * scope.autoRotateSpeed;
+    return 2 * Math.pi / 60 / 60 * scope.autoRotateSpeed;
   }
 
   getZoomScale() {
@@ -389,7 +380,7 @@ class OrbitControls with EventDispatcher {
     sphericalDelta.phi -= angle;
   }
 
-  var v = new Vector3();
+  var v = Vector3();
 
   panLeft(distance, objectMatrix) {
     v.setFromMatrixColumn(objectMatrix, 0); // get X column of objectMatrix
@@ -422,31 +413,20 @@ class OrbitControls with EventDispatcher {
       var targetDistance = offset.length();
 
       // half of the fov is center to top of screen
-      targetDistance *= Math.tan((scope.object.fov / 2) * Math.PI / 180.0);
+      targetDistance *= Math.tan((scope.object.fov / 2) * Math.pi / 180.0);
 
       // we use only clientHeight here so aspect ratio does not distort speed
-      panLeft(2 * deltaX * targetDistance / element.clientHeight,
-          scope.object.matrix);
-      panUp(2 * deltaY * targetDistance / element.clientHeight,
-          scope.object.matrix);
+      panLeft(2 * deltaX * targetDistance / element.clientHeight, scope.object.matrix);
+      panUp(2 * deltaY * targetDistance / element.clientHeight, scope.object.matrix);
     } else if (scope.object is OrthographicCamera) {
       // orthographic
-      panLeft(
-          deltaX *
-              (scope.object.right - scope.object.left) /
-              scope.object.zoom /
-              element.clientWidth,
+      panLeft(deltaX * (scope.object.right - scope.object.left) / scope.object.zoom / element.clientWidth,
           scope.object.matrix);
-      panUp(
-          deltaY *
-              (scope.object.top - scope.object.bottom) /
-              scope.object.zoom /
-              element.clientHeight,
+      panUp(deltaY * (scope.object.top - scope.object.bottom) / scope.object.zoom / element.clientHeight,
           scope.object.matrix);
     } else {
       // camera neither orthographic nor perspective
-      print(
-          'WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
+      print('WARNING: OrbitControls.js encountered an unknown camera type - pan disabled.');
       scope.enablePan = false;
     }
   }
@@ -455,13 +435,11 @@ class OrbitControls with EventDispatcher {
     if (scope.object is PerspectiveCamera) {
       scale /= dollyScale;
     } else if (scope.object is OrthographicCamera) {
-      scope.object.zoom = Math.max(scope.minZoom,
-          Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
+      scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom * dollyScale));
       scope.object.updateProjectionMatrix();
       zoomChanged = true;
     } else {
-      print(
-          'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+      print('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
       scope.enableZoom = false;
     }
   }
@@ -470,13 +448,11 @@ class OrbitControls with EventDispatcher {
     if (scope.object is PerspectiveCamera) {
       scale *= dollyScale;
     } else if (scope.object is OrthographicCamera) {
-      scope.object.zoom = Math.max(scope.minZoom,
-          Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
+      scope.object.zoom = Math.max(scope.minZoom, Math.min(scope.maxZoom, scope.object.zoom / dollyScale));
       scope.object.updateProjectionMatrix();
       zoomChanged = true;
     } else {
-      print(
-          'WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
+      print('WARNING: OrbitControls.js encountered an unknown camera type - dolly/zoom disabled.');
       scope.enableZoom = false;
     }
   }
@@ -500,16 +476,13 @@ class OrbitControls with EventDispatcher {
   handleMouseMoveRotate(event) {
     rotateEnd.set(event.clientX, event.clientY);
 
-    rotateDelta
-        .subVectors(rotateEnd, rotateStart)
-        .multiplyScalar(scope.rotateSpeed);
+    rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
 
     var element = scope.domElement;
 
-    rotateLeft(
-        2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+    rotateLeft(2 * Math.pi * rotateDelta.x / element.clientHeight); // yes, height
 
-    rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+    rotateUp(2 * Math.pi * rotateDelta.y / element.clientHeight);
 
     rotateStart.copy(rotateEnd);
 
@@ -642,16 +615,13 @@ class OrbitControls with EventDispatcher {
       rotateEnd.set(x, y);
     }
 
-    rotateDelta
-        .subVectors(rotateEnd, rotateStart)
-        .multiplyScalar(scope.rotateSpeed);
+    rotateDelta.subVectors(rotateEnd, rotateStart).multiplyScalar(scope.rotateSpeed);
 
     var element = scope.domElement;
 
-    rotateLeft(
-        2 * Math.PI * rotateDelta.x / element.clientHeight); // yes, height
+    rotateLeft(2 * Math.pi * rotateDelta.x / element.clientHeight); // yes, height
 
-    rotateUp(2 * Math.PI * rotateDelta.y / element.clientHeight);
+    rotateUp(2 * Math.pi * rotateDelta.y / element.clientHeight);
 
     rotateStart.copy(rotateEnd);
   }
@@ -860,9 +830,7 @@ class OrbitControls with EventDispatcher {
   }
 
   onMouseWheel(event) {
-    if (scope.enabled == false ||
-        scope.enableZoom == false ||
-        state != STATE.NONE) return;
+    if (scope.enabled == false || scope.enableZoom == false || state != STATE.NONE) return;
 
     event.preventDefault();
 
@@ -921,8 +889,7 @@ class OrbitControls with EventDispatcher {
             break;
 
           case TOUCH.DOLLY_ROTATE:
-            if (scope.enableZoom == false && scope.enableRotate == false)
-              return;
+            if (scope.enableZoom == false && scope.enableRotate == false) return;
 
             handleTouchStartDollyRotate();
 
@@ -1015,7 +982,7 @@ class OrbitControls with EventDispatcher {
     var position = pointerPositions[event.pointerId];
 
     if (position == null) {
-      position = new Vector2();
+      position = Vector2();
       pointerPositions[event.pointerId] = position;
     }
 
@@ -1023,8 +990,7 @@ class OrbitControls with EventDispatcher {
   }
 
   getSecondPointerPosition(event) {
-    var pointer =
-        (event.pointerId == pointers[0].pointerId) ? pointers[1] : pointers[0];
+    var pointer = (event.pointerId == pointers[0].pointerId) ? pointers[1] : pointers[0];
 
     return pointerPositions[pointer.pointerId];
   }
@@ -1040,8 +1006,7 @@ class OrbitControls with EventDispatcher {
 
 class MapControls extends OrbitControls {
   MapControls(object, domElement) : super(object, domElement) {
-    this.screenSpacePanning =
-        false; // pan orthogonal to world-space direction camera.up
+    this.screenSpacePanning = false; // pan orthogonal to world-space direction camera.up
 
     this.mouseButtons['LEFT'] = MOUSE.PAN;
     this.mouseButtons['RIGHT'] = MOUSE.ROTATE;

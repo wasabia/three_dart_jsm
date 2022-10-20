@@ -1,40 +1,37 @@
-part of renderer_nodes;
-
 class NodeKeywords {
   late List keywords;
   late List nodes;
   late Map keywordsCallback;
 
   NodeKeywords() {
-    this.keywords = [];
-    this.nodes = [];
-    this.keywordsCallback = {};
+    keywords = [];
+    nodes = [];
+    keywordsCallback = {};
   }
 
   getNode(name) {
-    var node = this.nodes[name];
+    var node = nodes[name];
 
-    if (node == undefined && this.keywordsCallback[name] != undefined) {
-      node = this.keywordsCallback[name](name);
+    if (node == null && keywordsCallback[name] != null) {
+      node = keywordsCallback[name](name);
 
-      this.nodes[name] = node;
+      nodes[name] = node;
     }
 
     return node;
   }
 
   addKeyword(name, callback) {
-    this.keywords.add(name);
-    this.keywordsCallback[name] = callback;
+    keywords.add(name);
+    keywordsCallback[name] = callback;
 
     return this;
   }
 
   parse(code) {
-    var keywordNames = this.keywords;
+    var keywordNames = keywords;
 
-    var regExp = RegExp(r"\\b${keywordNames.join( '\\b|\\b' )}\\b",
-        caseSensitive: false);
+    var regExp = RegExp(r"\\b${keywordNames.join( '\\b|\\b' )}\\b", caseSensitive: false);
 
     var codeKeywords = code.match(regExp);
 
@@ -42,9 +39,9 @@ class NodeKeywords {
 
     if (codeKeywords != null) {
       for (var keyword in codeKeywords) {
-        var node = this.getNode(keyword);
+        var node = getNode(keyword);
 
-        if (node != undefined && keywordNodes.indexOf(node) == -1) {
+        if (node != null && !keywordNodes.contains(node)) {
           keywordNodes.add(node);
         }
       }
@@ -54,7 +51,7 @@ class NodeKeywords {
   }
 
   include(builder, code) {
-    var keywordNodes = this.parse(code);
+    var keywordNodes = parse(code);
 
     for (var keywordNode in keywordNodes) {
       keywordNode.build(builder);

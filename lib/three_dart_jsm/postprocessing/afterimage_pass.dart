@@ -1,4 +1,6 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+import 'pass.dart';
 
 class AfterimagePass extends Pass {
   late Map<String, dynamic> shader;
@@ -9,72 +11,58 @@ class AfterimagePass extends Pass {
   late FullScreenQuad copyFsQuad;
 
   AfterimagePass(damp, bufferSizeMap) : super() {
-    this.shader = AfterimageShader;
+    shader = AfterimageShader;
 
-    this.uniforms = UniformsUtils.clone(this.shader["uniforms"]);
+    uniforms = UniformsUtils.clone(shader["uniforms"]);
 
-    this.uniforms['damp']["value"] = damp != null ? damp : 0.96;
+    uniforms['damp']["value"] = damp ?? 0.96;
 
-    this.textureComp = new WebGLRenderTarget(
-        bufferSizeMap["width"],
-        bufferSizeMap["height"],
-        WebGLRenderTargetOptions({
-          "minFilter": LinearFilter,
-          "magFilter": NearestFilter,
-          "format": RGBAFormat
-        }));
+    textureComp = WebGLRenderTarget(bufferSizeMap["width"], bufferSizeMap["height"],
+        WebGLRenderTargetOptions({"minFilter": LinearFilter, "magFilter": NearestFilter, "format": RGBAFormat}));
 
-    this.textureOld = new WebGLRenderTarget(
-        bufferSizeMap["width"],
-        bufferSizeMap["height"],
-        WebGLRenderTargetOptions({
-          "minFilter": LinearFilter,
-          "magFilter": NearestFilter,
-          "format": RGBAFormat
-        }));
+    textureOld = WebGLRenderTarget(bufferSizeMap["width"], bufferSizeMap["height"],
+        WebGLRenderTargetOptions({"minFilter": LinearFilter, "magFilter": NearestFilter, "format": RGBAFormat}));
 
-    this.shaderMaterial = new ShaderMaterial({
-      "uniforms": this.uniforms,
-      "vertexShader": this.shader["vertexShader"],
-      "fragmentShader": this.shader["fragmentShader"]
-    });
+    shaderMaterial = ShaderMaterial(
+        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
 
-    this.compFsQuad = new FullScreenQuad(this.shaderMaterial);
+    compFsQuad = FullScreenQuad(shaderMaterial);
 
-    var material = new MeshBasicMaterial();
-    this.copyFsQuad = new FullScreenQuad(material);
+    var material = MeshBasicMaterial();
+    copyFsQuad = FullScreenQuad(material);
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
-    this.uniforms['tOld']["value"] = this.textureOld.texture;
-    this.uniforms['tNew']["value"] = readBuffer.texture;
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
+    uniforms['tOld']["value"] = textureOld.texture;
+    uniforms['tNew']["value"] = readBuffer.texture;
 
-    renderer.setRenderTarget(this.textureComp);
-    this.compFsQuad.render(renderer);
+    renderer.setRenderTarget(textureComp);
+    compFsQuad.render(renderer);
 
-    this.copyFsQuad.material.map = this.textureComp.texture;
+    copyFsQuad.material.map = textureComp.texture;
 
-    if (this.renderToScreen) {
+    if (renderToScreen) {
       renderer.setRenderTarget(null);
-      this.copyFsQuad.render(renderer);
+      copyFsQuad.render(renderer);
     } else {
       renderer.setRenderTarget(writeBuffer);
 
-      if (this.clear) renderer.clear(true, true, true);
+      if (clear) renderer.clear(true, true, true);
 
-      this.copyFsQuad.render(renderer);
+      copyFsQuad.render(renderer);
     }
 
     // Swap buffers.
-    var temp = this.textureOld;
-    this.textureOld = this.textureComp;
-    this.textureComp = temp;
+    var temp = textureOld;
+    textureOld = textureComp;
+    textureComp = temp;
     // Now textureOld contains the latest image, ready for the next frame.
   }
 
+  @override
   setSize(width, height) {
-    this.textureComp.setSize(width, height);
-    this.textureOld.setSize(width, height);
+    textureComp.setSize(width, height);
+    textureOld.setSize(width, height);
   }
 }

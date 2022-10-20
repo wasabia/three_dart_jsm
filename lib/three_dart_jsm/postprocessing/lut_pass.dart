@@ -1,15 +1,18 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'shader_pass.dart';
 
 class LUTPass extends ShaderPass {
   LUTPass(Map<String, dynamic> options) : super(LUTShader, null) {
-    this.lut = options["lut"] ?? null;
-    this.intensity = options["intensity"] ?? 1;
+    lut = options["lut"];
+    intensity = options["intensity"] ?? 1;
   }
 
   set lut(v) {
     var material = this.material;
 
-    if (v != this.lut) {
+    if (v != lut) {
       material.uniforms["lut3d"]["value"] = null;
       material.uniforms["lut"]["value"] = null;
 
@@ -31,15 +34,14 @@ class LUTPass extends ShaderPass {
   }
 
   get lut {
-    return this.material.uniforms["lut"]["value"] ??
-        this.material.uniforms["lut3d"]["value"];
+    return material.uniforms["lut"]["value"] ?? material.uniforms["lut3d"]["value"];
   }
 
   set intensity(v) {
-    this.material.uniforms["intensity"]["value"] = v;
+    material.uniforms["intensity"]["value"] = v;
   }
 
   get intensity {
-    return this.material.uniforms["intensity"]["value"];
+    return material.uniforms["intensity"]["value"];
   }
 }

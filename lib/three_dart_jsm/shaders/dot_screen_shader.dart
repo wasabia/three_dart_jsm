@@ -1,16 +1,14 @@
 import 'package:three_dart/three3d/math/index.dart';
 
-/**
- * Dot screen shader
- * based on glfx.js sepia shader
- * https://github.com/evanw/glfx.js
- */
+/// Dot screen shader
+/// based on glfx.js sepia shader
+/// https://github.com/evanw/glfx.js
 
 Map<String, dynamic> DotScreenShader = {
   "uniforms": {
     'tDiffuse': {},
-    'tSize': {"value": new Vector2(256, 256)},
-    'center': {"value": new Vector2(0.5, 0.5)},
+    'tSize': {"value": Vector2(256, 256)},
+    'center': {"value": Vector2(0.5, 0.5)},
     'angle': {"value": 1.57},
     'scale': {"value": 1.0}
   },

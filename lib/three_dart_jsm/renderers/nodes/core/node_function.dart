@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/extra/console.dart';
 
 class NodeFunction {
   late dynamic type;
@@ -6,12 +6,7 @@ class NodeFunction {
   late String name;
   late String presicion;
 
-  NodeFunction(type, inputs, [name = '', presicion = '']) {
-    this.type = type;
-    this.inputs = inputs;
-    this.name = name;
-    this.presicion = presicion;
-  }
+  NodeFunction(this.type, this.inputs, [this.name = '', this.presicion = '']);
 
   getCode(/*name = this.name*/) {
     console.warn('Abstract function.');

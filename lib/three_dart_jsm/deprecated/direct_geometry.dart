@@ -66,13 +66,9 @@ class DirectGeometry {
     var vertices = geometry.vertices;
     var faceVertexUvs = geometry.faceVertexUvs;
 
-    var hasFaceVertexUv = faceVertexUvs != null &&
-        faceVertexUvs[0] != null &&
-        faceVertexUvs[0].length > 0;
-    var hasFaceVertexUv2 = faceVertexUvs != null &&
-        faceVertexUvs.length >= 2 &&
-        faceVertexUvs[1] != null &&
-        faceVertexUvs[1].length > 0;
+    var hasFaceVertexUv = faceVertexUvs != null && faceVertexUvs[0] != null && faceVertexUvs[0].length > 0;
+    var hasFaceVertexUv2 =
+        faceVertexUvs != null && faceVertexUvs.length >= 2 && faceVertexUvs[1] != null && faceVertexUvs[1].length > 0;
 
     // morphs
 
@@ -123,16 +119,12 @@ class DirectGeometry {
     for (var i = 0; i < faces.length; i++) {
       var face = faces[i];
 
-      this
-          .vertices
-          .addAll([vertices[face.a], vertices[face.b], vertices[face.c]]);
+      this.vertices.addAll([vertices[face.a], vertices[face.b], vertices[face.c]]);
 
       var vertexNormals = face.vertexNormals;
 
       if (vertexNormals.length == 3) {
-        this
-            .normals
-            .addAll([vertexNormals[0], vertexNormals[1], vertexNormals[2]]);
+        this.normals.addAll([vertexNormals[0], vertexNormals[1], vertexNormals[2]]);
       } else {
         var normal = face.normal;
 
@@ -157,11 +149,7 @@ class DirectGeometry {
         } else {
           print('THREE.DirectGeometry.fromGeometry(): null vertexUv ${i}');
 
-          this.uvs.addAll([
-            new THREE.Vector2(null, null),
-            new THREE.Vector2(null, null),
-            new THREE.Vector2(null, null)
-          ]);
+          this.uvs.addAll([THREE.Vector2(null, null), THREE.Vector2(null, null), THREE.Vector2(null, null)]);
         }
       }
 
@@ -173,11 +161,7 @@ class DirectGeometry {
         } else {
           print('THREE.DirectGeometry.fromGeometry(): null vertexUv2 ${i}');
 
-          this.uvs2.addAll([
-            new THREE.Vector2(null, null),
-            new THREE.Vector2(null, null),
-            new THREE.Vector2(null, null)
-          ]);
+          this.uvs2.addAll([THREE.Vector2(null, null), THREE.Vector2(null, null), THREE.Vector2(null, null)]);
         }
       }
 
@@ -186,27 +170,23 @@ class DirectGeometry {
       for (var j = 0; j < morphTargetsLength; j++) {
         var morphTarget = morphTargets[j].vertices;
 
-        morphTargetsPosition[j]["data"].addAll(
-            [morphTarget[face.a], morphTarget[face.b], morphTarget[face.c]]);
+        morphTargetsPosition[j]["data"].addAll([morphTarget[face.a], morphTarget[face.b], morphTarget[face.c]]);
       }
 
       for (var j = 0; j < morphNormalsLength; j++) {
         var morphNormal = morphNormals[j].vertexNormals[i];
 
-        morphTargetsNormal[j]["data"]
-            .addAll([morphNormal.a, morphNormal.b, morphNormal.c]);
+        morphTargetsNormal[j]["data"].addAll([morphNormal.a, morphNormal.b, morphNormal.c]);
       }
 
       // skins
 
       if (hasSkinIndices) {
-        this.skinIndices.addAll(
-            [skinIndices[face.a], skinIndices[face.b], skinIndices[face.c]]);
+        this.skinIndices.addAll([skinIndices[face.a], skinIndices[face.b], skinIndices[face.c]]);
       }
 
       if (hasSkinWeights) {
-        this.skinWeights.addAll(
-            [skinWeights[face.a], skinWeights[face.b], skinWeights[face.c]]);
+        this.skinWeights.addAll([skinWeights[face.a], skinWeights[face.b], skinWeights[face.c]]);
       }
     }
 

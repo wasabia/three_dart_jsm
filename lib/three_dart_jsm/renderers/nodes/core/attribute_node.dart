@@ -1,35 +1,37 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class AttributeNode extends Node {
   late String _attributeName;
 
   AttributeNode(attributeName, nodeType) : super(nodeType) {
     generateLength = 1;
-    this._attributeName = attributeName;
+    _attributeName = attributeName;
   }
 
+  @override
   getHash([builder]) {
-    return this.getAttributeName(builder);
+    return getAttributeName(builder);
   }
 
   setAttributeName(attributeName) {
-    this._attributeName = attributeName;
+    _attributeName = attributeName;
 
     return this;
   }
 
   getAttributeName(builder) {
-    return this._attributeName;
+    return _attributeName;
   }
 
+  @override
   generate([builder, output]) {
-    var attribute = builder.getAttribute(
-        this.getAttributeName(builder), this.getNodeType(builder));
+    var attribute = builder.getAttribute(getAttributeName(builder), getNodeType(builder));
 
     if (builder.isShaderStage('vertex')) {
       return attribute.name;
     } else {
-      var nodeVary = new VaryNode(this);
+      var nodeVary = VaryNode(this);
 
       return nodeVary.build(builder, attribute.type);
     }

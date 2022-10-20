@@ -1,5 +1,3 @@
-part of renderer_nodes;
-
 class NodeUniform {
   late String name;
   late String type;
@@ -14,10 +12,10 @@ class NodeUniform {
   }
 
   get value {
-    return this.node.value;
+    return node.value;
   }
 
   set value(val) {
-    this.node.value = val;
+    node.value = val;
   }
 }

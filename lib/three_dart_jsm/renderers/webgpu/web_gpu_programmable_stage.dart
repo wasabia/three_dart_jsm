@@ -9,20 +9,19 @@ class WebGPUProgrammableStage {
   late int usedTimes;
 
   late Map stage;
-
-  WebGPUProgrammableStage(GPUDevice device, code, type) {
+// TODO (WebGPU): implement
+  WebGPUProgrammableStage(device, code, type) {
     this.id = _id++;
 
     this.code = code;
     this.type = type;
     this.usedTimes = 0;
 
-
     // print("WebGPUProgrammableStage type: ${type} ${type.runtimeType} ===============================");
     // print(code);
 
-    var module =
-        device.createShaderModule(GPUShaderModuleDescriptor(code: code));
-    this.stage = {"module": module, "entryPoint": 'main'};
+    // var module =
+    // device.createShaderModule(GPUShaderModuleDescriptor(code: code));
+    // this.stage = {"module": module, "entryPoint": 'main'};
   }
 }

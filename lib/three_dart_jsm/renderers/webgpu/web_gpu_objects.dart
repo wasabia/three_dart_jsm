@@ -9,7 +9,7 @@ class WebGPUObjects {
     this.geometries = geometries;
     this.info = info;
 
-    this.updateMap = new WeakMap();
+    this.updateMap = WeakMap();
   }
 
   update(object) {
@@ -29,6 +29,6 @@ class WebGPUObjects {
   }
 
   dispose() {
-    this.updateMap = new WeakMap();
+    this.updateMap = WeakMap();
   }
 }

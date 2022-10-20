@@ -1,4 +1,4 @@
-part of jsm_postprocessing;
+import 'pass.dart';
 
 class MaskPass extends Pass {
   bool inverse = false;
@@ -7,12 +7,12 @@ class MaskPass extends Pass {
     this.scene = scene;
     this.camera = camera;
 
-    this.clear = true;
-    this.needsSwap = false;
+    clear = true;
+    needsSwap = false;
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
     var context = renderer.getContext();
     var state = renderer.state;
 
@@ -30,7 +30,7 @@ class MaskPass extends Pass {
 
     var writeValue, clearValue;
 
-    if (this.inverse) {
+    if (inverse) {
       writeValue = 0;
       clearValue = 1;
     } else {
@@ -39,8 +39,7 @@ class MaskPass extends Pass {
     }
 
     state.buffers.stencil.setTest(true);
-    state.buffers.stencil
-        .setOp(context.REPLACE, context.REPLACE, context.REPLACE);
+    state.buffers.stencil.setOp(context.REPLACE, context.REPLACE, context.REPLACE);
     state.buffers.stencil.setFunc(context.ALWAYS, writeValue, 0xffffffff);
     state.buffers.stencil.setClear(clearValue);
     state.buffers.stencil.setLocked(true);
@@ -48,12 +47,12 @@ class MaskPass extends Pass {
     // draw into the stencil buffer
 
     renderer.setRenderTarget(readBuffer);
-    if (this.clear) renderer.clear();
-    renderer.render(this.scene, this.camera);
+    if (clear) renderer.clear();
+    renderer.render(scene, camera);
 
     renderer.setRenderTarget(writeBuffer);
-    if (this.clear) renderer.clear();
-    renderer.render(this.scene, this.camera);
+    if (clear) renderer.clear();
+    renderer.render(scene, camera);
 
     // unlock color and depth buffer for subsequent rendering
 
@@ -71,11 +70,11 @@ class MaskPass extends Pass {
 
 class ClearMaskPass extends Pass {
   ClearMaskPass() : super() {
-    this.needsSwap = false;
+    needsSwap = false;
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
     renderer.state.buffers["stencil"].setLocked(false);
     renderer.state.buffers["stencil"].setTest(false);
   }

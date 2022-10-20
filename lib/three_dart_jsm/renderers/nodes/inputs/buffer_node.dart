@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class BufferNode extends InputNode {
   late dynamic bufferType;
@@ -10,7 +11,8 @@ class BufferNode extends InputNode {
     this.bufferCount = bufferCount;
   }
 
+  @override
   getNodeType([builder, output]) {
-    return this.bufferType;
+    return bufferType;
   }
 }

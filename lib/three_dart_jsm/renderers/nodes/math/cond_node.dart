@@ -1,20 +1,16 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class CondNode extends Node {
   late dynamic node;
   late dynamic ifNode;
   late dynamic elseNode;
 
-  CondNode(node, [ifNode, elseNode]) : super() {
-    this.node = node;
+  CondNode(this.node, [this.ifNode, this.elseNode]) : super();
 
-    this.ifNode = ifNode;
-    this.elseNode = elseNode;
-  }
-
+  @override
   getNodeType([builder, output]) {
-    var ifType = this.ifNode.getNodeType(builder);
-    var elseType = this.elseNode.getNodeType(builder);
+    var ifType = ifNode.getNodeType(builder);
+    var elseType = elseNode.getNodeType(builder);
 
     if (builder.getTypeLength(elseType) > builder.getTypeLength(ifType)) {
       return elseType;
@@ -23,25 +19,24 @@ class CondNode extends Node {
     return ifType;
   }
 
+  @override
   generate([builder, output]) {
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
 
     var context = {"temp": false};
-    var nodeProperty = new PropertyNode(null, type).build(builder);
+    var nodeProperty = PropertyNode(null, type).build(builder);
 
-    var nodeSnippet =
-            new ContextNode(this.node /*, context*/).build(builder, 'bool'),
-        ifSnippet = new ContextNode(this.ifNode, context).build(builder, type),
-        elseSnippet =
-            new ContextNode(this.elseNode, context).build(builder, type);
+    var nodeSnippet = ContextNode(node /*, context*/).build(builder, 'bool'),
+        ifSnippet = ContextNode(ifNode, context).build(builder, type),
+        elseSnippet = ContextNode(elseNode, context).build(builder, type);
 
-    builder.addFlowCode("""if ( ${nodeSnippet} ) {
+    builder.addFlowCode("""if ( $nodeSnippet ) {
 
-\t\t${nodeProperty} = ${ifSnippet};
+\t\t$nodeProperty = $ifSnippet;
 
 \t} else {
 
-\t\t${nodeProperty} = ${elseSnippet};
+\t\t$nodeProperty = $elseSnippet;
 
 \t}""");
 

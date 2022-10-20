@@ -1,6 +1,4 @@
-/**
- * Full-screen textured quad shader
- */
+/// Full-screen textured quad shader
 
 Map<String, dynamic> CopyShader = {
   "uniforms": {

@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart/three_dart.dart';
 
 class MeshBasicNodeMaterial extends MeshBasicMaterial {
   bool isNodeMaterial = true;
@@ -11,23 +11,24 @@ class MeshBasicNodeMaterial extends MeshBasicMaterial {
   dynamic emissiveNode;
 
   MeshBasicNodeMaterial(parameters) : super(parameters) {
-    this.colorNode = null;
-    this.opacityNode = null;
+    colorNode = null;
+    opacityNode = null;
 
-    this.alphaTestNode = null;
+    alphaTestNode = null;
 
-    this.lightNode = null;
+    lightNode = null;
 
-    this.positionNode = null;
+    positionNode = null;
   }
 
+  @override
   MeshBasicMaterial copy(Material source) {
     if (source is MeshBasicNodeMaterial) {
-      this.colorNode = source.colorNode;
-      this.opacityNode = source.opacityNode;
-      this.alphaTestNode = source.alphaTestNode;
-      this.lightNode = source.lightNode;
-      this.positionNode = source.positionNode;
+      colorNode = source.colorNode;
+      opacityNode = source.opacityNode;
+      alphaTestNode = source.alphaTestNode;
+      lightNode = source.lightNode;
+      positionNode = source.positionNode;
     }
     return super.copy(source);
   }

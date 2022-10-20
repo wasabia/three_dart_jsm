@@ -48,7 +48,7 @@ class WebGPURenderList {
   }
 
   getNextRenderItem(object, geometry, material, groupOrder, z, group) {
-    var renderItem = null;
+    var renderItem;
 
     if (this.renderItemsIndex < this.renderItems.length) {
       renderItem = this.renderItems[this.renderItemsIndex];
@@ -84,34 +84,26 @@ class WebGPURenderList {
   }
 
   push(object, geometry, material, groupOrder, z, group) {
-    var renderItem = this
-        .getNextRenderItem(object, geometry, material, groupOrder, z, group);
+    var renderItem = this.getNextRenderItem(object, geometry, material, groupOrder, z, group);
 
-    (material.transparent == true ? this.transparent : this.opaque)
-        .add(renderItem);
+    (material.transparent == true ? this.transparent : this.opaque).add(renderItem);
   }
 
   unshift(object, geometry, material, groupOrder, z, group) {
-    var renderItem = this
-        .getNextRenderItem(object, geometry, material, groupOrder, z, group);
+    var renderItem = this.getNextRenderItem(object, geometry, material, groupOrder, z, group);
 
-    (material.transparent == true ? this.transparent : this.opaque)
-        .insert(0, renderItem);
+    (material.transparent == true ? this.transparent : this.opaque).insert(0, renderItem);
   }
 
   sort(customOpaqueSort, customTransparentSort) {
-    if (this.opaque.length > 1)
-      this.opaque.sort(customOpaqueSort ?? painterSortStable);
-    if (this.transparent.length > 1)
-      this.transparent.sort(customTransparentSort ?? reversePainterSortStable);
+    if (this.opaque.length > 1) this.opaque.sort(customOpaqueSort ?? painterSortStable);
+    if (this.transparent.length > 1) this.transparent.sort(customTransparentSort ?? reversePainterSortStable);
   }
 
   finish() {
     // Clear references from inactive renderItems in the list
 
-    for (var i = this.renderItemsIndex, il = this.renderItems.length;
-        i < il;
-        i++) {
+    for (var i = this.renderItemsIndex, il = this.renderItems.length; i < il; i++) {
       var renderItem = this.renderItems[i];
 
       if (renderItem.id == null) break;
@@ -130,7 +122,7 @@ class WebGPURenderLists {
   late WeakMap lists;
 
   WebGPURenderLists() {
-    this.lists = new WeakMap();
+    this.lists = WeakMap();
   }
 
   get(scene, camera) {
@@ -140,13 +132,13 @@ class WebGPURenderLists {
     var list;
 
     if (cameras == undefined) {
-      list = new WebGPURenderList();
-      lists.set(scene, new WeakMap());
+      list = WebGPURenderList();
+      lists.set(scene, WeakMap());
       lists.get(scene).set(camera, list);
     } else {
       list = cameras.get(camera);
       if (list == undefined) {
-        list = new WebGPURenderList();
+        list = WebGPURenderList();
         cameras.set(camera, list);
       }
     }
@@ -155,7 +147,7 @@ class WebGPURenderLists {
   }
 
   dispose() {
-    this.lists = new WeakMap();
+    this.lists = WeakMap();
   }
 }
 
@@ -170,12 +162,5 @@ class RenderItem {
   dynamic group;
 
   RenderItem(
-      {this.id,
-      this.object,
-      this.geometry,
-      this.material,
-      this.groupOrder,
-      this.renderOrder,
-      this.z,
-      this.group});
+      {this.id, this.object, this.geometry, this.material, this.groupOrder, this.renderOrder, this.z, this.group});
 }

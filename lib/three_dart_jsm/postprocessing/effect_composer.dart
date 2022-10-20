@@ -1,4 +1,8 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'pass.dart';
+import 'shader_pass.dart';
 
 class EffectComposer {
   late WebGLRenderer renderer;
@@ -24,37 +28,31 @@ class EffectComposer {
     this.renderer = renderer;
 
     if (renderTarget == null) {
-      var parameters = {
-        "minFilter": LinearFilter,
-        "magFilter": LinearFilter,
-        "format": RGBAFormat
-      };
+      var parameters = {"minFilter": LinearFilter, "magFilter": LinearFilter, "format": RGBAFormat};
 
-      var size = renderer.getSize(new Vector2(null, null));
-      this._pixelRatio = renderer.getPixelRatio();
-      this._width = size.width.toInt();
-      this._height = size.height.toInt();
+      var size = renderer.getSize(Vector2(null, null));
+      _pixelRatio = renderer.getPixelRatio();
+      _width = size.width.toInt();
+      _height = size.height.toInt();
 
-      renderTarget = new WebGLRenderTarget(
-          (this._width * this._pixelRatio).toInt(),
-          (this._height * this._pixelRatio).toInt(),
-          WebGLRenderTargetOptions(parameters));
+      renderTarget = WebGLRenderTarget(
+          (_width * _pixelRatio).toInt(), (_height * _pixelRatio).toInt(), WebGLRenderTargetOptions(parameters));
     } else {
-      this._pixelRatio = 1;
-      this._width = renderTarget.width;
-      this._height = renderTarget.height;
+      _pixelRatio = 1;
+      _width = renderTarget.width;
+      _height = renderTarget.height;
     }
 
-    this.renderTarget1 = renderTarget;
-    this.renderTarget2 = renderTarget.clone();
-    this.renderTarget2.texture.name = 'EffectComposer.rt2';
+    renderTarget1 = renderTarget;
+    renderTarget2 = renderTarget.clone();
+    renderTarget2.texture.name = 'EffectComposer.rt2';
 
-    this.writeBuffer = this.renderTarget1;
-    this.readBuffer = this.renderTarget2;
+    writeBuffer = renderTarget1;
+    readBuffer = renderTarget2;
 
-    this.renderToScreen = true;
+    renderToScreen = true;
 
-    this.passes = [];
+    passes = [];
 
     // dependencies
 
@@ -66,44 +64,42 @@ class EffectComposer {
       print('THREE.EffectComposer relies on ShaderPass');
     }
 
-    this.copyPass = new ShaderPass(CopyShader, null);
+    copyPass = ShaderPass(CopyShader, null);
 
-    this.clock = new Clock(false);
+    clock = Clock(false);
   }
 
   swapBuffers() {
-    var tmp = this.readBuffer;
-    this.readBuffer = this.writeBuffer;
-    this.writeBuffer = tmp;
+    var tmp = readBuffer;
+    readBuffer = writeBuffer;
+    writeBuffer = tmp;
   }
 
   addPass(pass) {
-    this.passes.add(pass);
-    pass.setSize(
-        this._width * this._pixelRatio, this._height * this._pixelRatio);
+    passes.add(pass);
+    pass.setSize(_width * _pixelRatio, _height * _pixelRatio);
   }
 
   insertPass(pass, index) {
-    splice(this.passes, index, 0, pass);
-    pass.setSize(
-        this._width * this._pixelRatio, this._height * this._pixelRatio);
+    splice(passes, index, 0, pass);
+    pass.setSize(_width * _pixelRatio, _height * _pixelRatio);
   }
 
   removePass(pass) {
-    var index = this.passes.indexOf(pass);
+    var index = passes.indexOf(pass);
 
     if (index != -1) {
-      splice(this.passes, index, 1);
+      splice(passes, index, 1);
     }
   }
 
   clearPass() {
-    this.passes.clear();
+    passes.clear();
   }
 
   isLastEnabledPass(passIndex) {
-    for (var i = passIndex + 1; i < this.passes.length; i++) {
-      if (this.passes[i].enabled) {
+    for (var i = passIndex + 1; i < passes.length; i++) {
+      if (passes[i].enabled) {
         return false;
       }
     }
@@ -114,94 +110,87 @@ class EffectComposer {
   render(deltaTime) {
     // deltaTime value is in seconds
 
-    if (deltaTime == null) {
-      deltaTime = this.clock.getDelta();
-    }
+    deltaTime ??= clock.getDelta();
 
-    var currentRenderTarget = this.renderer.getRenderTarget();
+    var currentRenderTarget = renderer.getRenderTarget();
 
     var maskActive = false;
 
-    var pass, i, il = this.passes.length;
+    var pass, i, il = passes.length;
 
     for (i = 0; i < il; i++) {
-      pass = this.passes[i];
+      pass = passes[i];
 
       if (pass.enabled == false) continue;
 
-      pass.renderToScreen = (this.renderToScreen && this.isLastEnabledPass(i));
-      pass.render(this.renderer, this.writeBuffer, this.readBuffer,
-          deltaTime: deltaTime, maskActive: maskActive);
+      pass.renderToScreen = (renderToScreen && isLastEnabledPass(i));
+      pass.render(renderer, writeBuffer, readBuffer, deltaTime: deltaTime, maskActive: maskActive);
 
       if (pass.needsSwap) {
         if (maskActive) {
-          var context = this.renderer.getContext();
-          var stencil = this.renderer.state.buffers["stencil"];
+          var context = renderer.getContext();
+          var stencil = renderer.state.buffers["stencil"];
 
           //context.stencilFunc( context.NOTEQUAL, 1, 0xffffffff );
           stencil.setFunc(context.NOTEQUAL, 1, 0xffffffff);
 
-          this.copyPass.render(this.renderer, this.writeBuffer, this.readBuffer,
-              deltaTime: deltaTime);
+          copyPass.render(renderer, writeBuffer, readBuffer, deltaTime: deltaTime);
 
           //context.stencilFunc( context.EQUAL, 1, 0xffffffff );
           stencil.setFunc(context.EQUAL, 1, 0xffffffff);
         }
 
-        this.swapBuffers();
+        swapBuffers();
       }
 
-      if (MaskPass != null) {
-        if (pass.runtimeType.toString() == "MaskPass") {
-          maskActive = true;
-        } else if (pass.runtimeType.toString() == "ClearMaskPass") {
-          maskActive = false;
-        }
+      if (pass.runtimeType.toString() == "MaskPass") {
+        maskActive = true;
+      } else if (pass.runtimeType.toString() == "ClearMaskPass") {
+        maskActive = false;
       }
     }
 
-    this.renderer.setRenderTarget(currentRenderTarget);
+    renderer.setRenderTarget(currentRenderTarget);
   }
 
   reset(renderTarget) {
     if (renderTarget == null) {
-      var size = this.renderer.getSize(new Vector2(null, null));
-      this._pixelRatio = this.renderer.getPixelRatio();
-      this._width = size.width.toInt();
-      this._height = size.height.toInt();
+      var size = renderer.getSize(Vector2(null, null));
+      _pixelRatio = renderer.getPixelRatio();
+      _width = size.width.toInt();
+      _height = size.height.toInt();
 
-      renderTarget = this.renderTarget1.clone();
-      renderTarget.setSize(
-          this._width * this._pixelRatio, this._height * this._pixelRatio);
+      renderTarget = renderTarget1.clone();
+      renderTarget.setSize(_width * _pixelRatio, _height * _pixelRatio);
     }
 
-    this.renderTarget1.dispose();
-    this.renderTarget2.dispose();
-    this.renderTarget1 = renderTarget;
-    this.renderTarget2 = renderTarget.clone();
+    renderTarget1.dispose();
+    renderTarget2.dispose();
+    renderTarget1 = renderTarget;
+    renderTarget2 = renderTarget.clone();
 
-    this.writeBuffer = this.renderTarget1;
-    this.readBuffer = this.renderTarget2;
+    writeBuffer = renderTarget1;
+    readBuffer = renderTarget2;
   }
 
   setSize(int width, int height) {
-    this._width = width;
-    this._height = height;
+    _width = width;
+    _height = height;
 
-    int effectiveWidth = (this._width * this._pixelRatio).toInt();
-    int effectiveHeight = (this._height * this._pixelRatio).toInt();
+    int effectiveWidth = (_width * _pixelRatio).toInt();
+    int effectiveHeight = (_height * _pixelRatio).toInt();
 
-    this.renderTarget1.setSize(effectiveWidth, effectiveHeight);
-    this.renderTarget2.setSize(effectiveWidth, effectiveHeight);
+    renderTarget1.setSize(effectiveWidth, effectiveHeight);
+    renderTarget2.setSize(effectiveWidth, effectiveHeight);
 
-    for (var i = 0; i < this.passes.length; i++) {
-      this.passes[i].setSize(effectiveWidth, effectiveHeight);
+    for (var i = 0; i < passes.length; i++) {
+      passes[i].setSize(effectiveWidth, effectiveHeight);
     }
   }
 
   setPixelRatio(double pixelRatio) {
-    this._pixelRatio = pixelRatio;
+    _pixelRatio = pixelRatio;
 
-    this.setSize(this._width, this._height);
+    setSize(_width, _height);
   }
 }

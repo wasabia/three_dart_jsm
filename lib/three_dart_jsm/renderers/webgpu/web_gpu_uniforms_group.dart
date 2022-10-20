@@ -31,7 +31,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     if (buffer == null) {
       var byteLength = this.getByteLength();
 
-      buffer = new Float32Array(byteLength ~/ 4);
+      buffer = Float32Array(byteLength ~/ 4);
 
       this.buffer = buffer;
     }
@@ -92,8 +92,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     if (uniform is Matrix3Uniform) return this.updateMatrix3(uniform);
     if (uniform is Matrix4Uniform) return this.updateMatrix4(uniform);
 
-    console.error(
-        'THREE.WebGPUUniformsGroup: Unsupported uniform type.', uniform);
+    console.error('THREE.WebGPUUniformsGroup: Unsupported uniform type.', uniform);
   }
 
   updateNumber(uniform) {
@@ -153,10 +152,7 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
     var v = uniform.getValue();
     var offset = uniform.offset;
 
-    if (a[offset + 0] != v.x ||
-        a[offset + 1] != v.y ||
-        a[offset + 2] != v.z ||
-        a[offset + 4] != v.w) {
+    if (a[offset + 0] != v.x || a[offset + 1] != v.y || a[offset + 2] != v.z || a[offset + 4] != v.w) {
       a[offset + 0] = v.x;
       a[offset + 1] = v.y;
       a[offset + 2] = v.z;
@@ -219,17 +215,14 @@ class WebGPUUniformsGroup extends WebGPUUniformBuffer {
   }
 
   updateMatrix4(Matrix4Uniform uniform) {
-
     var updated = false;
 
     var a = this.buffer;
     var e = uniform.getValue().elements;
     var offset = uniform.offset;
 
-
     if (arraysEqual(a, e, offset) == false) {
-
-      if(e is NativeArray) {
+      if (e is NativeArray) {
         a.set(e.toDartList(), offset);
       } else {
         a.set(e, offset);

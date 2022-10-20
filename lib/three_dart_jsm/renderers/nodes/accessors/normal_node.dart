@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class NormalNode extends Node {
   static const String GEOMETRY = 'geometry';
@@ -12,34 +13,29 @@ class NormalNode extends Node {
     this.scope = scope;
   }
 
+  @override
   getHash([builder]) {
-    return "normal-${this.scope}";
+    return "normal-$scope";
   }
 
+  @override
   generate([builder, output]) {
     var scope = this.scope;
 
-    var outputNode = null;
+    var outputNode;
 
     if (scope == NormalNode.GEOMETRY) {
-      outputNode = new AttributeNode('normal', 'vec3');
+      outputNode = AttributeNode('normal', 'vec3');
     } else if (scope == NormalNode.LOCAL) {
-      outputNode = new VaryNode(new NormalNode(NormalNode.GEOMETRY));
+      outputNode = VaryNode(NormalNode(NormalNode.GEOMETRY));
     } else if (scope == NormalNode.VIEW) {
-      var vertexNormalNode = new OperatorNode(
-          '*',
-          new ModelNode(ModelNode.NORMAL_MATRIX),
-          new NormalNode(NormalNode.LOCAL));
-      outputNode =
-          new MathNode(MathNode.NORMALIZE, new VaryNode(vertexNormalNode));
+      var vertexNormalNode = OperatorNode('*', ModelNode(ModelNode.NORMAL_MATRIX), NormalNode(NormalNode.LOCAL));
+      outputNode = MathNode(MathNode.NORMALIZE, VaryNode(vertexNormalNode));
     } else if (scope == NormalNode.WORLD) {
       // To use INVERSE_TRANSFORM_DIRECTION only inverse the param order like this: MathNode( ..., Vector, Matrix );
-      var vertexNormalNode = new MathNode(
-          MathNode.TRANSFORM_DIRECTION,
-          new NormalNode(NormalNode.VIEW),
-          new CameraNode(CameraNode.VIEW_MATRIX));
-      outputNode =
-          new MathNode(MathNode.NORMALIZE, new VaryNode(vertexNormalNode));
+      var vertexNormalNode =
+          MathNode(MathNode.TRANSFORM_DIRECTION, NormalNode(NormalNode.VIEW), CameraNode(CameraNode.VIEW_MATRIX));
+      outputNode = MathNode(MathNode.NORMALIZE, VaryNode(vertexNormalNode));
     }
 
     return outputNode.build(builder);

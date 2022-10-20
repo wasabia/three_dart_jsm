@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 var F_Schlick = ShaderNode((inputs) {
   var f0 = inputs.f0;
@@ -26,8 +26,7 @@ var getDistanceAttenuation = ShaderNode((inputs) {
 
   return cond([
     and(greaterThan(cutoffDistance, 0), greaterThan(decayExponent, 0)),
-    pow(saturate(add(div(negate(lightDistance), cutoffDistance), 1.0)),
-        decayExponent),
+    pow(saturate(add(div(negate(lightDistance), cutoffDistance), 1.0)), decayExponent),
     1.0
   ]);
 }); // validated
@@ -60,8 +59,7 @@ var D_GGX = ShaderNode((inputs) {
 
   var a2 = pow2(alpha);
 
-  var denom = add(
-      mul(pow2(dotNH), sub(a2, 1.0)), 1.0); // avoid alpha = 0 with dotNH = 1
+  var denom = add(mul(pow2(dotNH), sub(a2, 1.0)), 1.0); // avoid alpha = 0 with dotNH = 1
 
   return mul(RECIPROCAL_PI, div(a2, pow2(denom)));
 }); // validated
@@ -106,14 +104,8 @@ var RE_Direct_Physical = ShaderNode((inputs) {
 
   addTo(
       directSpecular,
-      mul(
-          irradiance,
-          BRDF_GGX({
-            "lightDirection": lightDirection,
-            "f0": specularColor,
-            "f90": 1,
-            "roughness": roughness
-          })));
+      mul(irradiance,
+          BRDF_GGX({"lightDirection": lightDirection, "f0": specularColor, "f90": 1, "roughness": roughness})));
 });
 
 var PhysicalLightingModel = ShaderNode((inputs /*, builder*/) {

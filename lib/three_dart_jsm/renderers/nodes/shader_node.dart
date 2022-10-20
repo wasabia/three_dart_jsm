@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 Proxy(target, handler) {
   return _Proxy(target, handler);
@@ -7,7 +8,7 @@ Proxy(target, handler) {
 class _Proxy {
   late dynamic target;
   late dynamic handler;
-  _Proxy(this.target, this.handler) {}
+  _Proxy(this.target, this.handler);
 
   @override
   dynamic noSuchMethod(Invocation invocation) {
@@ -16,12 +17,10 @@ class _Proxy {
     name = name.replaceFirst(RegExp(r'^Symbol\("'), "");
     name = name.replaceFirst(RegExp(r'"\)$'), "");
 
-
     String prop = name;
     var node = target;
 
-    if(prop == 'build') {
-
+    if (prop == 'build') {
       var params = invocation.typeArguments;
       var positional = invocation.positionalArguments;
 
@@ -29,7 +28,7 @@ class _Proxy {
     }
 
     // handler get
-    if (prop is String && node.getProperty(prop) == undefined) {
+    if (prop is String && node.getProperty(prop) == null) {
       if (RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch(prop) == true) {
         // accessing properties ( swizzle )
 
@@ -39,12 +38,11 @@ class _Proxy {
               .replaceAll(RegExp(r"b|p"), 'z')
               .replaceAll(RegExp(r"a|q"), 'w');
 
-        return ShaderNodeObject(new SplitNode(node, prop));
+        return ShaderNodeObject(SplitNode(node, prop));
       } else if (RegExp(r"^\d+$").hasMatch(prop) == true) {
         // accessing array
 
-        return ShaderNodeObject(new ArrayElementNode(
-            node, new FloatNode(num.parse(prop)).setConst(true)));
+        return ShaderNodeObject(ArrayElementNode(node, FloatNode(num.parse(prop)).setConst(true)));
       }
     }
 
@@ -53,60 +51,48 @@ class _Proxy {
 }
 
 class NodeHandler {
+  // factory NodeHandler( Function nodeClosure, params ) {
+  // 	var inputs = params.shift();
+  // 	return nodeClosure( ShaderNodeObjects( inputs ), params );
+  // }
 
-	// factory NodeHandler( Function nodeClosure, params ) {
-	// 	var inputs = params.shift();
-	// 	return nodeClosure( ShaderNodeObjects( inputs ), params );
-	// }
+  get(node, prop) {
+    if (prop is String && node[prop] == null) {
+      if (RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch(prop) == true) {
+        // accessing properties ( swizzle )
 
-	get ( node, prop ) {
+        prop = prop
+          ..replaceAll(RegExp(r"r|s"), 'x')
+              .replaceAll(RegExp(r"g|t"), 'y')
+              .replaceAll(RegExp(r"b|p"), 'z')
+              .replaceAll(RegExp(r"a|q"), 'w');
 
-		if ( prop is String && node[ prop ] == undefined ) {
+        return ShaderNodeObject(SplitNode(node, prop));
+      } else if (RegExp(r"^\d+$").hasMatch(prop) == true) {
+        // accessing array
 
-			if ( RegExp(r"^[xyzwrgbastpq]{1,4}$").hasMatch( prop ) == true ) {
+        return ShaderNodeObject(ArrayElementNode(node, FloatNode(num.parse(prop)).setConst(true)));
+      }
+    }
 
-				// accessing properties ( swizzle )
-
-				prop = prop..replaceAll( RegExp(r"r|s"), 'x' )
-					.replaceAll( RegExp(r"g|t"), 'y' )
-					.replaceAll( RegExp(r"b|p"), 'z' )
-					.replaceAll( RegExp(r"a|q"), 'w' );
-
-				return ShaderNodeObject( new SplitNode( node, prop ) );
-
-			} else if ( RegExp(r"^\d+$").hasMatch( prop ) == true ) {
-
-				// accessing array
-
-				return ShaderNodeObject( new ArrayElementNode( node, new FloatNode( num.parse( prop ) ).setConst( true ) ) );
-
-			}
-
-		}
-
-		return node[ prop ];
-
-	}
-
+    return node[prop];
+  }
 }
 
-var nodeObjects = new WeakMap();
+var nodeObjects = WeakMap();
 
 ShaderNodeObject(obj) {
   if (obj is num) {
-    return ShaderNodeObject(new FloatNode(obj).setConst(true));
-
+    return ShaderNodeObject(FloatNode(obj).setConst(true));
   } else if (obj is Node) {
-   
     var nodeObject = nodeObjects.get(obj);
 
-    if (nodeObject == undefined) {
-      nodeObject = Proxy( obj, NodeHandler );
+    if (nodeObject == null) {
+      nodeObject = Proxy(obj, NodeHandler);
       nodeObjects.set(obj, nodeObject);
     }
 
     return nodeObject;
-  
   }
 
   return obj;
@@ -130,8 +116,8 @@ ShaderNodeArray(array) {
   return array;
 }
 
-ShaderNodeProxy(NodeClass, [scope = null, factor = null]) {
-  print(" ShaderNode .ShaderNodeProxy NodeClass: ${NodeClass} ");
+ShaderNodeProxy(NodeClass, [scope, factor]) {
+  print(" ShaderNode .ShaderNodeProxy NodeClass: $NodeClass ");
 
   // TODO
 
@@ -190,24 +176,24 @@ var nodeObject = (val) {
 };
 
 var float = (val) {
-  return nodeObject(new FloatNode(val).setConst(true));
+  return nodeObject(FloatNode(val).setConst(true));
 };
 
 var color = (params) {
-  return nodeObject(new ColorNode(new Color(params)).setConst(true));
+  return nodeObject(ColorNode(Color(params)).setConst(true));
 };
 
 var join = (params) {
-  return nodeObject(new JoinNode(ShaderNodeArray(params)));
+  return nodeObject(JoinNode(ShaderNodeArray(params)));
 };
 
 var cond = (params) {
-  return nodeObject(new CondNode(ShaderNodeArray(params)));
+  return nodeObject(CondNode(ShaderNodeArray(params)));
 };
 
 var vec2 = (params) {
   if (params[0]?.isNode == true) {
-    return nodeObject(new ConvertNode(params[0], 'vec2'));
+    return nodeObject(ConvertNode(params[0], 'vec2'));
   } else {
     // Providing one scalar value: This value is used for all components
 
@@ -215,13 +201,13 @@ var vec2 = (params) {
       params[1] = params[0];
     }
 
-    return nodeObject(new Vector2Node(new Vector2(params)).setConst(true));
+    return nodeObject(Vector2Node(Vector2(params)).setConst(true));
   }
 };
 
 var vec3 = (params) {
   if (params[0]?.isNode == true) {
-    return nodeObject(new ConvertNode(params[0], 'vec3'));
+    return nodeObject(ConvertNode(params[0], 'vec3'));
   } else {
     // Providing one scalar value: This value is used for all components
 
@@ -229,13 +215,13 @@ var vec3 = (params) {
       params[1] = params[2] = params[0];
     }
 
-    return nodeObject(new Vector3Node(new Vector3(params)).setConst(true));
+    return nodeObject(Vector3Node(Vector3(params)).setConst(true));
   }
 };
 
 var vec4 = (params) {
   if (params[0]?.isNode == true) {
-    return nodeObject(new ConvertNode(params[0], 'vec4'));
+    return nodeObject(ConvertNode(params[0], 'vec4'));
   } else {
     // Providing one scalar value: This value is used for all components
 
@@ -243,7 +229,7 @@ var vec4 = (params) {
       params[1] = params[2] = params[3] = params[0];
     }
 
-    return nodeObject(new Vector4Node(new Vector4(params)).setConst(true));
+    return nodeObject(Vector4Node(Vector4(params)).setConst(true));
   }
 };
 
@@ -265,17 +251,16 @@ var and = ShaderNodeProxy(OperatorNode, '&&');
 
 var element = ShaderNodeProxy(ArrayElementNode);
 
-var normalGeometry = new NormalNode(NormalNode.GEOMETRY);
-var normalLocal = new NormalNode(NormalNode.LOCAL);
-var normalWorld = new NormalNode(NormalNode.WORLD);
-var normalView = new NormalNode(NormalNode.VIEW);
-var transformedNormalView = new VarNode(
-    new NormalNode(NormalNode.VIEW), 'TransformedNormalView', 'vec3');
+var normalGeometry = NormalNode(NormalNode.GEOMETRY);
+var normalLocal = NormalNode(NormalNode.LOCAL);
+var normalWorld = NormalNode(NormalNode.WORLD);
+var normalView = NormalNode(NormalNode.VIEW);
+var transformedNormalView = VarNode(NormalNode(NormalNode.VIEW), 'TransformedNormalView', 'vec3');
 
-var positionLocal = new PositionNode(PositionNode.LOCAL);
-var positionWorld = new PositionNode(PositionNode.WORLD);
-var positionView = new PositionNode(PositionNode.VIEW);
-var positionViewDirection = new PositionNode(PositionNode.VIEW_DIRECTION);
+var positionLocal = PositionNode(PositionNode.LOCAL);
+var positionWorld = PositionNode(PositionNode.WORLD);
+var positionView = PositionNode(PositionNode.VIEW);
+var positionViewDirection = PositionNode(PositionNode.VIEW_DIRECTION);
 
 var PI = float(3.141592653589793);
 var PI2 = float(6.283185307179586);
@@ -284,11 +269,11 @@ var RECIPROCAL_PI = float(0.3183098861837907);
 var RECIPROCAL_PI2 = float(0.15915494309189535);
 var EPSILON = float(1e-6);
 
-var diffuseColor = new PropertyNode('DiffuseColor', 'vec4');
-var roughness = new PropertyNode('Roughness', 'float');
-var metalness = new PropertyNode('Metalness', 'float');
-var alphaTest = new PropertyNode('AlphaTest', 'float');
-var specularColor = new PropertyNode('SpecularColor', 'color');
+var diffuseColor = PropertyNode('DiffuseColor', 'vec4');
+var roughness = PropertyNode('Roughness', 'float');
+var metalness = PropertyNode('Metalness', 'float');
+var alphaTest = PropertyNode('AlphaTest', 'float');
+var specularColor = PropertyNode('SpecularColor', 'color');
 
 var abs = ShaderNodeProxy(MathNode, 'abs');
 var acos = ShaderNodeProxy(MathNode, 'acos');

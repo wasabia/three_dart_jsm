@@ -1,41 +1,41 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class InputNode extends Node {
   InputNode([inputType]) : super(inputType) {
     this.inputType = inputType;
 
-    this.constant = false;
+    constant = false;
   }
 
   setConst(value) {
-    this.constant = value;
+    constant = value;
 
     return this;
   }
 
   getConst() {
-    return this.constant;
+    return constant;
   }
 
   getInputType(builder) {
-    return this.inputType;
+    return inputType;
   }
 
   generateConst(builder) {
-    return builder.getConst(this.getNodeType(builder), this.value);
+    return builder.getConst(getNodeType(builder), value);
   }
 
   @override
   generate([builder, output]) {
-    var type = this.getNodeType(builder);
+    var type = getNodeType(builder);
 
-    if (this.constant == true) {
-      return builder.format(this.generateConst(builder), type, output);
+    if (constant == true) {
+      return builder.format(generateConst(builder), type, output);
     } else {
-      var inputType = this.getInputType(builder);
+      var inputType = getInputType(builder);
 
-      var nodeUniform =
-          builder.getUniformFromNode(this, builder.shaderStage, inputType);
+      var nodeUniform = builder.getUniformFromNode(this, builder.shaderStage, inputType);
       var propertyName = builder.getPropertyName(nodeUniform);
 
       return builder.format(propertyName, type, output);

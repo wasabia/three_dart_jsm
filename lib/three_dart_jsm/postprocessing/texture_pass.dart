@@ -1,49 +1,52 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+
+import 'pass.dart';
 
 class TexturePass extends Pass {
   late Texture map;
   late num opacity;
+  @override
   late Map<String, dynamic> uniforms;
   // ShaderMaterial material;
   // dynamic fsQuad;
 
-  TexturePass(map, opacity) : super() {
+  TexturePass(this.map, opacity) : super() {
     if (CopyShader == null) print('THREE.TexturePass relies on CopyShader');
 
     var shader = CopyShader;
 
-    this.map = map;
     this.opacity = (opacity != null) ? opacity : 1.0;
 
-    this.uniforms = UniformsUtils.clone(shader["uniforms"]);
+    uniforms = UniformsUtils.clone(shader["uniforms"]);
 
-    this.material = new ShaderMaterial({
-      "uniforms": this.uniforms,
+    material = ShaderMaterial({
+      "uniforms": uniforms,
       "vertexShader": shader["vertexShader"],
       "fragmentShader": shader["fragmentShader"],
       "depthTest": false,
       "depthWrite": false
     });
 
-    this.needsSwap = false;
+    needsSwap = false;
 
-    this.fsQuad = FullScreenQuad(null);
+    fsQuad = FullScreenQuad(null);
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
     var oldAutoClear = renderer.autoClear;
     renderer.autoClear = false;
 
-    this.fsQuad.material = this.material;
+    fsQuad.material = material;
 
-    this.uniforms['opacity']["value"] = this.opacity;
-    this.uniforms['tDiffuse']["value"] = this.map;
-    this.material.transparent = (this.opacity < 1.0);
+    uniforms['opacity']["value"] = opacity;
+    uniforms['tDiffuse']["value"] = map;
+    material.transparent = (opacity < 1.0);
 
-    renderer.setRenderTarget(this.renderToScreen ? null : readBuffer);
-    if (this.clear) renderer.clear(true, true, true);
-    this.fsQuad.render(renderer);
+    renderer.setRenderTarget(renderToScreen ? null : readBuffer);
+    if (clear) renderer.clear(true, true, true);
+    fsQuad.render(renderer);
 
     renderer.autoClear = oldAutoClear;
   }

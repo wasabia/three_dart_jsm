@@ -5,27 +5,13 @@ var CHANNELS = 4;
 int TEXTURE_WIDTH = 1024;
 int TEXTURE_HEIGHT = 4;
 
-/**
- * Make a new DataTexture to store the descriptions of the curves.
- *
- * @param { number } numberOfCurves the number of curves needed to be described by this texture.
- */
+/// Make a new DataTexture to store the descriptions of the curves.
+///
+/// @param { number } numberOfCurves the number of curves needed to be described by this texture.
 initSplineTexture({int numberOfCurves = 1}) {
-  var dataArray = new Float32Array(
-      (TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * CHANNELS).toInt());
-  var dataTexture = new DataTexture(
-      dataArray,
-      TEXTURE_WIDTH,
-      TEXTURE_HEIGHT * numberOfCurves,
-      RGBAFormat,
-      FloatType,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null);
+  var dataArray = Float32Array((TEXTURE_WIDTH * TEXTURE_HEIGHT * numberOfCurves * CHANNELS).toInt());
+  var dataTexture = DataTexture(dataArray, TEXTURE_WIDTH, TEXTURE_HEIGHT * numberOfCurves, RGBAFormat, FloatType, null,
+      null, null, null, null, null, null);
 
   dataTexture.wrapS = RepeatWrapping;
   // dataTexture.wrapY = RepeatWrapping;
@@ -35,13 +21,11 @@ initSplineTexture({int numberOfCurves = 1}) {
   return dataTexture;
 }
 
-/**
- * Write the curve description to the data texture
- *
- * @param { DataTexture } texture The DataTexture to write to
- * @param { Curve } splineCurve The curve to describe
- * @param { number } offset Which curve slot to write to
- */
+/// Write the curve description to the data texture
+///
+/// @param { DataTexture } texture The DataTexture to write to
+/// @param { Curve } splineCurve The curve to describe
+/// @param { number } offset Which curve slot to write to
 updateSplineTexture(texture, splineCurve, {offset = 0}) {
   var numberOfPoints = Math.floor(TEXTURE_WIDTH * (TEXTURE_HEIGHT / 4));
   splineCurve.arcLengthDivisions = numberOfPoints / 2;
@@ -54,17 +38,13 @@ updateSplineTexture(texture, splineCurve, {offset = 0}) {
     var rowIndex = i % TEXTURE_WIDTH;
 
     var pt = points[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z,
-        0 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 0 + rowOffset + (TEXTURE_HEIGHT * offset));
     pt = frenetFrames.tangents[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z,
-        1 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 1 + rowOffset + (TEXTURE_HEIGHT * offset));
     pt = frenetFrames.normals[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z,
-        2 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 2 + rowOffset + (TEXTURE_HEIGHT * offset));
     pt = frenetFrames.binormals[i];
-    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z,
-        3 + rowOffset + (TEXTURE_HEIGHT * offset));
+    setTextureValue(texture, rowIndex, pt.x, pt.y, pt.z, 3 + rowOffset + (TEXTURE_HEIGHT * offset));
   }
 
   texture.needsUpdate = true;
@@ -80,11 +60,9 @@ setTextureValue(texture, index, x, y, z, o) {
   data[index * CHANNELS + i + 3] = 1;
 }
 
-/**
- * Create a new set of uniforms for describing the curve modifier
- *
- * @param { DataTexture } Texture which holds the curve description
- */
+/// Create a new set of uniforms for describing the curve modifier
+///
+/// @param { DataTexture } Texture which holds the curve description
 getUniforms(splineTexture) {
   var uniforms = {
     "spineTexture": {"value": splineTexture},
@@ -134,7 +112,7 @@ mt = mod(mt, textureStacks);
 float rowOffset = floor(mt);
 
 #ifdef USE_INSTANCING
-rowOffset += instanceMatrix[3][1] * ${TEXTURE_HEIGHT}.;
+rowOffset += instanceMatrix[3][1] * $TEXTURE_HEIGHT.;
 #endif
 
 vec3 spinePos = texture2D(spineTexture, vec2(mt, (0. + rowOffset + 0.5) / textureLayers)).xyz;
@@ -183,9 +161,7 @@ vec3 transformedNormal = normalMatrix * (basis * objectNormal);
   };
 }
 
-/**
- * A helper class for making meshes bend aroudn curves
- */
+/// A helper class for making meshes bend aroudn curves
 class Flow {
   late List curveArray;
   late List curveLengthArray;
@@ -193,10 +169,8 @@ class Flow {
   late DataTexture splineTexure;
   late Map<String, dynamic> uniforms;
 
-  /**
-	 * @param {Mesh} mesh The mesh to clone and modify to bend around the curve
-	 * @param {number} numberOfCurves The amount of space that should preallocated for additional curves
-	 */
+  /// @param {Mesh} mesh The mesh to clone and modify to bend around the curve
+  /// @param {number} numberOfCurves The amount of space that should preallocated for additional curves
   Flow(mesh, {numberOfCurves = 1}) {
     var obj3D = mesh.clone();
     var splineTexure = initSplineTexture(numberOfCurves: numberOfCurves);
@@ -208,8 +182,8 @@ class Flow {
       }
     });
 
-    this.curveArray = new List.filled(numberOfCurves, null);
-    this.curveLengthArray = new List.filled(numberOfCurves, null);
+    this.curveArray = List.filled(numberOfCurves, null);
+    this.curveLengthArray = List.filled(numberOfCurves, null);
 
     this.object3D = obj3D;
     this.splineTexure = splineTexure;
@@ -230,46 +204,38 @@ class Flow {
   }
 }
 
-var matrix = new Matrix4();
+var matrix = Matrix4();
 
-/**
- * A helper class for creating instanced versions of flow, where the instances are placed on the curve.
- */
+/// A helper class for creating instanced versions of flow, where the instances are placed on the curve.
 class InstancedFlow extends Flow {
   late List<int> offsets;
   late List<int> whichCurve;
   late Mesh object3D;
 
-  InstancedFlow.create(mesh, curveCount)
-      : super(mesh, numberOfCurves: curveCount) {}
+  InstancedFlow.create(mesh, curveCount) : super(mesh, numberOfCurves: curveCount);
 
-  /**
-	 *
-	 * @param {number} count The number of instanced elements
-	 * @param {number} curveCount The number of curves to preallocate for
-	 * @param {Geometry} geometry The geometry to use for the instanced mesh
-	 * @param {Material} material The material to use for the instanced mesh
-	 */
+  ///
+  /// @param {number} count The number of instanced elements
+  /// @param {number} curveCount The number of curves to preallocate for
+  /// @param {Geometry} geometry The geometry to use for the instanced mesh
+  /// @param {Material} material The material to use for the instanced mesh
   factory InstancedFlow(count, curveCount, geometry, material) {
-    var mesh = new InstancedMesh(geometry, material, count);
+    var mesh = InstancedMesh(geometry, material, count);
     mesh.instanceMatrix!.setUsage(DynamicDrawUsage);
     var instancedFlow = InstancedFlow.create(mesh, curveCount);
 
-    instancedFlow.offsets = new List.filled(count, 0);
-    instancedFlow.whichCurve = new List.filled(count, 0);
+    instancedFlow.offsets = List.filled(count, 0);
+    instancedFlow.whichCurve = List.filled(count, 0);
 
     return instancedFlow;
   }
 
-  /**
-	 * The extra information about which curve and curve position is stored in the translation components of the matrix for the instanced objects
-	 * This writes that information to the matrix and marks it as needing update.
-	 *
-	 * @param {number} index of the instanced element to update
-	 */
+  /// The extra information about which curve and curve position is stored in the translation components of the matrix for the instanced objects
+  /// This writes that information to the matrix and marks it as needing update.
+  ///
+  /// @param {number} index of the instanced element to update
   writeChanges(index) {
-    matrix.makeTranslation(this.curveLengthArray[this.whichCurve[index]],
-        this.whichCurve[index], this.offsets[index]);
+    matrix.makeTranslation(this.curveLengthArray[this.whichCurve[index]], this.whichCurve[index], this.offsets[index]);
 
     var _object3D = this.object3D as InstancedMesh;
 
@@ -277,23 +243,19 @@ class InstancedFlow extends Flow {
     _object3D.instanceMatrix?.needsUpdate = true;
   }
 
-  /**
-	 * Move an individual element along the curve by a specific amount
-	 *
-	 * @param {number} index Which element to update
-	 * @param {number} offset Move by how much
-	 */
+  /// Move an individual element along the curve by a specific amount
+  ///
+  /// @param {number} index Which element to update
+  /// @param {number} offset Move by how much
   moveIndividualAlongCurve(index, int offset) {
     this.offsets[index] += offset;
     this.writeChanges(index);
   }
 
-  /**
-	 * Select which curve to use for an element
-	 *
-	 * @param {number} index the index of the instanced element to update
-	 * @param {number} curveNo the index of the curve it should use
-	 */
+  /// Select which curve to use for an element
+  ///
+  /// @param {number} index the index of the instanced element to update
+  /// @param {number} curveNo the index of the curve it should use
   setCurve(index, curveNo) {
     if (curveNo == null) throw ('curve index being set is Not a Number (NaN)');
     this.whichCurve[index] = curveNo;

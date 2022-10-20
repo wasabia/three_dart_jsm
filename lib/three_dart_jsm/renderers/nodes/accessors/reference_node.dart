@@ -1,40 +1,41 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ReferenceNode extends Node {
   late dynamic property;
   late dynamic object;
   late dynamic node;
 
-  ReferenceNode(property, inputType, [object = null]) : super() {
+  ReferenceNode(property, inputType, [object]) : super() {
     this.property = property;
     this.inputType = inputType;
 
     this.object = object;
 
-    this.node = null;
+    node = null;
 
-    this.updateType = NodeUpdateType.Object;
+    updateType = NodeUpdateType.Object;
 
-    this.setNodeType(inputType);
+    setNodeType(inputType);
   }
 
   setNodeType(inputType) {
-    var node = null;
+    var node;
     var nodeType = inputType;
 
     if (nodeType == 'float') {
-      node = new FloatNode();
+      node = FloatNode();
     } else if (nodeType == 'vec2') {
-      node = new Vector2Node(null);
+      node = Vector2Node(null);
     } else if (nodeType == 'vec3') {
-      node = new Vector3Node(null);
+      node = Vector3Node(null);
     } else if (nodeType == 'vec4') {
-      node = new Vector4Node(null);
+      node = Vector4Node(null);
     } else if (nodeType == 'color') {
-      node = new ColorNode(null);
+      node = ColorNode(null);
       nodeType = 'vec3';
     } else if (nodeType == 'texture') {
-      node = new TextureNode();
+      node = TextureNode();
       nodeType = 'vec4';
     }
 
@@ -43,18 +44,21 @@ class ReferenceNode extends Node {
     this.inputType = inputType;
   }
 
+  @override
   getNodeType([builder, output]) {
-    return this.inputType;
+    return inputType;
   }
 
+  @override
   update([frame]) {
-    var object = this.object != null ? this.object : frame.object;
-    var value = object.getProperty(this.property);
+    var object = this.object ?? frame.object;
+    var value = object.getProperty(property);
 
-    this.node.value = value;
+    node.value = value;
   }
 
+  @override
   generate([builder, output]) {
-    return this.node.build(builder, this.getNodeType(builder));
+    return node.build(builder, getNodeType(builder));
   }
 }

@@ -7,19 +7,17 @@ class VertexTangentsHelper extends LineSegments {
   late Object3D object;
   late int size;
 
-  VertexTangentsHelper.create(geometry, material) : super(geometry, material) {}
+  VertexTangentsHelper.create(geometry, material) : super(geometry, material);
 
   factory VertexTangentsHelper(object, [size = 1, color = 0x00ffff]) {
     var nTangents = object.geometry.attributes["tangent"].count;
-    var geometry = new BufferGeometry();
+    var geometry = BufferGeometry();
 
-    var positions =
-        new Float32BufferAttribute(Float32Array(nTangents * 2 * 3), 3);
+    var positions = Float32BufferAttribute(Float32Array(nTangents * 2 * 3), 3);
 
     geometry.setAttribute('position', positions);
 
-    var vth = VertexTangentsHelper.create(
-        geometry, new LineBasicMaterial({"color": color, "toneMapped": false}));
+    var vth = VertexTangentsHelper.create(geometry, LineBasicMaterial({"color": color, "toneMapped": false}));
 
     vth.object = object;
     vth.size = size;
@@ -54,9 +52,7 @@ class VertexTangentsHelper extends LineSegments {
     // for simplicity, ignore index and drawcalls, and render every tangent
 
     for (var j = 0, jl = objPos.count; j < jl; j++) {
-      _v1
-          .fromBufferAttribute(objPos, j)
-          .applyMatrix4(matrixWorld);
+      _v1.fromBufferAttribute(objPos, j).applyMatrix4(matrixWorld);
 
       _v2.fromBufferAttribute(objTan, j);
 

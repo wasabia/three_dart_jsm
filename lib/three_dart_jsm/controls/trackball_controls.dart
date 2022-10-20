@@ -23,23 +23,19 @@ class TrackballControls with EventDispatcher {
   double dynamicDampingFactor = 0.2;
 
   double minDistance = 0;
-  double maxDistance = Math.Infinity;
+  double maxDistance = Math.infinity;
 
   List<String> keys = ['KeyA' /*A*/, 'KeyS' /*S*/, 'KeyD' /*D*/];
 
-  Map mouseButtons = {
-    'LEFT': MOUSE.ROTATE,
-    'MIDDLE': MOUSE.DOLLY,
-    'RIGHT': MOUSE.PAN
-  };
+  Map mouseButtons = {'LEFT': MOUSE.ROTATE, 'MIDDLE': MOUSE.DOLLY, 'RIGHT': MOUSE.PAN};
 
   // internals
 
-  Vector3 target = new Vector3();
+  Vector3 target = Vector3();
 
   var EPS = 0.000001;
 
-  var lastPosition = new Vector3();
+  var lastPosition = Vector3();
   var lastZoom = 1.0;
 
   var _state = STATE.NONE,
@@ -48,14 +44,14 @@ class TrackballControls with EventDispatcher {
       _touchZoomDistanceEnd = 0.0,
       _lastAngle = 0.0;
 
-  var _eye = new Vector3(),
-      _movePrev = new Vector2(),
-      _moveCurr = new Vector2(),
-      _lastAxis = new Vector3(),
-      _zoomStart = new Vector2(),
-      _zoomEnd = new Vector2(),
-      _panStart = new Vector2(),
-      _panEnd = new Vector2(),
+  var _eye = Vector3(),
+      _movePrev = Vector2(),
+      _moveCurr = Vector2(),
+      _lastAxis = Vector3(),
+      _zoomStart = Vector2(),
+      _zoomEnd = Vector2(),
+      _panStart = Vector2(),
+      _panEnd = Vector2(),
       _pointers = [],
       _pointerPositions = {};
 
@@ -64,8 +60,7 @@ class TrackballControls with EventDispatcher {
   late Vector3 up0;
   late double zoom0;
 
-  TrackballControls(object, GlobalKey<DomLikeListenableState> listenableKey)
-      : super() {
+  TrackballControls(object, GlobalKey<DomLikeListenableState> listenableKey) : super() {
     scope = this;
 
     this.object = object;
@@ -100,8 +95,7 @@ class TrackballControls with EventDispatcher {
   // methods
 
   handleResize() {
-    RenderBox getBox =
-        this.listenableKey.currentContext?.findRenderObject() as RenderBox;
+    RenderBox getBox = this.listenableKey.currentContext?.findRenderObject() as RenderBox;
     var size = getBox.size;
     var local = getBox.globalToLocal(Offset(0, 0));
 
@@ -119,19 +113,18 @@ class TrackballControls with EventDispatcher {
     // scope.screen.height = box.height;
   }
 
-  var vector = new Vector2();
+  var vector = Vector2();
 
   getMouseOnScreen(pageX, pageY) {
-    vector.set((pageX - scope.screen['left']) / scope.screen['width'],
-        (pageY - scope.screen['top']) / scope.screen['height']);
+    vector.set(
+        (pageX - scope.screen['left']) / scope.screen['width'], (pageY - scope.screen['top']) / scope.screen['height']);
 
     return vector;
   }
 
   getMouseOnCircle(pageX, pageY) {
     vector.set(
-        ((pageX - scope.screen['width'] * 0.5 - scope.screen['left']) /
-            (scope.screen['width'] * 0.5)),
+        ((pageX - scope.screen['width'] * 0.5 - scope.screen['left']) / (scope.screen['width'] * 0.5)),
         ((scope.screen['height'] + 2 * (scope.screen['top'] - pageY)) /
             scope.screen['width']) // screen.width intentional
         );
@@ -139,12 +132,12 @@ class TrackballControls with EventDispatcher {
     return vector;
   }
 
-  var axis = new Vector3(),
-      quaternion = new Quaternion(),
-      eyeDirection = new Vector3(),
-      objectUpDirection = new Vector3(),
-      objectSidewaysDirection = new Vector3(),
-      moveDirection = new Vector3();
+  var axis = Vector3(),
+      quaternion = Quaternion(),
+      eyeDirection = Vector3(),
+      objectUpDirection = Vector3(),
+      objectSidewaysDirection = Vector3(),
+      moveDirection = Vector3();
 
   rotateCamera() {
     moveDirection.set(_moveCurr.x - _movePrev.x, _moveCurr.y - _movePrev.y, 0);
@@ -155,9 +148,7 @@ class TrackballControls with EventDispatcher {
 
       eyeDirection.copy(_eye).normalize();
       objectUpDirection.copy(scope.object.up).normalize();
-      objectSidewaysDirection
-          .crossVectors(objectUpDirection, eyeDirection)
-          .normalize();
+      objectSidewaysDirection.crossVectors(objectUpDirection, eyeDirection).normalize();
 
       objectUpDirection.setLength(_moveCurr.y - _movePrev.y);
       objectSidewaysDirection.setLength(_moveCurr.x - _movePrev.x);
@@ -222,21 +213,15 @@ class TrackballControls with EventDispatcher {
     }
   }
 
-  var mouseChange = new Vector2(),
-      objectUp = new Vector3(),
-      pan = new Vector3();
+  var mouseChange = Vector2(), objectUp = Vector3(), pan = Vector3();
 
   panCamera() {
     mouseChange.copy(_panEnd).sub(_panStart);
 
     if (mouseChange.lengthSq() != 0) {
       if (scope.object is OrthographicCamera) {
-        var scale_x = (scope.object.right - scope.object.left) /
-            scope.object.zoom /
-            scope.domElement.clientWidth;
-        var scale_y = (scope.object.top - scope.object.bottom) /
-            scope.object.zoom /
-            scope.domElement.clientWidth;
+        var scale_x = (scope.object.right - scope.object.left) / scope.object.zoom / scope.domElement.clientWidth;
+        var scale_y = (scope.object.top - scope.object.bottom) / scope.object.zoom / scope.domElement.clientWidth;
 
         mouseChange.x *= scale_x;
         mouseChange.y *= scale_y;
@@ -253,9 +238,7 @@ class TrackballControls with EventDispatcher {
       if (scope.staticMoving) {
         _panStart.copy(_panEnd);
       } else {
-        _panStart.add(mouseChange
-            .subVectors(_panEnd, _panStart)
-            .multiplyScalar(scope.dynamicDampingFactor));
+        _panStart.add(mouseChange.subVectors(_panEnd, _panStart).multiplyScalar(scope.dynamicDampingFactor));
       }
     }
   }
@@ -263,14 +246,12 @@ class TrackballControls with EventDispatcher {
   checkDistances() {
     if (!scope.noZoom || !scope.noPan) {
       if (_eye.lengthSq() > scope.maxDistance * scope.maxDistance) {
-        scope.object.position
-            .addVectors(scope.target, _eye.setLength(scope.maxDistance));
+        scope.object.position.addVectors(scope.target, _eye.setLength(scope.maxDistance));
         _zoomStart.copy(_zoomEnd);
       }
 
       if (_eye.lengthSq() < scope.minDistance * scope.minDistance) {
-        scope.object.position
-            .addVectors(scope.target, _eye.setLength(scope.minDistance));
+        scope.object.position.addVectors(scope.target, _eye.setLength(scope.minDistance));
         _zoomStart.copy(_zoomEnd);
       }
     }
@@ -306,8 +287,7 @@ class TrackballControls with EventDispatcher {
     } else if (scope.object is OrthographicCamera) {
       scope.object.lookAt(scope.target);
 
-      if (lastPosition.distanceToSquared(scope.object.position) > EPS ||
-          lastZoom != scope.object.zoom) {
+      if (lastPosition.distanceToSquared(scope.object.position) > EPS || lastZoom != scope.object.zoom) {
         scope.dispatchEvent(_changeEvent);
 
         lastPosition.copy(scope.object.position);
@@ -503,8 +483,7 @@ class TrackballControls with EventDispatcher {
     switch (_pointers.length) {
       case 1:
         _state = STATE.TOUCH_ROTATE;
-        _moveCurr
-            .copy(getMouseOnCircle(_pointers[0].pageX, _pointers[0].pageY));
+        _moveCurr.copy(getMouseOnCircle(_pointers[0].pageX, _pointers[0].pageY));
         _movePrev.copy(_moveCurr);
         break;
 
@@ -512,8 +491,7 @@ class TrackballControls with EventDispatcher {
         _state = STATE.TOUCH_ZOOM_PAN;
         var dx = _pointers[0].pageX - _pointers[1].pageX;
         var dy = _pointers[0].pageY - _pointers[1].pageY;
-        _touchZoomDistanceEnd =
-            _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
+        _touchZoomDistanceEnd = _touchZoomDistanceStart = Math.sqrt(dx * dx + dy * dy);
 
         var x = (_pointers[0].pageX + _pointers[1].pageX) / 2;
         var y = (_pointers[0].pageY + _pointers[1].pageY) / 2;
@@ -563,8 +541,7 @@ class TrackballControls with EventDispatcher {
 
       case 2:
         _state = STATE.TOUCH_ZOOM_PAN;
-        _moveCurr.copy(getMouseOnCircle(
-            event.pageX - _movePrev.x, event.pageY - _movePrev.y));
+        _moveCurr.copy(getMouseOnCircle(event.pageX - _movePrev.x, event.pageY - _movePrev.y));
         _movePrev.copy(_moveCurr);
         break;
     }
@@ -597,7 +574,7 @@ class TrackballControls with EventDispatcher {
     var position = _pointerPositions[event.pointerId];
 
     if (position == null) {
-      position = new Vector2();
+      position = Vector2();
       _pointerPositions[event.pointerId] = position;
     }
 
@@ -605,9 +582,7 @@ class TrackballControls with EventDispatcher {
   }
 
   getSecondPointerPosition(event) {
-    var pointer = (event.pointerId == _pointers[0].pointerId)
-        ? _pointers[1]
-        : _pointers[0];
+    var pointer = (event.pointerId == _pointers[0].pointerId) ? _pointers[1] : _pointers[0];
 
     return _pointerPositions[pointer.pointerId];
   }

@@ -86,8 +86,7 @@ class TransformControlsPlane extends Mesh {
 
   late TransformControls controls;
 
-  TransformControlsPlane.create(geometry, material)
-      : super(geometry, material) {}
+  TransformControlsPlane.create(geometry, material) : super(geometry, material) {}
 
   factory TransformControlsPlane(controls) {
     var geometry = PlaneGeometry(100000, 100000, 2, 2);
@@ -112,15 +111,11 @@ class TransformControlsPlane extends Mesh {
 
     this.position.copy(this.worldPosition);
 
-    if (this.mode == 'scale')
-      space = 'local'; // scale always oriented to local rotation
+    if (this.mode == 'scale') space = 'local'; // scale always oriented to local rotation
 
-    _v1.copy(_unitX).applyQuaternion(
-        space == 'local' ? this.worldQuaternion : _identityQuaternion);
-    _v2.copy(_unitY).applyQuaternion(
-        space == 'local' ? this.worldQuaternion : _identityQuaternion);
-    _v3.copy(_unitZ).applyQuaternion(
-        space == 'local' ? this.worldQuaternion : _identityQuaternion);
+    _v1.copy(_unitX).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
+    _v2.copy(_unitY).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
+    _v3.copy(_unitZ).applyQuaternion(space == 'local' ? this.worldQuaternion : _identityQuaternion);
 
     // Align the plane for current transform mode, axis and space.
 

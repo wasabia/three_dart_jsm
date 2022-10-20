@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ModelViewProjectionNode extends Node {
   late PositionNode position;
@@ -8,17 +9,15 @@ class ModelViewProjectionNode extends Node {
     this.position = position ?? PositionNode();
   }
 
+  @override
   generate([builder, output]) {
     var position = this.position;
 
-    var mvpMatrix = new OperatorNode(
-        '*',
-        new CameraNode(CameraNode.PROJECTION_MATRIX),
-        new ModelNode(ModelNode.VIEW_MATRIX));
-    var mvpNode = new OperatorNode('*', mvpMatrix, position);
+    var mvpMatrix = OperatorNode('*', CameraNode(CameraNode.PROJECTION_MATRIX), ModelNode(ModelNode.VIEW_MATRIX));
+    var mvpNode = OperatorNode('*', mvpMatrix, position);
 
-    var _result = mvpNode.build(builder);
+    var result = mvpNode.build(builder);
 
-    return _result;
+    return result;
   }
 }

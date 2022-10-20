@@ -1,7 +1,7 @@
 part of three_webgpu;
 
 class WebGPUTextures {
-  late GPUDevice device;
+  // late GPUDevice device;
   late dynamic properties;
   late WebGPUInfo info;
 
@@ -13,7 +13,7 @@ class WebGPUTextures {
   late dynamic utils;
 
   WebGPUTextures(device, properties, info) {
-    this.device = device;
+    // this.device = device;
     this.properties = properties;
     this.info = info;
 
@@ -21,13 +21,13 @@ class WebGPUTextures {
     this.defaultCubeTexture = null;
     this.defaultSampler = null;
 
-    this.samplerCache = new Map();
+    this.samplerCache = Map();
     this.utils = null;
   }
 
   getDefaultSampler() {
     if (this.defaultSampler == null) {
-      this.defaultSampler = this.device.createSampler();
+      // this.defaultSampler = this.device.createSampler();
     }
 
     return this.defaultSampler;
@@ -35,7 +35,7 @@ class WebGPUTextures {
 
   getDefaultTexture() {
     if (this.defaultTexture == null) {
-      var texture = new Texture(null);
+      var texture = Texture(null);
       texture.minFilter = NearestFilter;
       texture.magFilter = NearestFilter;
 
@@ -49,7 +49,7 @@ class WebGPUTextures {
 
   getDefaultCubeTexture() {
     if (this.defaultCubeTexture == null) {
-      var texture = new CubeTexture(null);
+      var texture = CubeTexture(null);
       texture.minFilter = NearestFilter;
       texture.magFilter = NearestFilter;
 
@@ -82,11 +82,9 @@ class WebGPUTextures {
       var image = texture.image;
 
       if (image == undefined) {
-        console.warn(
-            'THREE.WebGPURenderer: Texture marked for update but image is undefined.');
+        console.warn('THREE.WebGPURenderer: Texture marked for update but image is undefined.');
       } else if (image.complete == false) {
-        console.warn(
-            'THREE.WebGPURenderer: Texture marked for update but image is incomplete.');
+        console.warn('THREE.WebGPURenderer: Texture marked for update but image is incomplete.');
       } else {
         // texture init
 
@@ -132,14 +130,14 @@ class WebGPUTextures {
     var samplerGPU = this.samplerCache.get(key);
 
     if (samplerGPU == undefined) {
-      samplerGPU = this.device.createSampler(GPUSamplerDescriptor(
-          addressModeU: this._convertAddressMode(texture.wrapS),
-          addressModeV: this._convertAddressMode(texture.wrapT),
-          addressModeW: this._convertAddressMode(texture.wrapR),
-          magFilter: this._convertFilterMode(texture.magFilter),
-          minFilter: this._convertFilterMode(texture.minFilter),
-          mipmapFilter: this._convertFilterMode(texture.minFilter),
-          maxAnisotropy: texture.anisotropy));
+      // samplerGPU = this.device.createSampler(GPUSamplerDescriptor(
+      //     addressModeU: this._convertAddressMode(texture.wrapS),
+      //     addressModeV: this._convertAddressMode(texture.wrapT),
+      //     addressModeW: this._convertAddressMode(texture.wrapR),
+      //     magFilter: this._convertFilterMode(texture.magFilter),
+      //     minFilter: this._convertFilterMode(texture.minFilter),
+      //     mipmapFilter: this._convertFilterMode(texture.minFilter),
+      //     maxAnisotropy: texture.anisotropy));
 
       this.samplerCache.set(key, samplerGPU);
     }
@@ -153,37 +151,36 @@ class WebGPUTextures {
     var renderTargetProperties = properties.get(renderTarget);
 
     if (renderTargetProperties["initialized"] == undefined) {
-      var device = this.device;
+      // var device = this.device;
 
-      int width = renderTarget.width.toInt();
-      int height = renderTarget.height.toInt();
-      var colorTextureFormat = this._getFormat(renderTarget.texture);
+      // int width = renderTarget.width.toInt();
+      // int height = renderTarget.height.toInt();
+      // var colorTextureFormat = this._getFormat(renderTarget.texture);
 
-      var colorTextureGPU = device.createTexture(GPUTextureDescriptor(
-          size:
-              GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
-          format: colorTextureFormat,
-          sampleCount: renderTarget.samples,
-          usage: GPUTextureUsage.RenderAttachment |
-              GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
+      // var colorTextureGPU = device.createTexture(GPUTextureDescriptor(
+      //     size:
+      //         GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
+      //     format: colorTextureFormat,
+      //     sampleCount: renderTarget.samples,
+      //     usage: GPUTextureUsage.RenderAttachment |
+      //         GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
 
       this.info.memory["textures"]++;
 
-      renderTargetProperties["colorTextureGPU"] = colorTextureGPU;
-      renderTargetProperties["colorTextureFormat"] = colorTextureFormat;
-
+      // renderTargetProperties["colorTextureGPU"] = colorTextureGPU;
+      // renderTargetProperties["colorTextureFormat"] = colorTextureFormat;
 
       print("renderTarget.samples: ${renderTarget.samples} ");
 
       // 多重采样 抗锯齿
-      var colorTextureGPUWithSamples = device.createTexture(GPUTextureDescriptor(
-          size: GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
-          format: colorTextureFormat,
-          sampleCount: renderTarget.samples,
-          usage: GPUTextureUsage.RenderAttachment |
-              GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
+      // var colorTextureGPUWithSamples = device.createTexture(GPUTextureDescriptor(
+      //     size: GPUExtent3D(width: width, height: height, depthOrArrayLayers: 1),
+      //     format: colorTextureFormat,
+      //     sampleCount: renderTarget.samples,
+      //     usage: GPUTextureUsage.RenderAttachment |
+      //         GPUTextureUsage.TextureBinding | GPUTextureUsage.CopySrc));
 
-      renderTargetProperties["colorTextureGPUWithSamples"] = colorTextureGPUWithSamples;
+      // renderTargetProperties["colorTextureGPUWithSamples"] = colorTextureGPUWithSamples;
 
       // When the ".texture" or ".depthTexture" property of a render target is used as a map,
       // the renderer has to find the respective GPUTexture objects to setup the bind groups.
@@ -191,28 +188,27 @@ class WebGPUTextures {
       // target or not, we need the initializedRTT flag.
 
       var textureProperties = properties.get(renderTarget.texture);
-      textureProperties["textureGPU"] = colorTextureGPU;
+      // textureProperties["textureGPU"] = colorTextureGPU;
       textureProperties["initializedRTT"] = false;
 
       if (renderTarget.depthBuffer == true) {
-        var depthTextureFormat =
-            GPUTextureFormat.Depth24PlusStencil8; // @TODO: Make configurable
+        // var depthTextureFormat =
+        //     GPUTextureFormat.Depth24PlusStencil8; // @TODO: Make configurable
 
-        var depthTextureGPU = device.createTexture(GPUTextureDescriptor(
-            size: GPUExtent3D(
-                width: width, height: height, depthOrArrayLayers: 1),
-            format: depthTextureFormat,
-            usage: GPUTextureUsage.RenderAttachment));
+        // var depthTextureGPU = device.createTexture(GPUTextureDescriptor(
+        //     size: GPUExtent3D(
+        //         width: width, height: height, depthOrArrayLayers: 1),
+        //     format: depthTextureFormat,
+        //     usage: GPUTextureUsage.RenderAttachment));
 
         this.info.memory["textures"]++;
 
-        renderTargetProperties["depthTextureGPU"] = depthTextureGPU;
-        renderTargetProperties["depthTextureFormat"] = depthTextureFormat;
+        // renderTargetProperties["depthTextureGPU"] = depthTextureGPU;
+        // renderTargetProperties["depthTextureFormat"] = depthTextureFormat;
 
         if (renderTarget.depthTexture != null) {
-          var depthTextureProperties =
-              properties.get(renderTarget.depthTexture);
-          depthTextureProperties["textureGPU"] = depthTextureGPU;
+          var depthTextureProperties = properties.get(renderTarget.depthTexture);
+          // depthTextureProperties["textureGPU"] = depthTextureGPU;
           depthTextureProperties["initializedRTT"] = false;
         }
       }
@@ -234,415 +230,384 @@ class WebGPUTextures {
     this.samplerCache.clear();
   }
 
-  int _convertAddressMode(value) {
-    var addressMode = GPUAddressMode.ClampToEdge;
+  // int _convertAddressMode(value) {
+  // var addressMode = GPUAddressMode.ClampToEdge;
 
-    if (value == RepeatWrapping) {
-      addressMode = GPUAddressMode.Repeat;
-    } else if (value == MirroredRepeatWrapping) {
-      addressMode = GPUAddressMode.MirrorRepeat;
-    }
+  // if (value == RepeatWrapping) {
+  //   addressMode = GPUAddressMode.Repeat;
+  // } else if (value == MirroredRepeatWrapping) {
+  //   addressMode = GPUAddressMode.MirrorRepeat;
+  // }
 
-    return addressMode;
-  }
+  // return addressMode;
+  // }
 
-  _convertFilterMode(value) {
-    var filterMode = GPUFilterMode.Linear;
+  // _convertFilterMode(value) {
+  //   var filterMode = GPUFilterMode.Linear;
 
-    if (value == NearestFilter ||
-        value == NearestMipmapNearestFilter ||
-        value == NearestMipmapLinearFilter) {
-      filterMode = GPUFilterMode.Nearest;
-    }
+  //   if (value == NearestFilter || value == NearestMipmapNearestFilter || value == NearestMipmapLinearFilter) {
+  //     filterMode = GPUFilterMode.Nearest;
+  //   }
 
-    return filterMode;
-  }
+  //   return filterMode;
+  // }
 
   _uploadTexture(texture) {
     var needsUpdate = false;
 
-    var device = this.device;
-    var image = texture.image;
+    // var device = this.device;
+    // var image = texture.image;
 
-    var textureProperties = this.properties.get(texture);
+    // var textureProperties = this.properties.get(texture);
 
-    var data = this._getSize(texture);
-    var width = data["width"];
-    var height = data["height"];
-    var depth = data["depth"];
-    var needsMipmaps = this._needsMipmaps(texture);
-    var dimension = this._getDimension(texture);
-    var mipLevelCount =
-        this._getMipLevelCount(texture, width, height, needsMipmaps);
-    var format = this._getFormat(texture);
+    // var data = this._getSize(texture);
+    // var width = data["width"];
+    // var height = data["height"];
+    // var depth = data["depth"];
+    // var needsMipmaps = this._needsMipmaps(texture);
+    // var dimension = this._getDimension(texture);
+    // var mipLevelCount = this._getMipLevelCount(texture, width, height, needsMipmaps);
+    // var format = this._getFormat(texture);
 
-    var usage = GPUTextureUsage.TextureBinding | GPUTextureUsage.CopyDst;
+    // var usage = GPUTextureUsage.TextureBinding | GPUTextureUsage.CopyDst;
 
-    if (needsMipmaps == true) {
-      // current mipmap generation requires RENDER_ATTACHMENT
+    // if (needsMipmaps == true) {
+    // current mipmap generation requires RENDER_ATTACHMENT
 
-      usage |= GPUTextureUsage.RenderAttachment;
-    }
+    // usage |= GPUTextureUsage.RenderAttachment;
+    // }
 
-    var textureGPUDescriptor = GPUTextureDescriptor(
-        size: GPUExtent3D(
-          width: width,
-          height: height,
-          depthOrArrayLayers: depth,
-        ),
-        mipLevelCount: mipLevelCount,
-        sampleCount: 1,
-        dimension: dimension,
-        format: format,
-        usage: usage);
+    // var textureGPUDescriptor = GPUTextureDescriptor(
+    //     size: GPUExtent3D(
+    //       width: width,
+    //       height: height,
+    //       depthOrArrayLayers: depth,
+    //     ),
+    //     mipLevelCount: mipLevelCount,
+    //     sampleCount: 1,
+    //     dimension: dimension,
+    //     format: format,
+    //     usage: usage);
 
-    // texture creation
+    // // texture creation
 
-    var textureGPU = textureProperties.textureGPU;
+    // var textureGPU = textureProperties.textureGPU;
 
-    if (textureGPU == undefined) {
-      textureGPU = device.createTexture(textureGPUDescriptor);
-      textureProperties.textureGPU = textureGPU;
+    // if (textureGPU == undefined) {
+    //   textureGPU = device.createTexture(textureGPUDescriptor);
+    //   textureProperties.textureGPU = textureGPU;
 
-      needsUpdate = true;
-    }
+    //   needsUpdate = true;
+    // }
 
     // transfer texture data
 
-    if (texture.isDataTexture ||
-        texture.isDataTexture2DArray ||
-        texture.isDataTexture3D) {
-      this._copyBufferToTexture(image, format, textureGPU);
+    // if (texture.isDataTexture ||
+    //     texture.isDataTexture2DArray ||
+    //     texture.isDataTexture3D) {
+    //   this._copyBufferToTexture(image, format, textureGPU);
 
-      if (needsMipmaps == true)
-        this._generateMipmaps(textureGPU, textureGPUDescriptor);
-    } else if (texture.isCompressedTexture) {
-      this._copyCompressedBufferToTexture(texture.mipmaps, format, textureGPU);
-    } else if (texture.isCubeTexture) {
-      this._copyCubeMapToTexture(image, texture, textureGPU);
-    } else {
-      if (image != undefined) {
-        // assume HTMLImageElement, HTMLCanvasElement or ImageBitmap
+    //   if (needsMipmaps == true)
+    //     this._generateMipmaps(textureGPU, textureGPUDescriptor);
+    // } else if (texture.isCompressedTexture) {
+    //   this._copyCompressedBufferToTexture(texture.mipmaps, format, textureGPU);
+    // } else if (texture.isCubeTexture) {
+    //   this._copyCubeMapToTexture(image, texture, textureGPU);
+    // } else {
+    //   if (image != undefined) {
+    //     // assume HTMLImageElement, HTMLCanvasElement or ImageBitmap
 
-        this._getImageBitmap(image, texture).then((imageBitmap) {
-          this._copyExternalImageToTexture(imageBitmap, textureGPU);
+    //     this._getImageBitmap(image, texture).then((imageBitmap) {
+    //       this._copyExternalImageToTexture(imageBitmap, textureGPU);
 
-          if (needsMipmaps == true)
-            this._generateMipmaps(textureGPU, textureGPUDescriptor);
-        });
-      }
-    }
+    //       if (needsMipmaps == true)
+    //         this._generateMipmaps(textureGPU, textureGPUDescriptor);
+    //     });
+    //   }
+    // }
 
-    textureProperties.version = texture.version;
+    // textureProperties.version = texture.version;
 
     return needsUpdate;
   }
 
-  _copyBufferToTexture(image, format, textureGPU) {
-    // @TODO: Consider to use GPUCommandEncoder.copyBufferToTexture()
-    // @TODO: Consider to support valid buffer layouts with other formats like RGB
+  // _copyBufferToTexture(image, format, textureGPU) {
+  //   // @TODO: Consider to use GPUCommandEncoder.copyBufferToTexture()
+  //   // @TODO: Consider to support valid buffer layouts with other formats like RGB
 
-    var data = image.data;
+  //   var data = image.data;
 
-    var bytesPerTexel = this._getBytesPerTexel(format);
-    var bytesPerRow = Math.ceil(image.width * bytesPerTexel / 256) * 256;
+  //   var bytesPerTexel = this._getBytesPerTexel(format);
+  //   var bytesPerRow = Math.ceil(image.width * bytesPerTexel / 256) * 256;
 
-    this.device.queue.writeTexture(
-        GPUImageCopyTexture(texture: textureGPU, mipLevel: 0),
-        data,
-        GPUTextureDataLayout(offset: 0, bytesPerRow: bytesPerRow),
-        GPUExtent3D(
-            width: image.width,
-            height: image.height,
-            depthOrArrayLayers: (image.depth != undefined) ? image.depth : 1));
-  }
+  //   this.device.queue.writeTexture(
+  //       GPUImageCopyTexture(texture: textureGPU, mipLevel: 0),
+  //       data,
+  //       GPUTextureDataLayout(offset: 0, bytesPerRow: bytesPerRow),
+  //       GPUExtent3D(
+  //           width: image.width,
+  //           height: image.height,
+  //           depthOrArrayLayers: (image.depth != undefined) ? image.depth : 1));
+  // }
 
-  _copyCubeMapToTexture(images, texture, textureGPU) {
-    for (var i = 0; i < images.length; i++) {
-      var image = images[i];
+  // _copyCubeMapToTexture(images, texture, textureGPU) {
+  //   for (var i = 0; i < images.length; i++) {
+  //     var image = images[i];
 
-      this._getImageBitmap(image, texture).then((imageBitmap) {
-        this._copyExternalImageToTexture(
-            imageBitmap, textureGPU, {"x": 0, "y": 0, "z": i});
-      });
-    }
-  }
+  //     this._getImageBitmap(image, texture).then((imageBitmap) {
+  //       this._copyExternalImageToTexture(imageBitmap, textureGPU, {"x": 0, "y": 0, "z": i});
+  //     });
+  //   }
+  // }
 
-  _copyExternalImageToTexture(image, textureGPU, [origin]) {
-    print("_copyExternalImageToTexture .......... ");
-    // origin ??= { "x": 0, "y": 0, "z": 0 };
+  // _copyExternalImageToTexture(image, textureGPU, [origin]) {
+  // print("_copyExternalImageToTexture .......... ");
+  // origin ??= { "x": 0, "y": 0, "z": 0 };
 
-    // this.device.queue.copyExternalImageToTexture(
-    // 	{
-    // 		source: image
-    // 	}, {
-    // 		texture: textureGPU,
-    // 		mipLevel: 0,
-    // 		origin: origin
-    // 	}, {
-    // 		width: image.width,
-    // 		height: image.height,
-    // 		depthOrArrayLayers: 1
-    // 	}
-    // );
-  }
+  // this.device.queue.copyExternalImageToTexture(
+  // 	{
+  // 		source: image
+  // 	}, {
+  // 		texture: textureGPU,
+  // 		mipLevel: 0,
+  // 		origin: origin
+  // 	}, {
+  // 		width: image.width,
+  // 		height: image.height,
+  // 		depthOrArrayLayers: 1
+  // 	}
+  // );
+  // }
 
-  _copyCompressedBufferToTexture(mipmaps, format, textureGPU) {
-    // @TODO: Consider to use GPUCommandEncoder.copyBufferToTexture()
+  // _copyCompressedBufferToTexture(mipmaps, format, textureGPU) {
+  //   // @TODO: Consider to use GPUCommandEncoder.copyBufferToTexture()
 
-    var blockData = this._getBlockData(format);
+  //   var blockData = this._getBlockData(format);
 
-    for (var i = 0; i < mipmaps.length; i++) {
-      var mipmap = mipmaps[i];
+  //   for (var i = 0; i < mipmaps.length; i++) {
+  //     var mipmap = mipmaps[i];
 
-      var width = mipmap.width;
-      var height = mipmap.height;
+  //     var width = mipmap.width;
+  //     var height = mipmap.height;
 
-      int bytesPerRow =
-          (Math.ceil(width / blockData.width) * blockData.byteLength).toInt();
+  //     int bytesPerRow = (Math.ceil(width / blockData.width) * blockData.byteLength).toInt();
 
-      this.device.queue.writeTexture(
-          GPUImageCopyTexture(texture: textureGPU, mipLevel: 1),
-          mipmap.data,
-          GPUTextureDataLayout(offset: 0, bytesPerRow: bytesPerRow),
-          GPUExtent3D(
-            width:
-                (Math.ceil(width / blockData.width) * blockData.width).toInt(),
-            height:
-                (Math.ceil(height / blockData.width) * blockData.width).toInt(),
-            depthOrArrayLayers: 1,
-          ));
-    }
-  }
+  //     this.device.queue.writeTexture(
+  //         GPUImageCopyTexture(texture: textureGPU, mipLevel: 1),
+  //         mipmap.data,
+  //         GPUTextureDataLayout(offset: 0, bytesPerRow: bytesPerRow),
+  //         GPUExtent3D(
+  //           width: (Math.ceil(width / blockData.width) * blockData.width).toInt(),
+  //           height: (Math.ceil(height / blockData.width) * blockData.width).toInt(),
+  //           depthOrArrayLayers: 1,
+  //         ));
+  //   }
+  // }
 
-  _generateMipmaps(textureGPU, textureGPUDescriptor) {
-    if (this.utils == null) {
-      this.utils = new WebGPUTextureUtils(
-          this.device); // only create this helper if necessary
+  // _generateMipmaps(textureGPU, textureGPUDescriptor) {
+  //   if (this.utils == null) {
+  //     this.utils = new WebGPUTextureUtils(this.device); // only create this helper if necessary
 
-    }
+  //   }
 
-    this.utils.generateMipmaps(textureGPU, textureGPUDescriptor);
-  }
+  //   this.utils.generateMipmaps(textureGPU, textureGPUDescriptor);
+  // }
 
-  _getBlockData(format) {
-    // this method is only relevant for compressed texture formats
+//   _getBlockData(format) {
+//     // this method is only relevant for compressed texture formats
 
-    if (format == GPUTextureFormat.BC1RGBAUnorm ||
-        format == GPUTextureFormat.BC1RGBAUnormSRGB)
-      return {"byteLength": 8, "width": 4, "height": 4}; // DXT1
-    if (format == GPUTextureFormat.BC2RGBAUnorm ||
-        format == GPUTextureFormat.BC2RGBAUnormSRGB)
-      return {"byteLength": 16, "width": 4, "height": 4}; // DXT3
-    if (format == GPUTextureFormat.BC3RGBAUnorm ||
-        format == GPUTextureFormat.BC3RGBAUnormSRGB)
-      return {"byteLength": 16, "width": 4, "height": 4}; // DXT5
-    if (format == GPUTextureFormat.BC4RUnorm ||
-        format == GPUTextureFormat.BC4RSNorm)
-      return {"byteLength": 8, "width": 4, "height": 4}; // RGTC1
-    if (format == GPUTextureFormat.BC5RGUnorm ||
-        format == GPUTextureFormat.BC5RGSnorm)
-      return {"byteLength": 16, "width": 4, "height": 4}; // RGTC2
-    if (format == GPUTextureFormat.BC6HRGBUFloat ||
-        format == GPUTextureFormat.BC6HRGBFloat)
-      return {"byteLength": 16, "width": 4, "height": 4}; // BPTC (float)
-    if (format == GPUTextureFormat.BC7RGBAUnorm ||
-        format == GPUTextureFormat.BC7RGBAUnormSRGB)
-      return {"byteLength": 16, "width": 4, "height": 4}; // BPTC (unorm)
-  }
+//     if (format == GPUTextureFormat.BC1RGBAUnorm || format == GPUTextureFormat.BC1RGBAUnormSRGB)
+//       return {"byteLength": 8, "width": 4, "height": 4}; // DXT1
+//     if (format == GPUTextureFormat.BC2RGBAUnorm || format == GPUTextureFormat.BC2RGBAUnormSRGB)
+//       return {"byteLength": 16, "width": 4, "height": 4}; // DXT3
+//     if (format == GPUTextureFormat.BC3RGBAUnorm || format == GPUTextureFormat.BC3RGBAUnormSRGB)
+//       return {"byteLength": 16, "width": 4, "height": 4}; // DXT5
+//     if (format == GPUTextureFormat.BC4RUnorm || format == GPUTextureFormat.BC4RSNorm)
+//       return {"byteLength": 8, "width": 4, "height": 4}; // RGTC1
+//     if (format == GPUTextureFormat.BC5RGUnorm || format == GPUTextureFormat.BC5RGSnorm)
+//       return {"byteLength": 16, "width": 4, "height": 4}; // RGTC2
+//     if (format == GPUTextureFormat.BC6HRGBUFloat || format == GPUTextureFormat.BC6HRGBFloat)
+//       return {"byteLength": 16, "width": 4, "height": 4}; // BPTC (float)
+//     if (format == GPUTextureFormat.BC7RGBAUnorm || format == GPUTextureFormat.BC7RGBAUnormSRGB)
+//       return {"byteLength": 16, "width": 4, "height": 4}; // BPTC (unorm)
+//   }
 
-  _getBytesPerTexel(format) {
-    if (format == GPUTextureFormat.R8Unorm) return 1;
-    if (format == GPUTextureFormat.R16Float) return 2;
-    if (format == GPUTextureFormat.RG8Unorm) return 2;
-    if (format == GPUTextureFormat.RG16Float) return 4;
-    if (format == GPUTextureFormat.R32Float) return 4;
-    if (format == GPUTextureFormat.RGBA8Unorm ||
-        format == GPUTextureFormat.RGBA8UnormSRGB) return 4;
-    if (format == GPUTextureFormat.RG32Float) return 8;
-    if (format == GPUTextureFormat.RGBA16Float) return 8;
-    if (format == GPUTextureFormat.RGBA32Float) return 16;
-  }
+//   _getBytesPerTexel(format) {
+//     if (format == GPUTextureFormat.R8Unorm) return 1;
+//     if (format == GPUTextureFormat.R16Float) return 2;
+//     if (format == GPUTextureFormat.RG8Unorm) return 2;
+//     if (format == GPUTextureFormat.RG16Float) return 4;
+//     if (format == GPUTextureFormat.R32Float) return 4;
+//     if (format == GPUTextureFormat.RGBA8Unorm || format == GPUTextureFormat.RGBA8UnormSRGB) return 4;
+//     if (format == GPUTextureFormat.RG32Float) return 8;
+//     if (format == GPUTextureFormat.RGBA16Float) return 8;
+//     if (format == GPUTextureFormat.RGBA32Float) return 16;
+//   }
 
-  _getDimension(texture) {
-    var dimension;
+//   _getDimension(texture) {
+//     var dimension;
 
-    if (texture.isDataTexture3D) {
-      dimension = GPUTextureDimension.ThreeD;
-    } else {
-      dimension = GPUTextureDimension.TwoD;
-    }
+//     if (texture.isDataTexture3D) {
+//       dimension = GPUTextureDimension.ThreeD;
+//     } else {
+//       dimension = GPUTextureDimension.TwoD;
+//     }
 
-    return dimension;
-  }
+//     return dimension;
+//   }
 
-  _getFormat(texture) {
-    var format = texture.format;
-    var type = texture.type;
-    var encoding = texture.encoding;
+//   _getFormat(texture) {
+//     var format = texture.format;
+//     var type = texture.type;
+//     var encoding = texture.encoding;
 
-    var formatGPU;
+//     var formatGPU;
 
-    switch (format) {
-      case RGBA_S3TC_DXT1_Format:
-        formatGPU = (encoding == sRGBEncoding)
-            ? GPUTextureFormat.BC1RGBAUnormSRGB
-            : GPUTextureFormat.BC1RGBAUnorm;
-        break;
+//     switch (format) {
+//       case RGBA_S3TC_DXT1_Format:
+//         formatGPU = (encoding == sRGBEncoding) ? GPUTextureFormat.BC1RGBAUnormSRGB : GPUTextureFormat.BC1RGBAUnorm;
+//         break;
 
-      case RGBA_S3TC_DXT3_Format:
-        formatGPU = (encoding == sRGBEncoding)
-            ? GPUTextureFormat.BC2RGBAUnormSRGB
-            : GPUTextureFormat.BC2RGBAUnorm;
-        break;
+//       case RGBA_S3TC_DXT3_Format:
+//         formatGPU = (encoding == sRGBEncoding) ? GPUTextureFormat.BC2RGBAUnormSRGB : GPUTextureFormat.BC2RGBAUnorm;
+//         break;
 
-      case RGBA_S3TC_DXT5_Format:
-        formatGPU = (encoding == sRGBEncoding)
-            ? GPUTextureFormat.BC3RGBAUnormSRGB
-            : GPUTextureFormat.BC3RGBAUnorm;
-        break;
+//       case RGBA_S3TC_DXT5_Format:
+//         formatGPU = (encoding == sRGBEncoding) ? GPUTextureFormat.BC3RGBAUnormSRGB : GPUTextureFormat.BC3RGBAUnorm;
+//         break;
 
-      case RGBAFormat:
-        switch (type) {
-          case UnsignedByteType:
-            formatGPU = (encoding == sRGBEncoding)
-                ? GPUTextureFormat.RGBA8UnormSRGB
-                : GPUTextureFormat.RGBA8Unorm;
-            break;
+//       case RGBAFormat:
+//         switch (type) {
+//           case UnsignedByteType:
+//             formatGPU = (encoding == sRGBEncoding) ? GPUTextureFormat.RGBA8UnormSRGB : GPUTextureFormat.RGBA8Unorm;
+//             break;
 
-          case HalfFloatType:
-            formatGPU = GPUTextureFormat.RGBA16Float;
-            break;
+//           case HalfFloatType:
+//             formatGPU = GPUTextureFormat.RGBA16Float;
+//             break;
 
-          case FloatType:
-            formatGPU = GPUTextureFormat.RGBA32Float;
-            break;
+//           case FloatType:
+//             formatGPU = GPUTextureFormat.RGBA32Float;
+//             break;
 
-          default:
-            console.error(
-                'WebGPURenderer: Unsupported texture type with RGBAFormat.',
-                type);
-        }
+//           default:
+//             console.error('WebGPURenderer: Unsupported texture type with RGBAFormat.', type);
+//         }
 
-        break;
+//         break;
 
-      case RedFormat:
-        switch (type) {
-          case UnsignedByteType:
-            formatGPU = GPUTextureFormat.R8Unorm;
-            break;
+//       case RedFormat:
+//         switch (type) {
+//           case UnsignedByteType:
+//             formatGPU = GPUTextureFormat.R8Unorm;
+//             break;
 
-          case HalfFloatType:
-            formatGPU = GPUTextureFormat.R16Float;
-            break;
+//           case HalfFloatType:
+//             formatGPU = GPUTextureFormat.R16Float;
+//             break;
 
-          case FloatType:
-            formatGPU = GPUTextureFormat.R32Float;
-            break;
+//           case FloatType:
+//             formatGPU = GPUTextureFormat.R32Float;
+//             break;
 
-          default:
-            console.error(
-                'WebGPURenderer: Unsupported texture type with RedFormat.',
-                type);
-        }
+//           default:
+//             console.error('WebGPURenderer: Unsupported texture type with RedFormat.', type);
+//         }
 
-        break;
+//         break;
 
-      case RGFormat:
-        switch (type) {
-          case UnsignedByteType:
-            formatGPU = GPUTextureFormat.RG8Unorm;
-            break;
+//       case RGFormat:
+//         switch (type) {
+//           case UnsignedByteType:
+//             formatGPU = GPUTextureFormat.RG8Unorm;
+//             break;
 
-          case HalfFloatType:
-            formatGPU = GPUTextureFormat.RG16Float;
-            break;
+//           case HalfFloatType:
+//             formatGPU = GPUTextureFormat.RG16Float;
+//             break;
 
-          case FloatType:
-            formatGPU = GPUTextureFormat.RG32Float;
-            break;
+//           case FloatType:
+//             formatGPU = GPUTextureFormat.RG32Float;
+//             break;
 
-          default:
-            console.error(
-                'WebGPURenderer: Unsupported texture type with RGFormat.',
-                type);
-        }
+//           default:
+//             console.error('WebGPURenderer: Unsupported texture type with RGFormat.', type);
+//         }
 
-        break;
+//         break;
 
-      default:
-        console.error('WebGPURenderer: Unsupported texture format.', format);
-    }
+//       default:
+//         console.error('WebGPURenderer: Unsupported texture format.', format);
+//     }
 
-    return formatGPU;
-  }
+//     return formatGPU;
+//   }
 
-  _getImageBitmap(image, texture) {
-    var width = image.width;
-    var height = image.height;
+//   _getImageBitmap(image, texture) {
+//     var width = image.width;
+//     var height = image.height;
 
-    // if ( ( typeof HTMLImageElement != 'undefined' && image instanceof HTMLImageElement ) ||
-    // 	( typeof HTMLCanvasElement != 'undefined' && image instanceof HTMLCanvasElement ) ) {
+//     // if ( ( typeof HTMLImageElement != 'undefined' && image instanceof HTMLImageElement ) ||
+//     // 	( typeof HTMLCanvasElement != 'undefined' && image instanceof HTMLCanvasElement ) ) {
 
-    // 	var options = {};
+//     // 	var options = {};
 
-    // 	options.imageOrientation = ( texture.flipY == true ) ? 'flipY' : 'none';
-    // 	options.premultiplyAlpha = ( texture.premultiplyAlpha == true ) ? 'premultiply' : 'default';
+//     // 	options.imageOrientation = ( texture.flipY == true ) ? 'flipY' : 'none';
+//     // 	options.premultiplyAlpha = ( texture.premultiplyAlpha == true ) ? 'premultiply' : 'default';
 
-    // 	return createImageBitmap( image, 0, 0, width, height, options );
+//     // 	return createImageBitmap( image, 0, 0, width, height, options );
 
-    // } else {
+//     // } else {
 
-    // 	// assume ImageBitmap
+//     // 	// assume ImageBitmap
 
-    // 	return Promise.resolve( image );
+//     // 	return Promise.resolve( image );
 
-    // }
-  }
+//     // }
+//   }
 
-  _getMipLevelCount(texture, width, height, needsMipmaps) {
-    var mipLevelCount;
+//   _getMipLevelCount(texture, width, height, needsMipmaps) {
+//     var mipLevelCount;
 
-    if (texture.isCompressedTexture) {
-      mipLevelCount = texture.mipmaps.length;
-    } else if (needsMipmaps == true) {
-      mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
-    } else {
-      mipLevelCount =
-          1; // a texture without mipmaps has a base mip (mipLevel 0)
+//     if (texture.isCompressedTexture) {
+//       mipLevelCount = texture.mipmaps.length;
+//     } else if (needsMipmaps == true) {
+//       mipLevelCount = Math.floor(Math.log2(Math.max(width, height))) + 1;
+//     } else {
+//       mipLevelCount = 1; // a texture without mipmaps has a base mip (mipLevel 0)
 
-    }
+//     }
 
-    return mipLevelCount;
-  }
+//     return mipLevelCount;
+//   }
 
-  _getSize(texture) {
-    var image = texture.image;
+//   _getSize(texture) {
+//     var image = texture.image;
 
-    var width, height, depth;
+//     var width, height, depth;
 
-    if (texture.isCubeTexture) {
-      width = (image.length > 0) ? image[0].width : 1;
-      height = (image.length > 0) ? image[0].height : 1;
-      depth = 6; // one image for each side of the cube map
+//     if (texture.isCubeTexture) {
+//       width = (image.length > 0) ? image[0].width : 1;
+//       height = (image.length > 0) ? image[0].height : 1;
+//       depth = 6; // one image for each side of the cube map
 
-    } else if (image != undefined) {
-      width = image.width;
-      height = image.height;
-      depth = (image.depth != undefined) ? image.depth : 1;
-    } else {
-      width = height = depth = 1;
-    }
+//     } else if (image != undefined) {
+//       width = image.width;
+//       height = image.height;
+//       depth = (image.depth != undefined) ? image.depth : 1;
+//     } else {
+//       width = height = depth = 1;
+//     }
 
-    return {width, height, depth};
-  }
+//     return {width, height, depth};
+//   }
 
-  _needsMipmaps(texture) {
-    return (texture.isCompressedTexture != true) &&
-        (texture.generateMipmaps == true) &&
-        (texture.minFilter != NearestFilter) &&
-        (texture.minFilter != LinearFilter);
-  }
+//   _needsMipmaps(texture) {
+//     return (texture.isCompressedTexture != true) &&
+//         (texture.generateMipmaps == true) &&
+//         (texture.minFilter != NearestFilter) &&
+//         (texture.minFilter != LinearFilter);
+//   }
 }
 
 // function onRenderTargetDispose( event ) {

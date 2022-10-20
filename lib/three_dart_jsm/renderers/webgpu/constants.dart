@@ -1,6 +1,5 @@
 part of three_webgpu;
 
-
 // export const GPUPrimitiveTopology = {
 // 	PointList: 'point-list',
 // 	LineList: 'line-list',

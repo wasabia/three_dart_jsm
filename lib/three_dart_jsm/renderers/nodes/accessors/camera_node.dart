@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class CameraNode extends Object3DNode {
   static const String PROJECTION_MATRIX = 'projectionMatrix';
@@ -12,9 +13,10 @@ class CameraNode extends Object3DNode {
 
   CameraNode([scope = CameraNode.POSITION]) : super(scope) {
     generateLength = 1;
-    this._inputNode = null;
+    _inputNode = null;
   }
 
+  @override
   getNodeType([builder, output]) {
     var scope = this.scope;
 
@@ -25,9 +27,10 @@ class CameraNode extends Object3DNode {
     return super.getNodeType(builder);
   }
 
+  @override
   update([frame]) {
     var camera = frame.camera;
-    var inputNode = this._inputNode;
+    var inputNode = _inputNode;
     var scope = this.scope;
 
     if (scope == CameraNode.PROJECTION_MATRIX) {
@@ -39,11 +42,12 @@ class CameraNode extends Object3DNode {
     }
   }
 
+  @override
   generate([builder, output]) {
     var scope = this.scope;
 
     if (scope == CameraNode.PROJECTION_MATRIX) {
-      this._inputNode = new Matrix4Node(null);
+      _inputNode = Matrix4Node(null);
     }
 
     return super.generate(builder);

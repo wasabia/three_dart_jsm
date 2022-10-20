@@ -1,8 +1,6 @@
 library jsm_curves;
 
 import 'package:three_dart/three_dart.dart';
+import 'nurbs_utils.dart' as NURBSUtils;
 
-import 'NURBSUtils.dart' as NURBSUtils;
-
-
-part 'NURBSCurve.dart';
+part 'nurbs_curve.dart';

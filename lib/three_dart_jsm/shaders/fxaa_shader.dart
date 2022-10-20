@@ -1,16 +1,14 @@
 import 'package:three_dart/three3d/math/index.dart';
 
-/**
- * NVIDIA FXAA by Timothy Lottes
- * http://timothylottes.blogspot.com/2011/06/fxaa3-source-released.html
- * - WebGL port by @supereggbert
- * http://www.glge.org/demos/fxaa/
- */
+/// NVIDIA FXAA by Timothy Lottes
+/// http://timothylottes.blogspot.com/2011/06/fxaa3-source-released.html
+/// - WebGL port by @supereggbert
+/// http://www.glge.org/demos/fxaa/
 
 Map<String, dynamic> FXAAShader = {
   "uniforms": {
     'tDiffuse': {},
-    'resolution': {"value": new Vector2(1 / 1024, 1 / 512)}
+    'resolution': {"value": Vector2(1 / 1024, 1 / 512)}
   },
   "vertexShader": [
     'varying vec2 vUv;',

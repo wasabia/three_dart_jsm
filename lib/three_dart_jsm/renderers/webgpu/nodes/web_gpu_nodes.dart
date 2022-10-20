@@ -8,17 +8,16 @@ class WebGPUNodes {
   WebGPUNodes(renderer) {
     this.renderer = renderer;
 
-    this.nodeFrame = new NodeFrame();
+    this.nodeFrame = NodeFrame();
 
-    this.builders = new WeakMap();
+    this.builders = WeakMap();
   }
 
   get(object, [lightNode]) {
     var nodeBuilder = this.builders.get(object);
 
     if (nodeBuilder == undefined) {
-      nodeBuilder =
-          new WebGPUNodeBuilder(object, this.renderer, lightNode).build();
+      nodeBuilder = WebGPUNodeBuilder(object, this.renderer, lightNode).build();
 
       this.builders.set(object, nodeBuilder);
     }
@@ -52,6 +51,6 @@ class WebGPUNodes {
   }
 
   dispose() {
-    this.builders = new WeakMap();
+    this.builders = WeakMap();
   }
 }

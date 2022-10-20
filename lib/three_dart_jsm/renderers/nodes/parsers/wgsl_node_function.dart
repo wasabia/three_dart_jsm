@@ -1,8 +1,7 @@
-part of renderer_nodes;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
-var declarationRegexp = RegExp(
-    r"^fn\s*([a-z_0-9]+)?\s*\(([\s\S]*?)\)\s*\-\>\s*([a-z_0-9]+)?",
-    caseSensitive: false);
+var declarationRegexp = RegExp(r"^fn\s*([a-z_0-9]+)?\s*\(([\s\S]*?)\)\s*\-\>\s*([a-z_0-9]+)?", caseSensitive: false);
 var propertiesRegexp = RegExp(r"[a-z_0-9]+", caseSensitive: false);
 
 parse(source) {
@@ -40,7 +39,7 @@ parse(source) {
 
     var blockCode = source.substring(declaration[0].length);
 
-    var name = declaration[1] != undefined ? declaration[1] : '';
+    var name = declaration[1] ?? '';
     var type = declaration[3];
 
     return {type, inputs, name, inputsCode, blockCode};
@@ -53,7 +52,7 @@ class WGSLNodeFunction extends NodeFunction {
   late String inputsCode;
   late String blockCode;
 
-  WGSLNodeFunction.create(type, inputs, name) : super(type, inputs, name) {}
+  WGSLNodeFunction.create(type, inputs, name) : super(type, inputs, name);
 
   factory WGSLNodeFunction(source) {
     var data = parse(source);
@@ -71,10 +70,10 @@ class WGSLNodeFunction extends NodeFunction {
     return wnf;
   }
 
+  @override
   getCode([name]) {
     name ??= this.name;
 
-    return """fn ${name} ( ${this.inputsCode.trim()} ) -> ${this.type}""" +
-        this.blockCode;
+    return """fn $name ( ${inputsCode.trim()} ) -> $type$blockCode""";
   }
 }

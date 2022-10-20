@@ -1,19 +1,17 @@
 part of jsm_math;
 
-/**
- * Utility class for sampling weighted random points on the surface of a mesh.
- *
- * Building the sampler is a one-time O(n) operation. Once built, any number of
- * random samples may be selected in O(logn) time. Memory usage is O(n).
- *
- * References:
- * - http://www.joesfer.com/?p=84
- * - https://stackoverflow.com/a/4322940/1314762
- */
+/// Utility class for sampling weighted random points on the surface of a mesh.
+///
+/// Building the sampler is a one-time O(n) operation. Once built, any number of
+/// random samples may be selected in O(logn) time. Memory usage is O(n).
+///
+/// References:
+/// - http://www.joesfer.com/?p=84
+/// - https://stackoverflow.com/a/4322940/1314762
 
 class MeshSurfaceSampler {
-  var _face = new Triangle(null, null, null);
-  var _color = new Vector3.init();
+  var _face = Triangle(null, null, null);
+  var _color = Vector3.init();
 
   late BufferGeometry geometry;
   late Function randomFunction;
@@ -25,14 +23,12 @@ class MeshSurfaceSampler {
   MeshSurfaceSampler(mesh) {
     var geometry = mesh.geometry;
 
-    if (!geometry.isBufferGeometry ||
-        geometry.attributes.position.itemSize != 3) {
+    if (!geometry.isBufferGeometry || geometry.attributes.position.itemSize != 3) {
       throw ('THREE.MeshSurfaceSampler: Requires BufferGeometry triangle mesh.');
     }
 
     if (geometry.index) {
-      print(
-          'THREE.MeshSurfaceSampler: Converting geometry to non-indexed BufferGeometry.');
+      print('THREE.MeshSurfaceSampler: Converting geometry to non-indexed BufferGeometry.');
 
       geometry = geometry.toNonIndexed();
     }
@@ -57,7 +53,7 @@ class MeshSurfaceSampler {
     var positionAttribute = this.positionAttribute;
     var weightAttribute = this.weightAttribute;
 
-    var faceWeights = new Float32Array(positionAttribute.count ~/ 3);
+    var faceWeights = Float32Array(positionAttribute.count ~/ 3);
 
     // Accumulate weights for each mesh face.
 
@@ -81,7 +77,7 @@ class MeshSurfaceSampler {
     // Store cumulative total face weights in an array, where weight index
     // corresponds to face index.
 
-    this.distribution = new Float32Array(positionAttribute.count ~/ 3);
+    this.distribution = Float32Array(positionAttribute.count ~/ 3);
 
     double cumulativeTotal = 0;
 
@@ -104,8 +100,7 @@ class MeshSurfaceSampler {
 
     var faceIndex = this.binarySearch(this.randomFunction() * cumulativeTotal);
 
-    return this
-        .sampleFace(faceIndex, targetPosition, targetNormal, targetColor);
+    return this.sampleFace(faceIndex, targetPosition, targetNormal, targetColor);
   }
 
   binarySearch(x) {
@@ -160,11 +155,7 @@ class MeshSurfaceSampler {
       _face.b.fromBufferAttribute(this.colorAttribute, faceIndex * 3 + 1);
       _face.c.fromBufferAttribute(this.colorAttribute, faceIndex * 3 + 2);
 
-      _color
-          .set(0, 0, 0)
-          .addScaledVector(_face.a, u)
-          .addScaledVector(_face.b, v)
-          .addScaledVector(_face.c, 1 - (u + v));
+      _color.set(0, 0, 0).addScaledVector(_face.a, u).addScaledVector(_face.b, v).addScaledVector(_face.c, 1 - (u + v));
 
       targetColor.r = _color.x;
       targetColor.g = _color.y;

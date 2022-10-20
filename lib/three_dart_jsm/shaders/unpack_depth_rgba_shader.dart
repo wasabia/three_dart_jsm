@@ -1,9 +1,6 @@
-/**
- * Unpack RGBA depth shader
- * - show RGBA encoded depth as monochrome color
- */
-
-Map<String, dynamic> UnpackDepthRGBAShader = {
+/// Unpack RGBA depth shader
+/// - show RGBA encoded depth as monochrome color
+Map<String, dynamic> unpackDepthRGBAShader = {
   "uniforms": {
     'tDiffuse': {},
     'opacity': {"value": 1.0}

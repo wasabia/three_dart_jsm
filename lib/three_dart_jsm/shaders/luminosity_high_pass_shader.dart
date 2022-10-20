@@ -1,9 +1,7 @@
 import 'package:three_dart/three3d/math/index.dart';
 
-/**
- * Luminosity
- * http://en.wikipedia.org/wiki/Luminosity
- */
+/// Luminosity
+/// http://en.wikipedia.org/wiki/Luminosity
 
 Map<String, dynamic> LuminosityHighPassShader = {
   "shaderID": 'luminosityHighPass',

@@ -8,8 +8,7 @@ part of gltf_loader;
 // Spline Interpolation
 // Specification: https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#appendix-c-spline-interpolation
 class GLTFCubicSplineInterpolant extends Interpolant {
-  GLTFCubicSplineInterpolant(
-      parameterPositions, sampleValues, sampleSize, resultBuffer)
+  GLTFCubicSplineInterpolant(parameterPositions, sampleValues, sampleSize, resultBuffer)
       : super(parameterPositions, sampleValues, sampleSize, resultBuffer) {}
 
   copySampleValue(index) {
@@ -62,8 +61,7 @@ class GLTFCubicSplineInterpolant extends Interpolant {
     //   [ inTangent_1, splineVertex_1, outTangent_1, inTangent_2, splineVertex_2, ... ]
     for (var i = 0; i < stride; i++) {
       var p0 = values[offset0 + i + stride]; // splineVertex_k
-      var m0 =
-          values[offset0 + i + stride2] * td; // outTangent_k * (t_k+1 - t_k)
+      var m0 = values[offset0 + i + stride2] * td; // outTangent_k * (t_k+1 - t_k)
       var p1 = values[offset1 + i + stride]; // splineVertex_k+1
       var m1 = values[offset1 + i] * td; // inTangent_k+1 * (t_k+1 - t_k)
 

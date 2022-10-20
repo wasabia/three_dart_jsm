@@ -16,40 +16,13 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
   bool isLineSegmentsGeometry = true;
 
   LineSegmentsGeometry() : super() {
-    List<double> positions = [
-      -1,
-      2,
-      0,
-      1,
-      2,
-      0,
-      -1,
-      1,
-      0,
-      1,
-      1,
-      0,
-      -1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      -1,
-      -1,
-      0,
-      1,
-      -1,
-      0
-    ];
+    List<double> positions = [-1, 2, 0, 1, 2, 0, -1, 1, 0, 1, 1, 0, -1, 0, 0, 1, 0, 0, -1, -1, 0, 1, -1, 0];
     List<double> uvs = [-1, 2, 1, 2, -1, 1, 1, 1, -1, -1, 1, -1, -1, -2, 1, -2];
     List<int> index = [0, 2, 1, 2, 3, 1, 2, 4, 3, 4, 5, 3, 4, 6, 5, 6, 7, 5];
 
     this.setIndex(index);
-    this.setAttribute('position',
-        new Float32BufferAttribute(Float32Array.from(positions), 3, false));
-    this.setAttribute(
-        'uv', new Float32BufferAttribute(Float32Array.from(uvs), 2, false));
+    this.setAttribute('position', Float32BufferAttribute(Float32Array.from(positions), 3, false));
+    this.setAttribute('uv', Float32BufferAttribute(Float32Array.from(uvs), 2, false));
   }
 
   LineSegmentsGeometry applyMatrix4(matrix) {
@@ -84,13 +57,10 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
       lineSegments = Float32Array.from(List<double>.from(array));
     }
 
-    var instanceBuffer =
-        new InstancedInterleavedBuffer(lineSegments, 6, 1); // xyz, xyz
+    var instanceBuffer = InstancedInterleavedBuffer(lineSegments, 6, 1); // xyz, xyz
 
-    this.setAttribute('instanceStart',
-        new InterleavedBufferAttribute(instanceBuffer, 3, 0, false)); // xyz
-    this.setAttribute('instanceEnd',
-        new InterleavedBufferAttribute(instanceBuffer, 3, 3, false)); // xyz
+    this.setAttribute('instanceStart', InterleavedBufferAttribute(instanceBuffer, 3, 0, false)); // xyz
+    this.setAttribute('instanceEnd', InterleavedBufferAttribute(instanceBuffer, 3, 3, false)); // xyz
 
     //
 
@@ -109,17 +79,10 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
       colors = Float32Array.from(List<double>.from(array));
     }
 
-    var instanceColorBuffer =
-        new InstancedInterleavedBuffer(colors, 6, 1); // rgb, rgb
+    var instanceColorBuffer = InstancedInterleavedBuffer(colors, 6, 1); // rgb, rgb
 
-    this.setAttribute(
-        'instanceColorStart',
-        new InterleavedBufferAttribute(
-            instanceColorBuffer, 3, 0, false)); // rgb
-    this.setAttribute(
-        'instanceColorEnd',
-        new InterleavedBufferAttribute(
-            instanceColorBuffer, 3, 3, false)); // rgb
+    this.setAttribute('instanceColorStart', InterleavedBufferAttribute(instanceColorBuffer, 3, 0, false)); // rgb
+    this.setAttribute('instanceColorEnd', InterleavedBufferAttribute(instanceColorBuffer, 3, 3, false)); // rgb
 
     return this;
   }
@@ -137,7 +100,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
   }
 
   fromMesh(mesh) {
-    this.fromWireframeGeometry(new WireframeGeometry(mesh.geometry));
+    this.fromWireframeGeometry(WireframeGeometry(mesh.geometry));
 
     // set colors, maybe
 
@@ -150,8 +113,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
     if (geometry.isGeometry) {
       this.setPositions(geometry.vertices);
     } else if (geometry.isBufferGeometry) {
-      this.setPositions(
-          geometry.attributes.position.array); // assumes non-indexed
+      this.setPositions(geometry.attributes.position.array); // assumes non-indexed
 
     }
 
@@ -161,10 +123,10 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
   }
 
   computeBoundingBox() {
-    var box = new Box3(null, null);
+    var box = Box3(null, null);
 
     if (this.boundingBox == null) {
-      this.boundingBox = new Box3(null, null);
+      this.boundingBox = Box3(null, null);
     }
 
     var start = this.attributes["instanceStart"];
@@ -180,10 +142,10 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
   }
 
   computeBoundingSphere() {
-    var vector = new Vector3.init();
+    var vector = Vector3.init();
 
     if (this.boundingSphere == null) {
-      this.boundingSphere = new Sphere(null, null);
+      this.boundingSphere = Sphere(null, null);
     }
 
     if (this.boundingBox == null) {
@@ -225,8 +187,7 @@ class LineSegmentsGeometry extends InstancedBufferGeometry {
   // }
 
   applyMatrix(matrix) {
-    print(
-        'THREE.LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().');
+    print('THREE.LineSegmentsGeometry: applyMatrix() has been renamed to applyMatrix4().');
 
     return this.applyMatrix4(matrix);
   }

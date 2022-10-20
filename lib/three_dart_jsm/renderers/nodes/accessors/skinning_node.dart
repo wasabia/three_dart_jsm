@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 var Skinning = ShaderNode((inputs, builder) {
   var position = inputs.position;
@@ -18,18 +19,15 @@ var Skinning = ShaderNode((inputs, builder) {
 
   var skinVertex = mul(bindMatrix, position);
 
-  var skinned = add(
-      mul(mul(boneMatX, skinVertex), weight.x),
-      mul(mul(boneMatY, skinVertex), weight.y),
-      mul(mul(boneMatZ, skinVertex), weight.z),
-      mul(mul(boneMatW, skinVertex), weight.w));
+  var skinned = add(mul(mul(boneMatX, skinVertex), weight.x), mul(mul(boneMatY, skinVertex), weight.y),
+      mul(mul(boneMatZ, skinVertex), weight.z), mul(mul(boneMatW, skinVertex), weight.w));
 
   var skinPosition = mul(bindMatrixInverse, skinned).xyz;
 
   // NORMAL
 
-  var skinMatrix = add(mul(weight.x, boneMatX), mul(weight.y, boneMatY),
-      mul(weight.z, boneMatZ), mul(weight.w, boneMatW));
+  var skinMatrix =
+      add(mul(weight.x, boneMatX), mul(weight.y, boneMatY), mul(weight.z, boneMatZ), mul(weight.w, boneMatW));
 
   skinMatrix = mul(mul(bindMatrixInverse, skinMatrix), bindMatrix);
 
@@ -52,42 +50,35 @@ class SkinningNode extends Node {
   SkinningNode(skinnedMesh) : super('void') {
     this.skinnedMesh = skinnedMesh;
 
-    this.updateType = NodeUpdateType.Object;
+    updateType = NodeUpdateType.Object;
 
     //
 
-    this.skinIndexNode = new AttributeNode('skinIndex', 'uvec4');
-    this.skinWeightNode = new AttributeNode('skinWeight', 'vec4');
+    skinIndexNode = AttributeNode('skinIndex', 'uvec4');
+    skinWeightNode = AttributeNode('skinWeight', 'vec4');
 
-    this.bindMatrixNode = new Matrix4Node(skinnedMesh.bindMatrix);
-    this.bindMatrixInverseNode = new Matrix4Node(skinnedMesh.bindMatrixInverse);
-    this.boneMatricesNode = new BufferNode(skinnedMesh.skeleton.boneMatrices,
-        'mat4', skinnedMesh.skeleton.bones.length);
+    bindMatrixNode = Matrix4Node(skinnedMesh.bindMatrix);
+    bindMatrixInverseNode = Matrix4Node(skinnedMesh.bindMatrixInverse);
+    boneMatricesNode = BufferNode(skinnedMesh.skeleton.boneMatrices, 'mat4', skinnedMesh.skeleton.bones.length);
   }
 
+  @override
   generate([builder, output]) {
     // inout nodes
-    var position = new PositionNode(PositionNode.LOCAL);
-    var normal = new NormalNode(NormalNode.LOCAL);
+    var position = PositionNode(PositionNode.LOCAL);
+    var normal = NormalNode(NormalNode.LOCAL);
 
-    var index = this.skinIndexNode;
-    var weight = this.skinWeightNode;
-    var bindMatrix = this.bindMatrixNode;
-    var bindMatrixInverse = this.bindMatrixInverseNode;
-    var boneMatrices = this.boneMatricesNode;
+    var index = skinIndexNode;
+    var weight = skinWeightNode;
+    var bindMatrix = bindMatrixNode;
+    var bindMatrixInverse = bindMatrixInverseNode;
+    var boneMatrices = boneMatricesNode;
 
-    Skinning({
-      position,
-      normal,
-      index,
-      weight,
-      bindMatrix,
-      bindMatrixInverse,
-      boneMatrices
-    }, builder);
+    Skinning({position, normal, index, weight, bindMatrix, bindMatrixInverse, boneMatrices}, builder);
   }
 
+  @override
   update([frame]) {
-    this.skinnedMesh.skeleton.update();
+    skinnedMesh.skeleton.update();
   }
 }

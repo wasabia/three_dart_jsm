@@ -4,17 +4,17 @@ class WebGPUUniformBuffer extends WebGPUBinding {
   late int bytesPerElement;
   late int usage;
   dynamic buffer;
-  GPUBuffer? bufferGPU;
+  // GPUBuffer? bufferGPU;
 
   WebGPUUniformBuffer(name, [buffer]) : super(name) {
     this.bytesPerElement = Float32List.bytesPerElement;
     this.type = GPUBindingType.UniformBuffer;
-    this.visibility = GPUShaderStage.Vertex | GPUShaderStage.Fragment;
+    // this.visibility = GPUShaderStage.Vertex | GPUShaderStage.Fragment;
 
-    this.usage = GPUBufferUsage.Uniform | GPUBufferUsage.Storage | GPUBufferUsage.CopyDst;
+    // this.usage = GPUBufferUsage.Uniform | GPUBufferUsage.Storage | GPUBufferUsage.CopyDst;
 
     this.buffer = buffer;
-    this.bufferGPU = null; // set by the renderer
+    // this.bufferGPU = null; // set by the renderer
   }
 
   getByteLength() {

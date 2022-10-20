@@ -1,4 +1,6 @@
-part of jsm_postprocessing;
+import 'package:three_dart/three_dart.dart';
+import 'package:three_dart_jsm/three_dart_jsm/shaders/index.dart';
+import 'pass.dart';
 
 class DotScreenPass extends Pass {
   DotScreenPass(Vector2? center, num? angle, num? scale) : super() {
@@ -8,33 +10,30 @@ class DotScreenPass extends Pass {
 
     var shader = DotScreenShader;
 
-    this.uniforms = UniformsUtils.clone(shader["uniforms"]);
+    uniforms = UniformsUtils.clone(shader["uniforms"]);
 
-    if (center != null) this.uniforms['center']["value"].copy(center);
-    if (angle != null) this.uniforms['angle']["value"] = angle;
-    if (scale != null) this.uniforms['scale']["value"] = scale;
+    if (center != null) uniforms['center']["value"].copy(center);
+    if (angle != null) uniforms['angle']["value"] = angle;
+    if (scale != null) uniforms['scale']["value"] = scale;
 
-    this.material = new ShaderMaterial({
-      "uniforms": this.uniforms,
-      "vertexShader": shader["vertexShader"],
-      "fragmentShader": shader["fragmentShader"]
-    });
+    material = ShaderMaterial(
+        {"uniforms": uniforms, "vertexShader": shader["vertexShader"], "fragmentShader": shader["fragmentShader"]});
 
-    this.fsQuad = new FullScreenQuad(this.material);
+    fsQuad = FullScreenQuad(material);
   }
 
-  render(renderer, writeBuffer, readBuffer,
-      {num? deltaTime, bool? maskActive}) {
-    this.uniforms['tDiffuse']["value"] = readBuffer.texture;
-    this.uniforms['tSize']["value"].set(readBuffer.width, readBuffer.height);
+  @override
+  render(renderer, writeBuffer, readBuffer, {num? deltaTime, bool? maskActive}) {
+    uniforms['tDiffuse']["value"] = readBuffer.texture;
+    uniforms['tSize']["value"].set(readBuffer.width, readBuffer.height);
 
-    if (this.renderToScreen) {
+    if (renderToScreen) {
       renderer.setRenderTarget(null);
-      this.fsQuad.render(renderer);
+      fsQuad.render(renderer);
     } else {
       renderer.setRenderTarget(writeBuffer);
-      if (this.clear) renderer.clear();
-      this.fsQuad.render(renderer);
+      if (clear) renderer.clear();
+      fsQuad.render(renderer);
     }
   }
 }

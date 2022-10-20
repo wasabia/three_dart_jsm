@@ -9,12 +9,12 @@ var _material_use_pattern = RegExp("^usemtl ");
 // usemap map_name
 var _map_use_pattern = RegExp("^usemap ");
 
-var _vA = new Vector3();
-var _vB = new Vector3();
-var _vC = new Vector3();
+var _vA = Vector3();
+var _vB = Vector3();
+var _vC = Vector3();
 
-var _ab = new Vector3();
-var _cb = new Vector3();
+var _ab = Vector3();
+var _cb = Vector3();
 
 class ParseStateMaterial {
   late dynamic index;
@@ -57,13 +57,7 @@ class ParseStateObject {
   String name = "";
   bool fromDeclaration = false;
   List materials = [];
-  Map<String, dynamic> geometry = {
-    "vertices": [],
-    "normals": [],
-    "colors": [],
-    "uvs": [],
-    "hasUVIndices": false
-  };
+  Map<String, dynamic> geometry = {"vertices": [], "normals": [], "colors": [], "uvs": [], "hasUVIndices": false};
   bool smooth = true;
 
   ParseStateObject(Map<String, dynamic> options) {
@@ -83,9 +77,7 @@ class ParseStateObject {
     var material = ParseStateMaterial({
       "index": this.materials.length,
       "name": name ?? '',
-      "mtllib": (libraries is List && libraries.length > 0
-          ? libraries[libraries.length - 1]
-          : ''),
+      "mtllib": (libraries is List && libraries.length > 0 ? libraries[libraries.length - 1] : ''),
       "smooth": (previous != null ? previous.smooth : this.smooth),
       "groupStart": (previous != null ? previous.groupEnd : 0),
       "groupEnd": -1,
@@ -110,8 +102,7 @@ class ParseStateObject {
     var lastMultiMaterial = this.currentMaterial();
     if (lastMultiMaterial != null && lastMultiMaterial.groupEnd == -1) {
       lastMultiMaterial.groupEnd = this.geometry["vertices"]!.length ~/ 3;
-      lastMultiMaterial.groupCount =
-          lastMultiMaterial.groupEnd - lastMultiMaterial.groupStart;
+      lastMultiMaterial.groupCount = lastMultiMaterial.groupEnd - lastMultiMaterial.groupStart;
       lastMultiMaterial.inherited = false;
     }
 
@@ -126,9 +117,7 @@ class ParseStateObject {
 
     // Guarantee at least one empty material, this makes the creation later more straight forward.
     if (end && this.materials.length == 0) {
-      this
-          .materials
-          .add(ParseStateMaterial({"name": '', "smooth": this.smooth}));
+      this.materials.add(ParseStateMaterial({"name": '', "smooth": this.smooth}));
     }
 
     return lastMultiMaterial;
@@ -162,8 +151,7 @@ class ParserState {
       return;
     }
 
-    var previousMaterial =
-        this.object != null ? this.object!.currentMaterial() : null;
+    var previousMaterial = this.object != null ? this.object!.currentMaterial() : null;
 
     if (this.object != null) {
       this.object!._finalize(true);
@@ -266,10 +254,8 @@ class ParserState {
     var dst = this.object!.geometry["colors"];
 
     if (src.length > a && src[a] != null) dst.addAll([src[a + 0], src[a + 1], src[a + 2]]);
-    if (b != null && src.length > b && src[b] != null)
-      dst.addAll([src[b + 0], src[b + 1], src[b + 2]]);
-    if (c != null && src.length > c && src[c] != null)
-      dst.addAll([src[c + 0], src[c + 1], src[c + 2]]);
+    if (b != null && src.length > b && src[b] != null) dst.addAll([src[b + 0], src[b + 1], src[b + 2]]);
+    if (c != null && src.length > c && src[c] != null) dst.addAll([src[c + 0], src[c + 1], src[c + 2]]);
   }
 
   addUV(a, b, c) {
@@ -388,7 +374,7 @@ class OBJLoader extends Loader {
   load(url, onLoad, [onProgress, onError]) {
     var scope = this;
 
-    var loader = new FileLoader(this.manager);
+    var loader = FileLoader(this.manager);
     loader.setPath(this.path);
     loader.setRequestHeader(this.requestHeader);
     loader.setWithCredentials(this.withCredentials);
@@ -422,7 +408,7 @@ class OBJLoader extends Loader {
   }
 
   parse(text, [String? path, Function? onLoad, Function? onError]) async {
-    var state = new ParserState();
+    var state = ParserState();
 
     if (text.indexOf('\r\n') != -1) {
       // This is faster than String.split with regex that splits on both
@@ -462,17 +448,9 @@ class OBJLoader extends Loader {
 
         switch (data[0]) {
           case 'v':
-            state.vertices.addAll([
-              parseFloat(data[1]),
-              parseFloat(data[2]),
-              parseFloat(data[3])
-            ]);
+            state.vertices.addAll([parseFloat(data[1]), parseFloat(data[2]), parseFloat(data[3])]);
             if (data.length >= 7) {
-              state.colors.addAll([
-                parseFloat(data[4]),
-                parseFloat(data[5]),
-                parseFloat(data[6])
-              ]);
+              state.colors.addAll([parseFloat(data[4]), parseFloat(data[5]), parseFloat(data[6])]);
             } else {
               // if no colors are defined, add placeholders so color and vertex indices match
               state.colors.addAll([]);
@@ -480,11 +458,7 @@ class OBJLoader extends Loader {
 
             break;
           case 'vn':
-            state.normals.addAll([
-              parseFloat(data[1]),
-              parseFloat(data[2]),
-              parseFloat(data[3])
-            ]);
+            state.normals.addAll([parseFloat(data[1]), parseFloat(data[2]), parseFloat(data[3])]);
             break;
           case 'vt':
             state.uvs.addAll([parseFloat(data[1]), parseFloat(data[2])]);
@@ -565,8 +539,7 @@ class OBJLoader extends Loader {
       } else if (_material_use_pattern.hasMatch(line)) {
         // material
 
-        state.object!
-            .startMaterial(line.substring(7).trim(), state.materialLibraries);
+        state.object!.startMaterial(line.substring(7).trim(), state.materialLibraries);
       } else if (_material_library_pattern.hasMatch(line)) {
         // mtl file
 
@@ -575,8 +548,7 @@ class OBJLoader extends Loader {
         // the line is parsed but ignored since the loader assumes textures are defined MTL files
         // (according to https://www.okino.com/conv/imp_wave.htm, 'usemap' is the old-style Wavefront texture reference method)
 
-        print(
-            'THREE.OBJLoader: Rendering identifier "usemap" not supported. Textures must be defined in MTL files.');
+        print('THREE.OBJLoader: Rendering identifier "usemap" not supported. Textures must be defined in MTL files.');
       } else if (lineFirstChar == 's') {
         result = line.split(' ');
 
@@ -620,11 +592,10 @@ class OBJLoader extends Loader {
 
     state.finalize();
 
-    var container = new Group();
+    var container = Group();
     // container.materialLibraries = [].concat( state.materialLibraries );
 
-    var hasPrimitives = !(state.objects.length == 1 &&
-        state.objects[0].geometry["vertices"].length == 0);
+    var hasPrimitives = !(state.objects.length == 1 && state.objects[0].geometry["vertices"].length == 0);
 
     if (hasPrimitives == true) {
       for (var i = 0, l = state.objects.length; i < l; i++) {
@@ -638,25 +609,25 @@ class OBJLoader extends Loader {
         // Skip o/g line declarations that did not follow with any faces
         if (geometry["vertices"].length == 0) continue;
 
-        var buffergeometry = new BufferGeometry();
+        var buffergeometry = BufferGeometry();
 
         buffergeometry.setAttribute(
-            'position', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["vertices"]) ), 3));
+            'position', Float32BufferAttribute(Float32Array.fromList(List<double>.from(geometry["vertices"])), 3));
 
         if (geometry["normals"].length > 0) {
           buffergeometry.setAttribute(
-              'normal', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["normals"]) ), 3));
+              'normal', Float32BufferAttribute(Float32Array.fromList(List<double>.from(geometry["normals"])), 3));
         }
 
         if (geometry["colors"].length > 0) {
           hasVertexColors = true;
           buffergeometry.setAttribute(
-              'color', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["colors"])), 3));
+              'color', Float32BufferAttribute(Float32Array.fromList(List<double>.from(geometry["colors"])), 3));
         }
 
         if (geometry["hasUVIndices"] == true) {
           buffergeometry.setAttribute(
-              'uv', new Float32BufferAttribute(Float32Array.fromList( List<double>.from(geometry["uvs"])), 2));
+              'uv', Float32BufferAttribute(Float32Array.fromList(List<double>.from(geometry["uvs"])), 2));
         }
 
         // Create materials
@@ -665,11 +636,7 @@ class OBJLoader extends Loader {
 
         for (var mi = 0, miLen = materials.length; mi < miLen; mi++) {
           var sourceMaterial = materials[mi];
-          var materialHash = sourceMaterial.name +
-              '_' +
-              "${sourceMaterial.smooth}" +
-              '_' +
-              "${hasVertexColors}";
+          var materialHash = sourceMaterial.name + '_' + "${sourceMaterial.smooth}" + '_' + "${hasVertexColors}";
           var material = state.materials[materialHash];
 
           if (this.materials != null) {
@@ -677,14 +644,13 @@ class OBJLoader extends Loader {
 
             // mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
             if (isLine && material && !(material is LineBasicMaterial)) {
-              var materialLine = new LineBasicMaterial({});
+              var materialLine = LineBasicMaterial({});
               materialLine.copy(material);
               // Material.prototype.copy.call( materialLine, material );
               materialLine.color.copy(material.color);
               material = materialLine;
             } else if (isPoints && material && !(material is PointsMaterial)) {
-              var materialPoints =
-                  new PointsMaterial({"size": 10, "sizeAttenuation": false});
+              var materialPoints = PointsMaterial({"size": 10, "sizeAttenuation": false});
               // Material.prototype.copy.call( materialPoints, material );
               materialPoints.copy(material);
               materialPoints.color.copy(material.color);
@@ -695,12 +661,11 @@ class OBJLoader extends Loader {
 
           if (material == null) {
             if (isLine) {
-              material = new LineBasicMaterial({});
+              material = LineBasicMaterial({});
             } else if (isPoints) {
-              material =
-                  new PointsMaterial({"size": 1, "sizeAttenuation": false});
+              material = PointsMaterial({"size": 1, "sizeAttenuation": false});
             } else {
-              material = new MeshPhongMaterial();
+              material = MeshPhongMaterial();
             }
 
             material.name = sourceMaterial.name;
@@ -719,25 +684,23 @@ class OBJLoader extends Loader {
         if (createdMaterials.length > 1) {
           for (var mi = 0, miLen = materials.length; mi < miLen; mi++) {
             var sourceMaterial = materials[mi];
-            buffergeometry.addGroup(sourceMaterial.groupStart.toInt(),
-                sourceMaterial.groupCount.toInt(),
-                mi);
+            buffergeometry.addGroup(sourceMaterial.groupStart.toInt(), sourceMaterial.groupCount.toInt(), mi);
           }
 
           if (isLine) {
-            mesh = new LineSegments(buffergeometry, createdMaterials);
+            mesh = LineSegments(buffergeometry, createdMaterials);
           } else if (isPoints) {
-            mesh = new Points(buffergeometry, createdMaterials);
+            mesh = Points(buffergeometry, createdMaterials);
           } else {
-            mesh = new Mesh(buffergeometry, createdMaterials);
+            mesh = Mesh(buffergeometry, createdMaterials);
           }
         } else {
           if (isLine) {
-            mesh = new LineSegments(buffergeometry, createdMaterials[0]);
+            mesh = LineSegments(buffergeometry, createdMaterials[0]);
           } else if (isPoints) {
-            mesh = new Points(buffergeometry, createdMaterials[0]);
+            mesh = Points(buffergeometry, createdMaterials[0]);
           } else {
-            mesh = new Mesh(buffergeometry, createdMaterials[0]);
+            mesh = Mesh(buffergeometry, createdMaterials[0]);
           }
         }
 
@@ -749,21 +712,18 @@ class OBJLoader extends Loader {
       // if there is only the default parser state object with no geometry data, interpret data as point cloud
 
       if (state.vertices.length > 0) {
-        var material =
-            new PointsMaterial({"size": 1, "sizeAttenuation": false});
+        var material = PointsMaterial({"size": 1, "sizeAttenuation": false});
 
-        var buffergeometry = new BufferGeometry();
+        var buffergeometry = BufferGeometry();
 
-        buffergeometry.setAttribute(
-            'position', new Float32BufferAttribute(Float32Array.fromList(state.vertices), 3));
+        buffergeometry.setAttribute('position', Float32BufferAttribute(Float32Array.fromList(state.vertices), 3));
 
         if (state.colors.length > 0 && state.colors[0] != null) {
-          buffergeometry.setAttribute(
-              'color', new Float32BufferAttribute(Float32Array.fromList(state.colors), 3));
+          buffergeometry.setAttribute('color', Float32BufferAttribute(Float32Array.fromList(state.colors), 3));
           material.vertexColors = true;
         }
 
-        var points = new Points(buffergeometry, material);
+        var points = Points(buffergeometry, material);
         container.add(points);
       }
     }

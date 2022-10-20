@@ -4,7 +4,7 @@ class WebGPUProperties {
   late WeakMap properties;
 
   WebGPUProperties() {
-    this.properties = new WeakMap();
+    this.properties = WeakMap();
   }
 
   get(object) {
@@ -23,6 +23,6 @@ class WebGPUProperties {
   }
 
   dispose() {
-    this.properties = new WeakMap();
+    this.properties = WeakMap();
   }
 }

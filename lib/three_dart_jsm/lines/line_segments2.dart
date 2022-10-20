@@ -12,15 +12,14 @@ class LineSegments2 extends Mesh {
   computeLineDistances() {
     // for backwards-compatability, but could be a method of LineSegmentsGeometry...
 
-    var start = new Vector3.init();
-    var end = new Vector3.init();
+    var start = Vector3.init();
+    var end = Vector3.init();
 
     var geometry = this.geometry!;
 
     var instanceStart = geometry.attributes["instanceStart"];
     var instanceEnd = geometry.attributes["instanceEnd"];
-    var lineDistances =
-        new Float32Array((2 * instanceStart.data.count).toInt());
+    var lineDistances = Float32Array((2 * instanceStart.data.count).toInt());
 
     for (var i = 0, j = 0, l = instanceStart.data.count; i < l; i++, j += 2) {
       start.fromBufferAttribute(instanceStart, i);
@@ -30,39 +29,30 @@ class LineSegments2 extends Mesh {
       lineDistances[j + 1] = lineDistances[j] + start.distanceTo(end);
     }
 
-    var instanceDistanceBuffer =
-        new InstancedInterleavedBuffer(lineDistances, 2, 1); // d0, d1
+    var instanceDistanceBuffer = InstancedInterleavedBuffer(lineDistances, 2, 1); // d0, d1
 
     geometry.setAttribute(
-        'instanceDistanceStart',
-        new InterleavedBufferAttribute(
-            instanceDistanceBuffer, 1, 0, false)); // d0
-    geometry.setAttribute(
-        'instanceDistanceEnd',
-        new InterleavedBufferAttribute(
-            instanceDistanceBuffer, 1, 1, false)); // d1
+        'instanceDistanceStart', InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0, false)); // d0
+    geometry.setAttribute('instanceDistanceEnd', InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1, false)); // d1
 
     return this;
   }
 
   raycast(Raycaster raycaster, intersects) {
-    var start = new Vector4.init();
-    var end = new Vector4.init();
+    var start = Vector4.init();
+    var end = Vector4.init();
 
-    var ssOrigin = new Vector4.init();
-    var ssOrigin3 = new Vector3.init();
-    var mvMatrix = new Matrix4();
-    var line = new Line3(null, null);
-    var closestPoint = new Vector3.init();
+    var ssOrigin = Vector4.init();
+    var ssOrigin3 = Vector3.init();
+    var mvMatrix = Matrix4();
+    var line = Line3(null, null);
+    var closestPoint = Vector3.init();
 
     if (raycaster.camera == null) {
-      print(
-          'LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
+      print('LineSegments2: "Raycaster.camera" needs to be set in order to raycast against LineSegments2.');
     }
 
-    var threshold = (raycaster.params["Line2"] != null)
-        ? raycaster.params["Line2"].threshold ?? 0
-        : 0;
+    var threshold = (raycaster.params["Line2"] != null) ? raycaster.params["Line2"].threshold ?? 0 : 0;
 
     var ray = raycaster.ray;
     var camera = raycaster.camera;
@@ -155,8 +145,8 @@ class LineSegments2 extends Mesh {
         line.start.applyMatrix4(matrixWorld);
         line.end.applyMatrix4(matrixWorld);
 
-        var pointOnLine = new Vector3.init();
-        var point = new Vector3.init();
+        var pointOnLine = Vector3.init();
+        var point = Vector3.init();
 
         ray.distanceSqToSegment(line.start, line.end, point, pointOnLine);
 

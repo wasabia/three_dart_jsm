@@ -1,12 +1,13 @@
-import 'filesJson.dart';
+import 'files_fson.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
-  Function chooseExample;
+  final Function chooseExample;
 
-  HomePage({Key? key, required this.chooseExample}) : super(key: key);
+  const HomePage({Key? key, required this.chooseExample}) : super(key: key);
 
-  _MyAppState createState() => _MyAppState();
+  @override
+  State<HomePage> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<HomePage> {
@@ -44,24 +45,22 @@ class _MyAppState extends State<HomePage> {
   Widget _buildItem(BuildContext context, int index) {
     var fileName = filesJson[index];
 
-    var assetFile = "assets/screenshots/${fileName}.jpg";
+    var assetFile = "assets/screenshots/$fileName.jpg";
     var name = getName(fileName);
 
     return TextButton(
-        onPressed: () {
-          widget.chooseExample(fileName);
-        },
-        child: Container(
-            child: Column(
-          children: [
-            Container(
-              constraints: BoxConstraints(minHeight: 50),
-              child: Image.asset(assetFile),
-            ),
-            Container(
-              child: Text(name),
-            )
-          ],
-        )));
+      onPressed: () {
+        widget.chooseExample(fileName);
+      },
+      child: Column(
+        children: [
+          Container(
+            constraints: const BoxConstraints(minHeight: 50),
+            child: Image.asset(assetFile),
+          ),
+          Text(name)
+        ],
+      ),
+    );
   }
 }

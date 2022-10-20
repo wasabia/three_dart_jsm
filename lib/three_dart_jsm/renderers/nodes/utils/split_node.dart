@@ -1,48 +1,48 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class SplitNode extends Node {
   late dynamic node;
   late String components;
 
-  SplitNode(node, [components = 'x']) : super() {
+  SplitNode(this.node, [this.components = 'x']) : super() {
     generateLength = 1;
-
-    this.node = node;
-    this.components = components;
   }
 
   getVectorLength() {
-    var vectorLength = this.components.length;
+    var vectorLength = components.length;
 
-    for (var c in this.components.split('')) {
+    for (var c in components.split('')) {
       vectorLength = Math.max(vector.indexOf(c) + 1, vectorLength);
     }
 
     return vectorLength;
   }
 
+  @override
   getNodeType([builder, output]) {
-    return builder.getTypeFromLength(this.components.length);
+    return builder.getTypeFromLength(components.length);
   }
 
+  @override
   generate([builder, output]) {
     var node = this.node;
     var nodeTypeLength = builder.getTypeLength(node.getNodeType(builder));
 
     if (nodeTypeLength > 1) {
-      var type = null;
+      var type;
 
-      var componentsLength = this.getVectorLength();
+      var componentsLength = getVectorLength();
 
       if (componentsLength >= nodeTypeLength) {
         // need expand the input node
 
-        type = builder.getTypeFromLength(this.getVectorLength());
+        type = builder.getTypeFromLength(getVectorLength());
       }
 
       var nodeSnippet = node.build(builder, type);
 
-      return "${nodeSnippet}.${this.components}";
+      return "$nodeSnippet.$components";
     } else {
       // ignore components if node is a float
 

@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ContextNode extends Node {
   late dynamic node;
@@ -9,20 +10,22 @@ class ContextNode extends Node {
     this.context = context ?? {};
   }
 
+  @override
   getNodeType([builder, output]) {
-    return this.node.getNodeType(builder);
+    return node.getNodeType(builder);
   }
 
+  @override
   generate([builder, output]) {
     var previousContext = builder.getContext();
 
-    Map _context = {};
-    _context.addAll(builder.context);
-    _context.addAll(this.context);
+    Map context = {};
+    context.addAll(builder.context);
+    context.addAll(context);
 
-    builder.setContext(_context);
+    builder.setContext(context);
 
-    var snippet = this.node.build(builder, output);
+    var snippet = node.build(builder, output);
 
     builder.setContext(previousContext);
 

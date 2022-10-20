@@ -3,8 +3,7 @@ part of three_webgpu;
 getFloatLength(floatLength) {
   // ensure chunk size alignment (STD140 layout)
 
-  return floatLength +
-      ((GPUChunkSize - (floatLength % GPUChunkSize)) % GPUChunkSize);
+  return floatLength + ((GPUChunkSize - (floatLength % GPUChunkSize)) % GPUChunkSize);
 }
 
 getVectorLength(count, [vectorLength = 4]) {
@@ -18,6 +17,5 @@ getVectorLength(count, [vectorLength = 4]) {
 getStrideLength(vectorLength) {
   var strideLength = 4;
 
-  return vectorLength +
-      ((strideLength - (vectorLength % strideLength)) % strideLength);
+  return vectorLength + ((strideLength - (vectorLength % strideLength)) % strideLength);
 }

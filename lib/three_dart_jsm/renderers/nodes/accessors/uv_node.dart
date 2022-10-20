@@ -1,4 +1,5 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class UVNode extends AttributeNode {
   late int index;
@@ -7,6 +8,7 @@ class UVNode extends AttributeNode {
     this.index = index;
   }
 
+  @override
   getAttributeName(builder) {
     var index = this.index;
 

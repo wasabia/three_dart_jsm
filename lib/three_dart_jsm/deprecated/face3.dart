@@ -15,14 +15,10 @@ class Face3 {
     this.b = b;
     this.c = c;
 
-    this.normal = (normal != null && normal.runtimeType == THREE.Vector3)
-        ? normal
-        : new THREE.Vector3.init();
+    this.normal = (normal != null && normal.runtimeType == THREE.Vector3) ? normal : THREE.Vector3.init();
     this.vertexNormals = normal != null ? normal : [];
 
-    this.color = (color != null && color.runtimeType == THREE.Color)
-        ? color
-        : new THREE.Color(0, 0, 0);
+    this.color = (color != null && color.runtimeType == THREE.Color) ? color : THREE.Color(0, 0, 0);
     this.vertexColors = color != null ? color : [];
 
     this.materialIndex = materialIndex;
@@ -42,15 +38,13 @@ class Face3 {
 
     this.materialIndex = source.materialIndex;
 
-    this.vertexNormals = List<THREE.Vector3>.filled(
-        source.vertexNormals.length, THREE.Vector3.init());
+    this.vertexNormals = List<THREE.Vector3>.filled(source.vertexNormals.length, THREE.Vector3.init());
 
     for (var i = 0, il = source.vertexNormals.length; i < il; i++) {
       this.vertexNormals[i] = source.vertexNormals[i].clone();
     }
 
-    this.vertexColors = List<THREE.Color>.filled(
-        source.vertexColors.length, THREE.Color(0, 0, 0));
+    this.vertexColors = List<THREE.Color>.filled(source.vertexColors.length, THREE.Color(0, 0, 0));
     for (var i = 0, il = source.vertexColors.length; i < il; i++) {
       this.vertexColors[i] = source.vertexColors[i].clone();
     }

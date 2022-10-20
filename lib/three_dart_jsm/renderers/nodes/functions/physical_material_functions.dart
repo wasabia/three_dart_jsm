@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 var getGeometryRoughness = ShaderNode(() {
   var dxy = max(abs(dFdx(normalGeometry)), abs(dFdy(normalGeometry)));
@@ -12,8 +12,7 @@ var getRoughness = ShaderNode((inputs) {
 
   var geometryRoughness = getGeometryRoughness();
 
-  var roughnessFactor = max(roughness,
-      0.0525); // 0.0525 corresponds to the base mip of a 256 cubemap.
+  var roughnessFactor = max(roughness, 0.0525); // 0.0525 corresponds to the base mip of a 256 cubemap.
   roughnessFactor = add(roughnessFactor, geometryRoughness);
   roughnessFactor = min(roughnessFactor, 1.0);
 

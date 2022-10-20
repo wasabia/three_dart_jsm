@@ -1,25 +1,29 @@
-part of renderer_nodes;
+import 'package:three_dart/three3d/math/math.dart';
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class VarNode extends Node {
   late dynamic node;
   String? name;
 
-  VarNode(node, [name = null, nodeType = null]) : super(nodeType) {
+  VarNode(node, [name, nodeType]) : super(nodeType) {
     generateLength = 1;
     this.node = node;
     this.name = name;
   }
 
+  @override
   getHash([builder]) {
-    return this.name ?? super.getHash(builder);
+    return name ?? super.getHash(builder);
   }
 
+  @override
   getNodeType([builder, output]) {
-    return super.getNodeType(builder) ?? this.node.getNodeType(builder);
+    return super.getNodeType(builder) ?? node.getNodeType(builder);
   }
 
+  @override
   generate([builder, output]) {
-    var type = builder.getVectorType(this.getNodeType(builder));
+    var type = builder.getVectorType(getNodeType(builder));
     var node = this.node;
     var name = this.name;
 
@@ -33,19 +37,19 @@ class VarNode extends Node {
 
     var propertyName = builder.getPropertyName(nodeVar);
 
-    builder.addFlowCode("${propertyName} = ${snippet}");
+    builder.addFlowCode("$propertyName = $snippet");
 
     return propertyName;
   }
 
+  @override
   getProperty(String name) {
-    if(name == "xyz") {
-      return this.xyz;
+    if (name == "xyz") {
+      return xyz;
     } else if (name == "w") {
       return w;
     } else {
       return super.getProperty(name);
     }
-    
   }
 }

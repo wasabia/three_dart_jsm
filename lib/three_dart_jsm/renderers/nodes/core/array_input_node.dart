@@ -1,4 +1,4 @@
-part of renderer_nodes;
+import 'package:three_dart_jsm/three_dart_jsm/renderers/nodes/index.dart';
 
 class ArrayInputNode extends InputNode {
   late List nodes;
@@ -8,6 +8,6 @@ class ArrayInputNode extends InputNode {
   }
 
   getNodeType([builder, output]) {
-    return this.nodes[0].getNodeType(builder);
+    return nodes[0].getNodeType(builder);
   }
 }
