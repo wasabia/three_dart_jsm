@@ -1,21 +1,17 @@
-import 'dart:ui';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 class DomLikeListenable extends StatefulWidget {
-  WidgetBuilder builder;
+  final WidgetBuilder builder;
 
   DomLikeListenable({Key? key, required this.builder}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() {
-    return DomLikeListenableState();
-  }
+  State<StatefulWidget> createState() => DomLikeListenableState();
 }
 
 class DomLikeListenableState extends State<DomLikeListenable> {
-  Map<String, List<Function>> _listeners = {};
+  final _listeners = <String, List<Function>>{};
 
   double? _clientWidth;
   double? _clientHeight;
@@ -35,15 +31,15 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   }
 
   void addEventListener(String name, Function callback, [bool flag = false]) {
-    var _cls = _listeners[name] ?? [];
-    _cls.add(callback);
-    _listeners[name] = _cls;
+    var cls = _listeners[name] ?? [];
+    cls.add(callback);
+    _listeners[name] = cls;
   }
 
   void removeEventListener(String name, Function callback, [bool flag = false]) {
-    var _cls = _listeners[name] ?? [];
-    _cls.remove(callback);
-    _listeners[name] = _cls;
+    var cls = _listeners[name] ?? [];
+    cls.remove(callback);
+    _listeners[name] = cls;
   }
 
   @override
@@ -109,12 +105,12 @@ class DomLikeListenableState extends State<DomLikeListenable> {
   }
 
   void emit(String name, event) {
-    var _callbacks = _listeners[name];
-    if (_callbacks != null && _callbacks.length > 0) {
-      var _len = _callbacks.length;
-      for (int i = 0; i < _len; i++) {
-        var _cb = _callbacks[i];
-        _cb(event);
+    var callbacks = _listeners[name];
+    if (callbacks != null && callbacks.isNotEmpty) {
+      var len = callbacks.length;
+      for (int i = 0; i < len; i++) {
+        var cb = callbacks[i];
+        cb(event);
       }
     }
   }
@@ -160,7 +156,7 @@ class WebPointerEvent {
   List<EventTouch> touches = [];
   List<EventTouch> changedTouches = [];
 
-  WebPointerEvent() {}
+  WebPointerEvent();
 
   static String getPointerType(event) {
     return event.kind == PointerDeviceKind.touch ? 'touch' : 'mouse';
@@ -205,42 +201,37 @@ class WebPointerEvent {
       wpe.deltaY = event.scrollDelta.dy;
     }
 
-    if(event is PointerMoveEvent) {
+    if (event is PointerMoveEvent) {
       wpe.movementX = event.delta.dx;
       wpe.movementY = event.delta.dy;
     }
 
+    final EventTouch touch = EventTouch();
+    touch.pointer = event.pointer;
+    touch.pageX = event.position.dx;
+    touch.pageY = event.position.dy;
+    touch.clientX = local.dx;
+    touch.clientY = local.dy;
 
-    final EventTouch _touch = EventTouch();
-    _touch.pointer = event.pointer;
-    _touch.pageX = event.position.dx;
-    _touch.pageY = event.position.dy;
-    _touch.clientX = local.dx;
-    _touch.clientY = local.dy;
-
-    wpe.touches.add( _touch );
-    wpe.changedTouches = [_touch];
+    wpe.touches.add(touch);
+    wpe.changedTouches = [touch];
 
     return wpe;
   }
 
-  factory WebPointerEvent.fromPointerScrollEvent(
-      BuildContext context, PointerScrollEvent event) {
+  factory WebPointerEvent.fromPointerScrollEvent(BuildContext context, PointerScrollEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerDownEvent(
-      BuildContext context, PointerDownEvent event) {
+  factory WebPointerEvent.fromPointerDownEvent(BuildContext context, PointerDownEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerMoveEvent(
-      BuildContext context, PointerMoveEvent event) {
+  factory WebPointerEvent.fromPointerMoveEvent(BuildContext context, PointerMoveEvent event) {
     return convertEvent(context, event);
   }
 
-  factory WebPointerEvent.fromPointerUpEvent(
-      BuildContext context, PointerUpEvent event) {
+  factory WebPointerEvent.fromPointerUpEvent(BuildContext context, PointerUpEvent event) {
     return convertEvent(context, event);
   }
 
@@ -248,8 +239,9 @@ class WebPointerEvent {
     // TODO
   }
 
+  @override
   String toString() {
-    return "pointerId: ${pointerId} button: ${button} pointerType: ${pointerType} clientX: ${clientX} clientY: ${clientY} pageX: ${pageX} pageY: ${pageY} ";
+    return "pointerId: $pointerId button: $button pointerType: $pointerType clientX: $clientX clientY: $clientY pageX: $pageX pageY: $pageY ";
   }
 }
 
@@ -260,6 +252,4 @@ class EventTouch {
 
   num? clientX;
   num? clientY;
-
-
 }

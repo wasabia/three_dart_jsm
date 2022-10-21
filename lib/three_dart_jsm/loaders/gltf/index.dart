@@ -1,17 +1,7 @@
-library gltf_loader;
-
-import 'dart:async';
-import 'dart:convert' as convert;
-import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
-import 'package:image/image.dart' as Image;
-import 'package:flutter_gl/flutter_gl.dart';
-import 'package:three_dart/three_dart.dart';
-
-part './GLTFCubicSplineInterpolant.dart';
-part './GLTFExtensions.dart';
-part './GLTFHelper.dart';
-part './GLTFLoader.dart';
-part './GLTFMeshStandardSGMaterial.dart';
-part './GLTFParser.dart';
-part './GLTFRegistry.dart';
+export 'gltf_cubic_spline_interpolant.dart';
+export 'gltf_extensions.dart';
+export 'gltf_helper.dart';
+export 'gltf_loader.dart';
+export 'gltf_mesh_standard_sg_material.dart';
+export 'gltf_parser.dart';
+export 'gltf_registry.dart';

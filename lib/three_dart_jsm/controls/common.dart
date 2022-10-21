@@ -4,22 +4,22 @@ var _changeEvent = Event({"type": 'change'});
 var _startEvent = Event({'type': 'start'});
 var _endEvent = Event({'type': 'end'});
 
-var Infinity = Math.Infinity;
+var infinity = Math.infinity;
 
-var _euler = new Euler(0, 0, 0, 'YXZ');
-var _vector = new Vector3();
+var _euler = Euler(0, 0, 0, 'YXZ');
+var _vector = Vector3();
 
 var _lockEvent = Event({'type': 'lock'});
 var _unlockEvent = Event({'type': 'unlock'});
 
-var _PI_2 = Math.PI / 2;
+var _pi2 = Math.pi / 2;
 
-var _raycaster = new Raycaster();
+var _raycaster = Raycaster();
 
-var _plane = new Plane();
+var _plane = Plane();
 
-var _pointer = new Vector2();
-var _offset = new Vector3();
-var _intersection = new Vector3();
-var _worldPosition = new Vector3();
-var _inverseMatrix = new Matrix4();
+var _pointer = Vector2();
+var _offset = Vector3();
+var _intersection = Vector3();
+var _worldPosition = Vector3();
+var _inverseMatrix = Matrix4();

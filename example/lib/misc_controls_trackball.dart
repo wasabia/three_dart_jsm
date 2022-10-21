@@ -1,28 +1,26 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
-
-import 'dart:typed_data';
-
-import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_gl/flutter_gl.dart';
 
-import 'package:three_dart/three_dart.dart' as THREE;
-import 'package:three_dart_jsm/three_dart_jsm.dart' as THREE_JSM;
+import 'package:three_dart/three_dart.dart' as three;
+import 'package:three_dart_jsm/three_dart_jsm.dart' as three_jsm;
 
-class misc_controls_trackball extends StatefulWidget {
-  String fileName;
-  misc_controls_trackball({Key? key, required this.fileName}) : super(key: key);
+class MiscControlsTrackball extends StatefulWidget {
+  final String fileName;
+  const MiscControlsTrackball({Key? key, required this.fileName}) : super(key: key);
 
-  _MyAppState createState() => _MyAppState();
+  @override
+  State<MiscControlsTrackball> createState() => _MyAppState();
 }
 
-class _MyAppState extends State<misc_controls_trackball> {
+class _MyAppState extends State<MiscControlsTrackball> {
   late FlutterGlPlugin three3dRender;
-  THREE.WebGLRenderer? renderer;
+  three.WebGLRenderer? renderer;
 
   int? fboId;
   late double width;
@@ -30,25 +28,24 @@ class _MyAppState extends State<misc_controls_trackball> {
 
   Size? screenSize;
 
-  late THREE.Scene scene;
-  late THREE.Camera camera;
-  late THREE.Mesh mesh;
+  late three.Scene scene;
+  late three.Camera camera;
+  late three.Mesh mesh;
 
   double dpr = 1.0;
 
-  var AMOUNT = 4;
+  var amount = 4;
 
   bool verbose = true;
   bool disposed = false;
 
-  late THREE.WebGLRenderTarget renderTarget;
+  late three.WebGLRenderTarget renderTarget;
 
-  dynamic? sourceTexture;
+  dynamic sourceTexture;
 
-  final GlobalKey<THREE_JSM.DomLikeListenableState> _globalKey =
-      GlobalKey<THREE_JSM.DomLikeListenableState>();
+  final GlobalKey<three_jsm.DomLikeListenableState> _globalKey = GlobalKey<three_jsm.DomLikeListenableState>();
 
-  late THREE_JSM.TrackballControls controls;
+  late three_jsm.TrackballControls controls;
 
   @override
   void initState() {
@@ -62,7 +59,7 @@ class _MyAppState extends State<misc_controls_trackball> {
 
     three3dRender = FlutterGlPlugin();
 
-    Map<String, dynamic> _options = {
+    Map<String, dynamic> options = {
       "antialias": true,
       "alpha": false,
       "width": width.toInt(),
@@ -70,12 +67,11 @@ class _MyAppState extends State<misc_controls_trackball> {
       "dpr": dpr
     };
 
-    await three3dRender.initialize(options: _options);
+    await three3dRender.initialize(options: options);
 
     setState(() {});
 
-    // TODO web wait dom ok!!!
-    Future.delayed(Duration(milliseconds: 100), () async {
+    Future.delayed(const Duration(milliseconds: 100), () async {
       await three3dRender.prepareContext();
 
       initScene();
@@ -108,7 +104,7 @@ class _MyAppState extends State<misc_controls_trackball> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        child: Text("render"),
+        child: const Text("render"),
         onPressed: () {
           render();
         },
@@ -119,61 +115,57 @@ class _MyAppState extends State<misc_controls_trackball> {
   Widget _build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          child: Stack(
-            children: [
-              THREE_JSM.DomLikeListenable(
-                  key: _globalKey,
-                  builder: (BuildContext context) {
-                    return Container(
-                        width: width,
-                        height: height,
-                        color: Colors.black,
-                        child: Builder(builder: (BuildContext context) {
-                          if (kIsWeb) {
-                            return three3dRender.isInitialized
-                                ? HtmlElementView(
-                                    viewType:
-                                        three3dRender.textureId!.toString())
-                                : Container();
-                          } else {
-                            return three3dRender.isInitialized
-                                ? Texture(textureId: three3dRender.textureId!)
-                                : Container();
-                          }
-                        }));
-                  }),
-            ],
-          ),
+        Stack(
+          children: [
+            three_jsm.DomLikeListenable(
+                key: _globalKey,
+                builder: (BuildContext context) {
+                  return Container(
+                      width: width,
+                      height: height,
+                      color: Colors.black,
+                      child: Builder(builder: (BuildContext context) {
+                        if (kIsWeb) {
+                          return three3dRender.isInitialized
+                              ? HtmlElementView(viewType: three3dRender.textureId!.toString())
+                              : Container();
+                        } else {
+                          return three3dRender.isInitialized
+                              ? Texture(textureId: three3dRender.textureId!)
+                              : Container();
+                        }
+                      }));
+                }),
+          ],
         ),
       ],
     );
   }
 
   render() {
-    int _t = DateTime.now().millisecondsSinceEpoch;
-    final _gl = three3dRender.gl;
+    int t = DateTime.now().millisecondsSinceEpoch;
+    final gl = three3dRender.gl;
 
     controls.update();
 
     renderer!.render(scene, camera);
 
-    int _t1 = DateTime.now().millisecondsSinceEpoch;
+    int t1 = DateTime.now().millisecondsSinceEpoch;
 
     if (verbose) {
-      print("render cost: ${_t1 - _t} ");
+      print("render cost: ${t1 - t} ");
       print(renderer!.info.memory);
       print(renderer!.info.render);
     }
 
     // 重要 更新纹理之前一定要调用 确保gl程序执行完毕
-    _gl.flush();
+    gl.flush();
 
     // var pixels = _gl.readCurrentPixels(0, 0, 10, 10);
     // print(" --------------pixels............. ");
     // print(pixels);
 
-    if (verbose) print(" render: sourceTexture: ${sourceTexture} ");
+    if (verbose) print(" render: sourceTexture: $sourceTexture ");
 
     if (!kIsWeb) {
       three3dRender.updateTexture(sourceTexture);
@@ -181,26 +173,22 @@ class _MyAppState extends State<misc_controls_trackball> {
   }
 
   initRenderer() {
-    Map<String, dynamic> _options = {
+    Map<String, dynamic> options = {
       "width": width,
       "height": height,
       "gl": three3dRender.gl,
       "antialias": true,
       "canvas": three3dRender.element
     };
-    renderer = THREE.WebGLRenderer(_options);
+    renderer = three.WebGLRenderer(options);
     renderer!.setPixelRatio(dpr);
     renderer!.setSize(width, height, false);
     renderer!.shadowMap.enabled = false;
 
     if (!kIsWeb) {
-      var pars = THREE.WebGLRenderTargetOptions({
-        "minFilter": THREE.LinearFilter,
-        "magFilter": THREE.LinearFilter,
-        "format": THREE.RGBAFormat
-      });
-      renderTarget = THREE.WebGLRenderTarget(
-          (width * dpr).toInt(), (height * dpr).toInt(), pars);
+      var pars = three.WebGLRenderTargetOptions(
+          {"minFilter": three.LinearFilter, "magFilter": three.LinearFilter, "format": three.RGBAFormat});
+      renderTarget = three.WebGLRenderTarget((width * dpr).toInt(), (height * dpr).toInt(), pars);
       renderTarget.samples = 4;
       renderer!.setRenderTarget(renderTarget);
       sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget);
@@ -213,22 +201,17 @@ class _MyAppState extends State<misc_controls_trackball> {
   }
 
   initPage() {
-    var ASPECT_RATIO = width / height;
+    scene = three.Scene();
+    scene.background = three.Color(0xcccccc);
+    scene.fog = three.FogExp2(0xcccccc, 0.002);
 
-    var WIDTH = (width / AMOUNT) * dpr;
-    var HEIGHT = (height / AMOUNT) * dpr;
-
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xcccccc);
-    scene.fog = new THREE.FogExp2(0xcccccc, 0.002);
-
-    camera = new THREE.PerspectiveCamera(60, width / height, 1, 1000);
+    camera = three.PerspectiveCamera(60, width / height, 1, 1000);
     camera.position.set(400, 200, 0);
     camera.lookAt(scene.position);
 
     // controls
 
-    controls = new THREE_JSM.TrackballControls(camera, _globalKey);
+    controls = three_jsm.TrackballControls(camera, _globalKey);
 
     controls.rotateSpeed = 1.0;
     controls.zoomSpeed = 1.2;
@@ -238,15 +221,14 @@ class _MyAppState extends State<misc_controls_trackball> {
 
     // world
 
-    var geometry = new THREE.CylinderGeometry(0, 10, 30, 4, 1);
-    var material =
-        new THREE.MeshPhongMaterial({"color": 0xffffff, "flatShading": true});
+    var geometry = three.CylinderGeometry(0, 10, 30, 4, 1);
+    var material = three.MeshPhongMaterial({"color": 0xffffff, "flatShading": true});
 
     for (var i = 0; i < 500; i++) {
-      var mesh = new THREE.Mesh(geometry, material);
-      mesh.position.x = THREE.Math.random() * 1600 - 800;
+      var mesh = three.Mesh(geometry, material);
+      mesh.position.x = three.Math.random() * 1600 - 800;
       mesh.position.y = 0;
-      mesh.position.z = THREE.Math.random() * 1600 - 800;
+      mesh.position.z = three.Math.random() * 1600 - 800;
       mesh.updateMatrix();
       mesh.matrixAutoUpdate = false;
       scene.add(mesh);
@@ -254,15 +236,15 @@ class _MyAppState extends State<misc_controls_trackball> {
 
     // lights
 
-    var dirLight1 = new THREE.DirectionalLight(0xffffff);
+    var dirLight1 = three.DirectionalLight(0xffffff);
     dirLight1.position.set(1, 1, 1);
     scene.add(dirLight1);
 
-    var dirLight2 = new THREE.DirectionalLight(0x002288);
+    var dirLight2 = three.DirectionalLight(0x002288);
     dirLight2.position.set(-1, -1, -1);
     scene.add(dirLight2);
 
-    var ambientLight = new THREE.AmbientLight(0x222222);
+    var ambientLight = three.AmbientLight(0x222222);
     scene.add(ambientLight);
 
     animate();
@@ -275,7 +257,7 @@ class _MyAppState extends State<misc_controls_trackball> {
 
     render();
 
-    Future.delayed(Duration(milliseconds: 40), () {
+    Future.delayed(const Duration(milliseconds: 40), () {
       animate();
     });
   }

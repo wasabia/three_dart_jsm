@@ -1,6 +1,3 @@
-part of three_webgpu;
-
-
 // export const GPUPrimitiveTopology = {
 // 	PointList: 'point-list',
 // 	LineList: 'line-list',
@@ -224,15 +221,15 @@ part of three_webgpu;
 // };
 
 class GPUBindingType {
-  static String UniformBuffer = 'uniform-buffer';
-  static String StorageBuffer = 'storage-buffer';
-  static String ReadonlyStorageBuffer = 'readonly-storage-buffer';
-  static String Sampler = 'sampler';
-  static String ComparisonSampler = 'comparison-sampler';
-  static String SampledTexture = 'sampled-texture';
-  static String MultisampledTexture = 'multisampled-texture';
-  static String ReadonlyStorageTexture = 'readonly-storage-texture';
-  static String WriteonlyStorageTexture = 'writeonly-storage-texture';
+  static String uniformBuffer = 'uniform-buffer';
+  static String storageBuffer = 'storage-buffer';
+  static String readonlyStorageBuffer = 'readonly-storage-buffer';
+  static String sampler = 'sampler';
+  static String comparisonSampler = 'comparison-sampler';
+  static String sampledTexture = 'sampled-texture';
+  static String multisampledTexture = 'multisampled-texture';
+  static String readonlyStorageTexture = 'readonly-storage-texture';
+  static String writeonlyStorageTexture = 'writeonly-storage-texture';
 }
 
 // export const GPUTextureDimension = {
@@ -242,12 +239,12 @@ class GPUBindingType {
 // };
 
 class GPUTextureViewDimension {
-  static const String OneD = '1d';
-  static const String TwoD = '2d';
-  static const String TwoDArray = '2d-array';
-  static const String Cube = 'cube';
-  static const String CubeArray = 'cube-array';
-  static const String ThreeD = '3d';
+  static const String oneD = '1d';
+  static const String twoD = '2d';
+  static const String twoDArray = '2d-array';
+  static const String cube = 'cube';
+  static const String cubeArray = 'cube-array';
+  static const String threeD = '3d';
 }
 
 // export const GPUInputStepMode = {
@@ -255,9 +252,9 @@ class GPUTextureViewDimension {
 // 	Instance: 'instance'
 // };
 
-const int GPUChunkSize = 16; // size of a chunk in bytes (STD140 layout)
+const int gpuChunkSize = 16; // size of a chunk in bytes (STD140 layout)
 
 // @TODO: Move to src/constants.js
 
-const int BlendColorFactor = 211;
-const int OneMinusBlendColorFactor = 212;
+const int blendColorFactor = 211;
+const int oneMinusBlendColorFactor = 212;
