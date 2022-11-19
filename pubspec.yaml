@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  three_dart: ^0.0.14
+  three_dart: ^0.0.16
   flutter_gl: ^0.0.20
   typr_dart: ^0.0.2
   opentype_dart: ^0.0.1
@@ -22,7 +22,7 @@ dependencies:
 
 # dependency_overrides:
 #   three_dart:
-#     path: ../three_dart
+#     path: ../../three_dart
 
 dev_dependencies:
   flutter_test:

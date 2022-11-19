@@ -8,7 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_gl/flutter_gl.dart';
 import 'package:three_dart/three_dart.dart' as three;
 import 'package:three_dart/three_dart.dart' hide Texture, Color;
-import 'package:three_dart_jsm/three_dart_jsm.dart';
+import 'package:three_dart_jsm/three_dart_jsm.dart' hide State;
 
 class SphereData {
   SphereData({required this.mesh, required this.collider, required this.velocity});
