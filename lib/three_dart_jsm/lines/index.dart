@@ -1,11 +1,5 @@
-library jsm_lines;
-
-import 'package:flutter_gl/flutter_gl.dart';
-import 'package:three_dart/three3d/renderers/shaders/index.dart';
-import 'package:three_dart/three_dart.dart';
-
-part './LineMaterial.dart';
-part './LineSegments2.dart';
-part './Line2.dart';
-part './LineGeometry.dart';
-part './LineSegmentsGeometry.dart';
+export './line_material.dart';
+export './line_segments2.dart';
+export './line2.dart';
+export './line_geometry.dart';
+export './line_segments_geometry.dart';

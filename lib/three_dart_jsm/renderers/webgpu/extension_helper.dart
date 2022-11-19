@@ -1,12 +1,12 @@
-part of three_webgpu;
+import 'package:three_dart/extra/console.dart';
+import 'package:three_dart/three_dart.dart';
 
 extension Matrix4GPU on Matrix4 {
-  @override
   makePerspective(left, right, top, bottom, near, far) {
     console.info(
         'THREE.WebGPURenderer: Modified Matrix4.makePerspective() and Matrix4.makeOrtographic() to work with WebGPU, see https://github.com/mrdoob/three.js/issues/20276.');
 
-    var te = this.elements;
+    var te = elements;
     var x = 2 * near / (right - left);
     var y = 2 * near / (top - bottom);
 
@@ -35,12 +35,11 @@ extension Matrix4GPU on Matrix4 {
     return this;
   }
 
-  @override
   makeOrthographic(left, right, top, bottom, near, far) {
     console.info(
         'THREE.WebGPURenderer: Modified Matrix4.makePerspective() and Matrix4.makeOrtographic() to work with WebGPU, see https://github.com/mrdoob/three.js/issues/20276.');
 
-    var te = this.elements;
+    var te = elements;
     var w = 1.0 / (right - left);
     var h = 1.0 / (top - bottom);
     var p = 1.0 / (far - near);
