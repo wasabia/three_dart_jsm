@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/foundation.dart';
 
 import 'package:three_dart/three_dart.dart' as three;
@@ -28,12 +30,14 @@ class MeshSurfaceSampler {
   MeshSurfaceSampler(mesh) {
     var geometry = mesh.geometry;
 
-    if (!geometry.isBufferGeometry || geometry.attributes.position.itemSize != 3) {
+    if (!geometry.isBufferGeometry ||
+        geometry.attributes.position.itemSize != 3) {
       throw ('THREE.MeshSurfaceSampler: Requires BufferGeometry triangle mesh.');
     }
 
     if (geometry.index) {
-      console.warn('THREE.MeshSurfaceSampler: Converting geometry to non-indexed BufferGeometry.');
+      console.warn(
+          'THREE.MeshSurfaceSampler: Converting geometry to non-indexed BufferGeometry.');
       geometry = geometry.toNonIndexed();
     }
 
@@ -53,13 +57,16 @@ class MeshSurfaceSampler {
   build() {
     var positionAttribute = this.positionAttribute;
     var weightAttribute = this.weightAttribute;
-    var faceWeights = Float32List(positionAttribute.count ~/ 3); // Accumulate weights for each mesh face.
+    var faceWeights = Float32List(
+        positionAttribute.count ~/ 3); // Accumulate weights for each mesh face.
 
     for (int i = 0; i < positionAttribute.count; i += 3) {
       num faceWeight = 1.0;
 
       if (weightAttribute != null) {
-        faceWeight = weightAttribute.getX(i)! + weightAttribute.getX(i + 1)! + weightAttribute.getX(i + 2)!;
+        faceWeight = weightAttribute.getX(i)! +
+            weightAttribute.getX(i + 1)! +
+            weightAttribute.getX(i + 2)!;
       }
 
       if (i < positionAttribute.count) {
@@ -155,7 +162,11 @@ class MeshSurfaceSampler {
 
       _face.c.fromBufferAttribute(colorAttribute, faceIndex * 3 + 2);
 
-      _color.set(0, 0, 0).addScaledVector(_face.a, u).addScaledVector(_face.b, v).addScaledVector(_face.c, 1 - (u + v));
+      _color
+          .set(0, 0, 0)
+          .addScaledVector(_face.a, u)
+          .addScaledVector(_face.b, v)
+          .addScaledVector(_face.c, 1 - (u + v));
 
       targetColor.r = _color.x;
       targetColor.g = _color.y;
