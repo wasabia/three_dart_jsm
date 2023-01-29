@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,8 @@ import 'package:three_dart/three_dart.dart' hide Texture, Color;
 import 'package:three_dart_jsm/three_dart_jsm.dart' hide State;
 
 class SphereData {
-  SphereData({required this.mesh, required this.collider, required this.velocity});
+  SphereData(
+      {required this.mesh, required this.collider, required this.velocity});
 
   Mesh mesh;
   Sphere collider;
@@ -44,7 +46,8 @@ class _TestGamePageState extends State<TestGame> {
   double dpr = 1.0;
   bool verbose = false;
   bool disposed = false;
-  final GlobalKey<DomLikeListenableState> _globalKey = GlobalKey<DomLikeListenableState>();
+  final GlobalKey<DomLikeListenableState> _globalKey =
+      GlobalKey<DomLikeListenableState>();
   dynamic sourceTexture;
 
   int stepsPerFrame = 5;
@@ -153,7 +156,8 @@ class _TestGamePageState extends State<TestGame> {
 
     scene.add(directionalLight);
 
-    GLTFLoader().setPath('assets/models/glb/').load('collision-world.glb', (gltf) {
+    GLTFLoader().setPath('assets/models/glb/').load('collision-world.glb',
+        (gltf) {
       Object3D object = gltf["scene"];
       scene.add(object);
       worldOctree.fromGraphNode(object);
@@ -203,8 +207,10 @@ class _TestGamePageState extends State<TestGame> {
     renderer!.shadowMap.enabled = true;
 
     if (!kIsWeb) {
-      WebGLRenderTargetOptions pars = WebGLRenderTargetOptions({"format": RGBAFormat, "samples": 8});
-      renderTarget = WebGLRenderTarget((width * dpr).toInt(), (height * dpr).toInt(), pars);
+      WebGLRenderTargetOptions pars =
+          WebGLRenderTargetOptions({"format": RGBAFormat, "samples": 8});
+      renderTarget = WebGLRenderTarget(
+          (width * dpr).toInt(), (height * dpr).toInt(), pars);
       renderTarget!.samples = 8;
       renderer!.setRenderTarget(renderTarget);
       sourceTexture = renderer!.getRenderTargetGLTexture(renderTarget!);
@@ -245,20 +251,31 @@ class _TestGamePageState extends State<TestGame> {
 
   void throwBall() {
     double sphereRadius = 0.2;
-    three.IcosahedronGeometry sphereGeometry = three.IcosahedronGeometry(sphereRadius, 5);
-    MeshLambertMaterial sphereMaterial = MeshLambertMaterial({'color': 0xbbbb44});
+    three.IcosahedronGeometry sphereGeometry =
+        three.IcosahedronGeometry(sphereRadius, 5);
+    MeshLambertMaterial sphereMaterial =
+        MeshLambertMaterial({'color': 0xbbbb44});
 
     final Mesh newsphere = Mesh(sphereGeometry, sphereMaterial);
     newsphere.castShadow = true;
     newsphere.receiveShadow = true;
 
     scene.add(newsphere);
-    spheres.add(SphereData(mesh: newsphere, collider: Sphere(Vector3(0, -100, 0), sphereRadius), velocity: Vector3()));
+    spheres.add(SphereData(
+        mesh: newsphere,
+        collider: Sphere(Vector3(0, -100, 0), sphereRadius),
+        velocity: Vector3()));
     SphereData sphere = spheres.last;
     camera.getWorldDirection(playerDirection);
-    sphere.collider.center.copy(playerCollider.end).addScaledVector(playerDirection, playerCollider.radius * 1.5);
+    sphere.collider.center
+        .copy(playerCollider.end)
+        .addScaledVector(playerDirection, playerCollider.radius * 1.5);
     // throw the ball with more force if we hold the button longer, and if we move forward
-    double impulse = 15 + 30 * (1 - Math.exp((mouseTime - DateTime.now().millisecondsSinceEpoch) * 0.001));
+    double impulse = 15 +
+        30 *
+            (1 -
+                Math.exp((mouseTime - DateTime.now().millisecondsSinceEpoch) *
+                    0.001));
     sphere.velocity.copy(playerDirection).multiplyScalar(impulse);
     sphere.velocity.addScaledVector(playerVelocity, 2);
     sphereIdx = (sphereIdx + 1) % spheres.length;
@@ -270,7 +287,8 @@ class _TestGamePageState extends State<TestGame> {
     if (result != null) {
       playerOnFloor = result.normal.y > 0;
       if (!playerOnFloor) {
-        playerVelocity.addScaledVector(result.normal, -result.normal.dot(playerVelocity));
+        playerVelocity.addScaledVector(
+            result.normal, -result.normal.dot(playerVelocity));
       }
       if (result.depth > 0.02) {
         playerCollider.translate(result.normal.multiplyScalar(result.depth));
@@ -294,7 +312,9 @@ class _TestGamePageState extends State<TestGame> {
   }
 
   void playerSphereCollision(SphereData sphere) {
-    Vector3 center = vector1.addVectors(playerCollider.start, playerCollider.end).multiplyScalar(0.5);
+    Vector3 center = vector1
+        .addVectors(playerCollider.start, playerCollider.end)
+        .multiplyScalar(0.5);
     final sphereCenter = sphere.collider.center;
     double r = playerCollider.radius + sphere.collider.radius;
     double r2 = r * r;
@@ -305,8 +325,10 @@ class _TestGamePageState extends State<TestGame> {
       num d2 = point.distanceToSquared(sphereCenter);
       if (d2 < r2) {
         Vector3 normal = vector1.subVectors(point, sphereCenter).normalize();
-        Vector3 v1 = vector2.copy(normal).multiplyScalar(normal.dot(playerVelocity));
-        Vector3 v2 = vector3.copy(normal).multiplyScalar(normal.dot(sphere.velocity));
+        Vector3 v1 =
+            vector2.copy(normal).multiplyScalar(normal.dot(playerVelocity));
+        Vector3 v2 =
+            vector3.copy(normal).multiplyScalar(normal.dot(sphere.velocity));
 
         playerVelocity.add(v2).sub(v1);
         sphere.velocity.add(v1).sub(v2);
@@ -327,9 +349,13 @@ class _TestGamePageState extends State<TestGame> {
         double r2 = r * r;
 
         if (d2 < r2) {
-          Vector3 normal = vector1.subVectors(s1.collider.center, s2.collider.center).normalize();
-          Vector3 v1 = vector2.copy(normal).multiplyScalar(normal.dot(s1.velocity));
-          Vector3 v2 = vector3.copy(normal).multiplyScalar(normal.dot(s2.velocity));
+          Vector3 normal = vector1
+              .subVectors(s1.collider.center, s2.collider.center)
+              .normalize();
+          Vector3 v1 =
+              vector2.copy(normal).multiplyScalar(normal.dot(s1.velocity));
+          Vector3 v2 =
+              vector3.copy(normal).multiplyScalar(normal.dot(s2.velocity));
 
           s1.velocity.add(v2).sub(v1);
           s2.velocity.add(v1).sub(v2);
@@ -348,7 +374,8 @@ class _TestGamePageState extends State<TestGame> {
       sphere.collider.center.addScaledVector(sphere.velocity, deltaTime);
       OctreeData? result = worldOctree.sphereIntersect(sphere.collider);
       if (result != null) {
-        sphere.velocity.addScaledVector(result.normal, -result.normal.dot(sphere.velocity) * 1.5);
+        sphere.velocity.addScaledVector(
+            result.normal, -result.normal.dot(sphere.velocity) * 1.5);
         sphere.collider.center.add(result.normal.multiplyScalar(result.depth));
       } else {
         sphere.velocity.y -= gravity * deltaTime;
@@ -386,16 +413,20 @@ class _TestGamePageState extends State<TestGame> {
     // gives a bit of air control
     double speedDelta = deltaTime * (playerOnFloor ? 25 : 8);
 
-    if (keyStates[LogicalKeyboardKey.keyW]! || keyStates[LogicalKeyboardKey.arrowUp]!) {
+    if (keyStates[LogicalKeyboardKey.keyW]! ||
+        keyStates[LogicalKeyboardKey.arrowUp]!) {
       playerVelocity.add(getForwardVector().multiplyScalar(speedDelta));
     }
-    if (keyStates[LogicalKeyboardKey.keyS]! || keyStates[LogicalKeyboardKey.arrowDown]!) {
+    if (keyStates[LogicalKeyboardKey.keyS]! ||
+        keyStates[LogicalKeyboardKey.arrowDown]!) {
       playerVelocity.add(getForwardVector().multiplyScalar(-speedDelta));
     }
-    if (keyStates[LogicalKeyboardKey.keyA]! || keyStates[LogicalKeyboardKey.arrowLeft]!) {
+    if (keyStates[LogicalKeyboardKey.keyA]! ||
+        keyStates[LogicalKeyboardKey.arrowLeft]!) {
       playerVelocity.add(getSideVector().multiplyScalar(-speedDelta));
     }
-    if (keyStates[LogicalKeyboardKey.keyD]! || keyStates[LogicalKeyboardKey.arrowRight]!) {
+    if (keyStates[LogicalKeyboardKey.keyD]! ||
+        keyStates[LogicalKeyboardKey.arrowRight]!) {
       playerVelocity.add(getSideVector().multiplyScalar(speedDelta));
     }
     if (playerOnFloor) {
@@ -475,7 +506,9 @@ class _TestGamePageState extends State<TestGame> {
                           child: Builder(builder: (BuildContext context) {
                             if (kIsWeb) {
                               return three3dRender.isInitialized
-                                  ? HtmlElementView(viewType: three3dRender.textureId!.toString())
+                                  ? HtmlElementView(
+                                      viewType:
+                                          three3dRender.textureId!.toString())
                                   : Container();
                             } else {
                               return three3dRender.isInitialized

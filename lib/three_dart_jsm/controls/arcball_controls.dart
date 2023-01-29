@@ -172,7 +172,7 @@ class ArcballControls with EventDispatcher {
   Scene? scene;
   dynamic _state;
 
-  ArcballControls(camera, listenableKey, [scene, devicePixelRatio = 1.0]) : super() {
+  ArcballControls(camera, this.listenableKey, [scene, devicePixelRatio = 1.0]) : super() {
     _state = State2.idle;
 
     setCamera(camera);
@@ -1635,7 +1635,9 @@ class ArcballControls with EventDispatcher {
 
   /// Set the camera to be controlled
   /// @param {Camera} camera The virtual camera to be controlled
-  setCamera(camera) {
+  setCamera(externalCamera) {
+    camera = externalCamera;
+
     camera.lookAt(target);
     camera.updateMatrix();
 
@@ -1662,7 +1664,6 @@ class ArcballControls with EventDispatcher {
     _up0.copy(camera.up);
     _upState.copy(camera.up);
 
-    camera = camera;
     camera.updateProjectionMatrix();
 
     //making gizmos
