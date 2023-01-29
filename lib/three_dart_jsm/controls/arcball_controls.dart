@@ -172,7 +172,7 @@ class ArcballControls with EventDispatcher {
   Scene? scene;
   dynamic _state;
 
-  ArcballControls(camera, listenableKey, [scene, devicePixelRatio = 1.0]) : super() {
+  ArcballControls(camera, this.listenableKey, [scene, devicePixelRatio = 1.0]) : super() {
     _state = State2.idle;
 
     setCamera(camera);
